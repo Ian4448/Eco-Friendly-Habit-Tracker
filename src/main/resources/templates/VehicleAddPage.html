@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add Vehicle</title>
+    <link rel="stylesheet" href="styles.css"> <!-- Link to your CSS file -->
+</head>
+
+<body>
+<h1>Add Vehicle</h1>
+<form id="vehicleForm" method="POST" action="/api/vehicles"> <!-- Change action URL if necessary -->
+    <label for="make">Make:</label>
+    <input type="text" id="make" name="make" required>
+
+    <label for="model">Model:</label>
+    <input type="text" id="model" name="model" required>
+
+    <label for="email">User Email:</label>
+    <input type="email" id="email" name="email" required>
+
+    <button type="submit">Add Vehicle</button>
+</form>
+<script>
+    document.getElementById("vehicleForm").onsubmit = function(event) {
+        event.preventDefault(); // Prevent default form submission
+
+        const formData = new FormData(this);
+        const vehicleData = Object.fromEntries(formData); // Convert form data to an object
+
+        fetch('/api/vehicles', { // Adjust the endpoint based on your routing
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(vehicleData)
+        })
+            .then(response => {
+                if (response.ok) {
+                    alert("Vehicle added successfully!");
+                    // Optionally redirect or clear the form
+                } else {
+                    alert("Error adding vehicle.");
+                }
+            })
+            .catch(error => console.error('Error:', error));
+    };
+</script>
+
+</body>
+</html>

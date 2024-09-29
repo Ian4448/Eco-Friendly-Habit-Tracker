@@ -1,3 +1,4 @@
+// User.java
 package com.shellhacks.ije.model;
 
 import jakarta.persistence.*;

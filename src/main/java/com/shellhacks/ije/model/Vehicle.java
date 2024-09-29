@@ -1,3 +1,4 @@
+// Vehicle.java
 package com.shellhacks.ije.model;
 
 import jakarta.persistence.Entity;

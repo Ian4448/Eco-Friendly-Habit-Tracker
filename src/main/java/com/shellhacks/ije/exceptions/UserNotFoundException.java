@@ -1,3 +1,4 @@
+// UserNotFoundException.java
 package com.shellhacks.ije.exceptions;
 
 public class UserNotFoundException extends Exception {
