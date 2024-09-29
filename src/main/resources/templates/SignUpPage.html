@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Create Account</title>
+  <link rel="stylesheet" href="styles.css"> <!-- Link to your CSS file -->
+</head>
+<body>
+  <h1>Sign Up</h1>
+  <form id="signupForm" method="POST" action="/api/users"> <!-- Change action URL if necessary -->
+    <label for="firstName">First Name:</label>
+    <input type="text" id="firstName" name="firstName" required>
+
+    <label for="lastName">Last Name:</label>
+    <input type="text" id="lastName" name="lastName" required>
+
+    <label for="email">Email:</label>
+    <input type="email" id="email" name="email" required>
+
+
+    <label for="city">City:</label>
+    <input type="text" id="city" name="city" required>
+
+    <label for="state">State:</label>
+    <input type="text" id="state" name="state" required>
+
+    <label for="country">Country:</label>
+    <input type="text" id="country" name="country" required>
+
+    <button type="submit">Sign Up</button>
+</form>
+<script>
+  document.getElementById("signupForm").onsubmit = function(event) {
+    event.preventDefault(); // Prevent default form submission
+
+    const formData = new FormData(this);
+    const userData = Object.fromEntries(formData); // Convert form data to an object
+
+    fetch('/api/users', { // Adjust the endpoint based on your routing
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(userData)
+    })
+            .then(response => {
+              if (response.ok) {
+                alert("User registered successfully!");
+                window.location.href = "/vehicle"; // Redirect to vehicle addition page
+              } else {
+                alert("Error registering user.");
+              }
+            })
+            .catch(error => console.error('Error:', error));
+  };
+</script>
+</body>
+</html>
