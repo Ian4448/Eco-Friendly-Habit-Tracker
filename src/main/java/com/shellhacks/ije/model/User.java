@@ -9,12 +9,14 @@ import java.util.List;
 @Getter
 @Setter
 @Entity
+@Table(name = "\"user\"")
 public class User {
     @Id
     private String email;
 
     private String firstName;
     private String lastName;
+    private String password;
 
     @OneToMany
     private List<Vehicle> vehicles;
