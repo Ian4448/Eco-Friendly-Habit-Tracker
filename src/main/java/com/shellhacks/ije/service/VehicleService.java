@@ -56,8 +56,9 @@ public class VehicleService {
         }
     }
 
-    public void calculateFuelEfficiency(Vehicle vehicle) {
-        //Todo: add fuel efficiency calculation.
+    // Emission for a car, bus requires different calculation
+    public double calculateCarbonEmission(Vehicle vehicle, double distance) {
+        return (distance / vehicle.getMpg()) * 264.172;
     }
 
 }
