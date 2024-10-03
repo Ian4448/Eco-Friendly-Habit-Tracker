@@ -24,13 +24,15 @@ public class Vehicle {
 
     private String make;
     private String model;
+    private int mpg;
 
     public Vehicle() {
         // Default constructor
     }
 
-    public Vehicle(String make, String model) {
+    public Vehicle(String make, String model, int mpg) {
         this.make = make;
         this.model = model;
+        this.mpg = mpg;
     }
 }
