@@ -6,6 +6,6 @@ Track daily eco-friendly habits: Easily log activities like recycling, reducing 
 Goal-setting: Set daily, weekly, or monthly goals to maintain sustainable habits.
 Impact reports: View detailed reports on how your habits contribute to reducing your environmental footprint.
 # Tech Stack
-Backend: Java (Spring Boot)
-Frontend: HTML/CSS
-Database: H2 (in-memory)
+Backend: Java (Spring Boot) <br />
+Frontend: HTML/CSS <br />
+Database: H2 (in-memory) <br />
