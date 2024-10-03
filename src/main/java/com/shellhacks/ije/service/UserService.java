@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 @Component
 public class UserService {
@@ -15,6 +16,7 @@ public class UserService {
     private UserDAO userDAO;
 
     public User addUser(User user) {
+        user.setVehicles(new CopyOnWriteArrayList<>()); // empty list of vehicles
         return userDAO.save(user);
     }
 

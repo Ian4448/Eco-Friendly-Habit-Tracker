@@ -5,8 +5,10 @@ import com.shellhacks.ije.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 
 @Controller
 public class UserCreationAPI {
@@ -14,8 +16,17 @@ public class UserCreationAPI {
     private UserService userService;
 
     @PostMapping({"/create", "/create/"})
-    public String createUser(@ModelAttribute User user, Model model) {
+    public String createUser(@RequestBody User user, Model model) {
+        // add the info gpt
+        userService.addUser(user);
         model.addAttribute("user", user);
-        return "creationPage";
+        return "SignUpPage";
+    }
+
+    // Handle the GET request for the form page
+    @GetMapping("/create")
+    public String showCreateForm(Model model) {
+        model.addAttribute("user", new User());
+        return "SignUpPage"; // Name of your HTML form page
     }
 }
