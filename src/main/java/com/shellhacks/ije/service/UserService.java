@@ -4,7 +4,9 @@ package com.shellhacks.ije.service;
 import com.shellhacks.ije.dao.UserDAO;
 import com.shellhacks.ije.exceptions.UserNotFoundException;
 import com.shellhacks.ije.model.User;
+import com.shellhacks.ije.model.UserForm;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -14,6 +16,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
 public class UserService {
     @Autowired
     private UserDAO userDAO;
+    private BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
 
     public User addUser(User user) {
         user.setVehicles(new CopyOnWriteArrayList<>()); // empty list of vehicles
@@ -44,5 +47,10 @@ public class UserService {
 
         // Save the updated user
         return userDAO.save(existingUser);
+    }
+
+    public boolean matchLogin(UserForm userForm) throws UserNotFoundException {
+        String password = encoder.encode(getUserByEmail(userForm.getUsername()).getPassword());
+        return userForm.getPassword().equals(password);
     }
 }

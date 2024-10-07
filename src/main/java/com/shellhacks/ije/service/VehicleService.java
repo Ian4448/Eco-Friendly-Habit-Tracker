@@ -40,6 +40,7 @@ public class VehicleService {
                 existingVehicle.setVehicleId(vehicle.getVehicleId());
                 existingVehicle.setMake(vehicle.getMake());
                 existingVehicle.setModel(vehicle.getModel());
+                existingVehicle.setName(vehicle.getName());
                 existingVehicle.setMpg(vehicle.getMpg());
                 break;
             }

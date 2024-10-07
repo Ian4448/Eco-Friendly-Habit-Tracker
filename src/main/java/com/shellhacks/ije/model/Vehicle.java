@@ -22,17 +22,17 @@ public class Vehicle {
     )
     private UUID vehicleId;
 
-    private String make;
-    private String model;
+    private String make, model, name;
     private int mpg;
 
     public Vehicle() {
         // Default constructor
     }
 
-    public Vehicle(String make, String model, int mpg) {
+    public Vehicle(String make, String model, String name, int mpg) {
         this.make = make;
         this.model = model;
+        this.name = name;
         this.mpg = mpg;
     }
 }

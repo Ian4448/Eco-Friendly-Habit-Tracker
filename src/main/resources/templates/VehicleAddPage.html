@@ -9,15 +9,15 @@
 
 <body>
 <h1>Add Vehicle</h1>
-<form id="vehicleForm" method="POST" action="/api/vehicles"> <!-- Change action URL if necessary -->
+<form id="vehicleForm" method="POST" action="/createVehicle"> <!-- Change action URL if necessary -->
+    <label for="name">Name:</label>
+    <input type="text" id="name" name="name" required>
+
     <label for="make">Make:</label>
     <input type="text" id="make" name="make" required>
 
     <label for="model">Model:</label>
     <input type="text" id="model" name="model" required>
-
-    <label for="email">User Email:</label>
-    <input type="email" id="email" name="email" required>
 
     <button type="submit">Add Vehicle</button>
 </form>
@@ -28,7 +28,7 @@
         const formData = new FormData(this);
         const vehicleData = Object.fromEntries(formData); // Convert form data to an object
 
-        fetch('/api/vehicles', { // Adjust the endpoint based on your routing
+        fetch('/createVehicle', { // Adjust the endpoint based on your routing
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
