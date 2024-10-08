@@ -50,7 +50,7 @@ public class UserService {
     }
 
     public boolean matchLogin(UserForm userForm) throws UserNotFoundException {
-        String password = encoder.encode(getUserByEmail(userForm.getUsername()).getPassword());
-        return userForm.getPassword().equals(password);
+        String encodedPassword = getUserByEmail(userForm.getUsername()).getPassword();
+        return encoder.matches(userForm.getPassword(), encodedPassword);
     }
 }

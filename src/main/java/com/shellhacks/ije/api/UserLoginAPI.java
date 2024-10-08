@@ -8,7 +8,6 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
 
 @Controller
 public class UserLoginAPI {
@@ -29,14 +28,18 @@ public class UserLoginAPI {
         try {
             boolean found = userService.matchLogin(userForm);
             if (found) {
-                // Redirect to home page after successful login
-                return "redirect:/";
+                // Log success and redirect to a test page
+                System.out.println("Login successful for user: " + userForm.getUsername());
+                model.addAttribute("message", "Login successful!");
+
+                return "redirect:/home";
             } else {
                 throw new UserNotFoundException("User not found");
             }
         } catch (UserNotFoundException e) {
             // Add error message to the model
             model.addAttribute("error", "Invalid username or password");
+            System.out.println("Login failed: " + e.getMessage());
             return "loginForm"; // Show login form with error message
         }
     }

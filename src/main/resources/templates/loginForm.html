@@ -42,7 +42,7 @@
         }
 
         /* Input Fields */
-        input[type="email"], input[type="password"] {
+        input[type="text"], input[type="password"] {
             width: calc(100% - 22px); /* Full width minus padding */
             padding: 10px;
             margin-bottom: 15px;
@@ -51,7 +51,7 @@
             box-sizing: border-box;
         }
 
-        input[type="email"]:focus, input[type="password"]:focus {
+        input[type="text"]:focus, input[type="password"]:focus {
             border-color: #81c784;
             outline: none;
         }
@@ -94,9 +94,15 @@
         <h2>Eco-Friendly Sign In</h2>
 
         <form id="signinForm" action="/login" method="post" novalidate>
-            <input type="email" id="email" name="email" placeholder="Email Address" required>
+            <input type="text" id="username" name="username" placeholder="Username" required>
             <input type="password" id="password" name="password" placeholder="Password" required>
-            <p class="error-message" id="errorMessage">Please fill in all fields correctly.</p>
+
+            <!-- Display server-side error if exists -->
+            <p class="error-message" id="serverErrorMessage" th:if="${error}" th:text="${error}"></p>
+
+            <!-- Client-side error placeholder -->
+            <p class="error-message" id="clientErrorMessage">Please fill in all fields.</p>
+
             <button type="submit" class="signin-btn">Sign In</button>
         </form>
 
@@ -107,27 +113,29 @@
 </div>
 
 <script>
-    document.getElementById('signinForm').addEventListener('submit', function(event) {
-        // Clear any previous error message
-        const errorMessage = document.getElementById('errorMessage');
-        errorMessage.style.display = 'none';
-
-        // Validate email and password fields
-        const email = document.getElementById('email').value;
-        const password = document.getElementById('password').value;
-        const emailRegex = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
-
-        if (email === '' || password === '') {
-            event.preventDefault(); // Prevent form submission if validation fails
-            errorMessage.textContent = 'Please fill in all fields.';
-            errorMessage.style.display = 'block';
-        } else if (!emailRegex.test(email)) {
-            event.preventDefault(); // Prevent form submission if validation fails
-            errorMessage.textContent = 'Please enter a valid email address.';
-            errorMessage.style.display = 'block';
+    document.addEventListener('DOMContentLoaded', function () {
+        // Ensure the server-side error message is visible if provided by the backend
+        const serverErrorMessage = document.getElementById('serverErrorMessage');
+        if (serverErrorMessage.textContent.trim() !== '') {
+            serverErrorMessage.style.display = 'block';
         }
-        // If validation passes, the form will submit to the backend normally
-        // The Java backend will handle further validation and authentication
+
+        // Client-side validation logic
+        document.getElementById('signinForm').addEventListener('submit', function (event) {
+            // Clear any previous client-side error message
+            const clientErrorMessage = document.getElementById('clientErrorMessage');
+            clientErrorMessage.style.display = 'none';
+
+            // Validate username and password fields
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+
+            if (username === '' || password === '') {
+                event.preventDefault(); // Prevent form submission if validation fails
+                clientErrorMessage.textContent = 'Please fill in all fields.';
+                clientErrorMessage.style.display = 'block';
+            }
+        });
     });
 </script>
 
