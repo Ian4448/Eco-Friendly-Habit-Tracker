@@ -79,6 +79,31 @@
             display: none;
         }
 
+        /* Show Password Toggle Styling - aligned right and under password */
+        .show-password-container {
+            display: flex;
+            align-items: center;
+            justify-content: flex-end; /* Align to the right */
+            font-size: 0.9em;
+            color: #2e7d32;
+            user-select: none;
+            margin-top: -10px; /* Pull it closer to the input */
+            margin-bottom: 15px; /* Add space below it */
+            padding-right: 13px;
+        }
+
+        .show-password-container input[type="checkbox"] {
+            margin-right: 8px;
+            width: 14px;
+            height: 14px;
+            cursor: pointer;
+        }
+
+        .show-password-container label {
+            cursor: pointer;
+        }
+
+
         /* Eco-friendly Illustration */
         .eco-illustration {
             margin-top: 1rem;
@@ -96,6 +121,12 @@
         <form id="signinForm" action="/login" method="post" novalidate>
             <input type="text" id="username" name="username" placeholder="Username" required>
             <input type="password" id="password" name="password" placeholder="Password" required>
+
+            <!-- Show Password Toggle Below Password Field -->
+            <div class="show-password-container">
+                <input type="checkbox" id="showPasswordCheckbox">
+                <label for="showPasswordCheckbox">Show Password</label>
+            </div>
 
             <!-- Display server-side error if exists -->
             <p class="error-message" id="serverErrorMessage" th:if="${error}" th:text="${error}"></p>
@@ -134,6 +165,16 @@
                 event.preventDefault(); // Prevent form submission if validation fails
                 clientErrorMessage.textContent = 'Please fill in all fields.';
                 clientErrorMessage.style.display = 'block';
+            }
+        });
+
+        // Toggle password visibility
+        document.getElementById('showPasswordCheckbox').addEventListener('change', function () {
+            const passwordInput = document.getElementById('password');
+            if (this.checked) {
+                passwordInput.type = 'text'; // Show password
+            } else {
+                passwordInput.type = 'password'; // Hide password
             }
         });
     });

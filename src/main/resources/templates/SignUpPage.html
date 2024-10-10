@@ -90,6 +90,34 @@
       text-decoration: underline;
     }
 
+    /* Show Password Toggle Styling - keep both checkbox and text on the right */
+    .show-password-container {
+      display: flex;
+      align-items: center;
+      justify-content: flex-end; /* Align both to the right */
+      font-size: 0.8em; /* Make text smaller */
+      color: #2e7d32;
+      user-select: none;
+      margin-bottom: 20px; /* Add space below */
+    }
+
+    .show-password-container input[type="checkbox"] {
+      margin-bottom: 7px;
+      margin-left: 5px;
+      margin-right: 8px; /* Space between checkbox and text */
+      width: 12px; /* Smaller checkbox */
+      height: 12px;
+      cursor: pointer;
+    }
+
+    .show-password-container label {
+      cursor: pointer;
+      position: relative;
+      top: 2px; /* Slightly lower the label for better alignment with the checkbox */
+    }
+
+
+
     @media (max-width: 600px) {
       form {
         padding: 20px;
@@ -112,6 +140,12 @@
 
   <label for="email">Email:</label>
   <input type="email" id="email" name="email" placeholder="john.doe@example.com" required>
+
+  <!-- Show Password Checkbox (Under Email and Right-Aligned) -->
+  <div class="show-password-container">
+    <label for="showPasswordCheckbox">Show Password</label>
+    <input type="checkbox" id="showPasswordCheckbox">
+  </div>
 
   <button type="submit">Sign Up</button>
 
@@ -144,6 +178,16 @@
             })
             .catch(error => console.error('Error:', error));
   };
+
+  // Show/Hide Password Functionality
+  document.getElementById('showPasswordCheckbox').addEventListener('change', function () {
+    const passwordInput = document.getElementById('password');
+    if (this.checked) {
+      passwordInput.type = 'text'; // Show password
+    } else {
+      passwordInput.type = 'password'; // Hide password
+    }
+  });
 </script>
 </body>
 
