@@ -116,8 +116,6 @@
       top: 2px; /* Slightly lower the label for better alignment with the checkbox */
     }
 
-
-
     @media (max-width: 600px) {
       form {
         padding: 20px;
@@ -127,7 +125,9 @@
 </head>
 
 <body>
+
 <h1>Create Your Account</h1>
+
 <form id="signupForm" method="POST" action="/create">
   <label for="firstName">First Name:</label>
   <input type="text" id="firstName" name="firstName" placeholder="John" required>
@@ -135,11 +135,11 @@
   <label for="lastName">Last Name:</label>
   <input type="text" id="lastName" name="lastName" placeholder="Doe" required>
 
-  <label for="password">Password:</label>
-  <input type="password" id="password" name="password" placeholder="Password" required>
-
   <label for="email">Email:</label>
   <input type="email" id="email" name="email" placeholder="john.doe@example.com" required>
+
+  <label for="password">Password:</label>
+  <input type="password" id="password" name="password" placeholder="Password" required>
 
   <!-- Show Password Checkbox (Under Email and Right-Aligned) -->
   <div class="show-password-container">
@@ -155,40 +155,78 @@
 </form>
 
 <script>
-  document.getElementById("signupForm").onsubmit = function (event) {
-    event.preventDefault(); // Prevent default form submission
+  // Wait for the DOM to fully load before running the script
+  document.addEventListener("DOMContentLoaded", function () {
+    const signupForm = document.getElementById("signupForm");
 
-    const formData = new FormData(this);
-    const userData = Object.fromEntries(formData); // Convert form data to an object
+    // Handle form submission and validation
+    signupForm.addEventListener("submit", function (event) {
+      event.preventDefault(); // Prevent default form submission
 
-    fetch('/create', { // Adjust the endpoint based on your routing
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(userData)
-    })
-            .then(response => {
-              if (response.ok) {
-                alert("User registered successfully!");
-                window.location.href = "/vehicle"; // Redirect to another page
-              } else {
-                alert("Error registering user.");
-              }
-            })
-            .catch(error => console.error('Error:', error));
-  };
+      const firstName = document.getElementById("firstName").value.trim();
+      const lastName = document.getElementById("lastName").value.trim();
+      const email = document.getElementById("email").value.trim();
+      const password = document.getElementById("password").value.trim();
 
-  // Show/Hide Password Functionality
-  document.getElementById('showPasswordCheckbox').addEventListener('change', function () {
-    const passwordInput = document.getElementById('password');
-    if (this.checked) {
-      passwordInput.type = 'text'; // Show password
-    } else {
-      passwordInput.type = 'password'; // Hide password
+      // Validate that names don't contain special characters
+      if (!isValidName(firstName) || !isValidName(lastName)) {
+        alert("Names must only contain letters and spaces.");
+        return;
+      }
+
+      if (email === "" || password === "") {
+        alert("Please fill in all fields.");
+        return;
+      }
+
+      // Validate email format
+      if (!validateEmail(email)) {
+        alert("Please enter a valid email address.");
+        return;
+      }
+
+      // Simulate a form submission via fetch
+      const userData = { firstName, lastName, email, password };
+
+      fetch('/create', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(userData)
+      })
+              .then(response => {
+                if (response.ok) {
+                  alert("User registered successfully!");
+                  window.location.href = "/vehicle"; // Redirect to another page
+                } else {
+                  alert("Error registering user.");
+                }
+              })
+              .catch(error => {
+                console.error("Error:", error);
+              });
+    });
+
+    // Name validation: only letters and spaces are allowed
+    function isValidName(name) {
+      const namePattern = /^[a-zA-Z\s]+$/;
+      return namePattern.test(name);
     }
+
+    // Validate email format
+    function validateEmail(email) {
+      const emailPattern = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,6}$/;
+      return emailPattern.test(email);
+    }
+
+    // Toggle password visibility
+    document.getElementById("showPasswordCheckbox").addEventListener("change", function () {
+      const passwordInput = document.getElementById("password");
+      passwordInput.type = this.checked ? "text" : "password"; // Show or hide password
+    });
   });
 </script>
-</body>
 
+</body>
 </html>
