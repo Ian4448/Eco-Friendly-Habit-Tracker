@@ -1,15 +1,111 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Add Vehicle</title>
-    <link rel="stylesheet" href="../static/styles.css"> <!-- Link too your CSS file -->
+    <link rel="stylesheet" href="../static/styles.css"> <!-- Link to your CSS file -->
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f8f5;
+            color: #333;
+            margin: 0;
+            padding: 0;
+        }
+
+        h1 {
+            text-align: center;
+            color: #2e8b57;
+            margin-top: 20px;
+        }
+
+        form {
+            max-width: 600px;
+            margin: 20px auto;
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+        }
+
+        input[type="text"] {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 15px;
+            border-radius: 4px;
+            border: 1px solid #ddd;
+        }
+
+        button {
+            background-color: #2e8b57;
+            color: #fff;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 4px;
+            cursor: pointer;
+            width: 100%;
+        }
+
+        button:hover {
+            background-color: #246944;
+        }
+
+        .vehicle-list {
+            max-width: 800px;
+            margin: 20px auto;
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .vehicle-item {
+            padding: 10px;
+            border-bottom: 1px solid #ddd;
+        }
+
+        .vehicle-item:last-child {
+            border-bottom: none;
+        }
+
+        .vehicle-details {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .vehicle-details p {
+            margin: 0;
+        }
+
+        .eco-label {
+            background-color: #6abf69;
+            color: white;
+            padding: 5px 10px;
+            border-radius: 5px;
+            font-size: 0.8rem;
+        }
+
+        .no-vehicles {
+            text-align: center;
+            color: #999;
+        }
+    </style>
 </head>
 
 <body>
-<h1>Add Vehicle</h1>
-<form id="vehicleForm" method="POST" action="/createVehicle"> <!-- Change action URL if necessary -->
+
+<h1>Add a New Eco-Friendly Vehicle</h1>
+
+<form id="vehicleForm" method="POST" action="/addVehicle">
     <label for="name">Name:</label>
     <input type="text" id="name" name="name" required>
 
@@ -19,33 +115,80 @@
     <label for="model">Model:</label>
     <input type="text" id="model" name="model" required>
 
+    <label for="mpg">Miles per Gallon (MPG):</label>
+    <input type="text" id="mpg" name="mpg" required>
+
     <button type="submit">Add Vehicle</button>
 </form>
+
+<div class="vehicle-list" id="vehicleList">
+    <h2>Your Current Vehicles</h2>
+    <p class="no-vehicles" id="noVehiclesMessage">No vehicles added yet.</p>
+</div>
+
 <script>
-    document.getElementById("vehicleForm").onsubmit = function(event) {
-        event.preventDefault(); // Prevent default form submission
+    document.getElementById("vehicleForm").onsubmit = function (event) {
+        event.preventDefault();
 
         const formData = new FormData(this);
-        const vehicleData = Object.fromEntries(formData); // Convert form data to an object
+        const vehicleData = Object.fromEntries(formData);
 
-        fetch('/createVehicle', { // Adjust the endpoint based on your routing
+        fetch('/addVehicle', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
             },
             body: JSON.stringify(vehicleData)
         })
-            .then(response => {
-                if (response.ok) {
+            .then(response => response.json())
+            .then(data => {
+                if (data) {
                     alert("Vehicle added successfully!");
-                    // Optionally redirect or clear the form
+                    addVehicleToList(data); // Add the new vehicle to the list dynamically
                 } else {
                     alert("Error adding vehicle.");
                 }
             })
             .catch(error => console.error('Error:', error));
     };
+
+    function fetchVehicles() {
+        fetch('/getVehicles')  // Assuming an endpoint to get a list of vehicles
+            .then(response => response.json())
+            .then(vehicles => {
+                const vehicleList = document.getElementById('vehicleList');
+                const noVehiclesMessage = document.getElementById('noVehiclesMessage');
+                if (vehicles.length === 0) {
+                    noVehiclesMessage.style.display = 'block';
+                } else {
+                    noVehiclesMessage.style.display = 'none';
+                    vehicles.forEach(vehicle => addVehicleToList(vehicle));
+                }
+            })
+            .catch(error => console.error('Error fetching vehicles:', error));
+    }
+
+    function addVehicleToList(vehicle) {
+        const vehicleList = document.getElementById('vehicleList');
+        const vehicleItem = document.createElement('div');
+        vehicleItem.classList.add('vehicle-item');
+
+        const vehicleDetails = `
+                <div class="vehicle-details">
+                    <p><strong>Name:</strong> ${vehicle.name}</p>
+                    <p><strong>Make:</strong> ${vehicle.make}</p>
+                    <p><strong>Model:</strong> ${vehicle.model}</p>
+                    <p><strong>MPG:</strong> ${vehicle.mpg} <span class="eco-label">Eco-Friendly</span></p>
+                </div>
+            `;
+        vehicleItem.innerHTML = vehicleDetails;
+        vehicleList.appendChild(vehicleItem);
+    }
+
+    // Fetch and display the vehicle list when the page loads
+    document.addEventListener('DOMContentLoaded', fetchVehicles);
 </script>
 
 </body>
+
 </html>
