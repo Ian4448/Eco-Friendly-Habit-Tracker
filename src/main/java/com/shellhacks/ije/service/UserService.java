@@ -72,4 +72,22 @@ public class UserService {
         Optional<Token> token = tokenDAO.findByToken(tokenStr);
         return token.isPresent() && token.get().getExpirationDate().isAfter(LocalDateTime.now());
     }
+
+    public String getEmailFromToken(String tokenStr) throws UserNotFoundException {
+        // Find the token in the database
+        Optional<Token> token = tokenDAO.findByToken(tokenStr);
+
+        if (token.isPresent() && token.get().getExpirationDate().isAfter(LocalDateTime.now())) {
+            // Extract the email from the user associated with the token
+            return token.get().getUser().getEmail();
+        } else {
+            throw new UserNotFoundException("Invalid or expired token");
+        }
+    }
+
+    public User getUserByToken(String token) throws UserNotFoundException {
+        String email = getEmailFromToken(token);
+        return userDAO.findByEmail(email).orElseThrow(() -> new UserNotFoundException(email));
+    }
+
 }

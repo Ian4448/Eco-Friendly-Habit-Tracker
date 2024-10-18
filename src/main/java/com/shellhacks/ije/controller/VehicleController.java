@@ -2,53 +2,43 @@ package com.shellhacks.ije.controller;
 
 import com.shellhacks.ije.model.User;
 import com.shellhacks.ije.model.Vehicle;
+import com.shellhacks.ije.service.UserService;
 import com.shellhacks.ije.service.VehicleService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.UUID;
 
 @RestController
 public class VehicleController {
+
     @Autowired
     private VehicleService vehicleService;
 
+    @Autowired
+    private UserService userService;
+
     @PostMapping("/addVehicle")
-    public Vehicle addVehicle(Vehicle vehicle, User user) {
+    public Vehicle addVehicle(@CookieValue(value = "auth_token", required = false) String token, @RequestBody Vehicle vehicle) {
         try {
-            vehicleService.addVehicle(vehicle, user.getEmail());
+            User user = userService.getUserByToken(token); // Get the user by token
+            return vehicleService.addVehicle(vehicle, user.getEmail());
         } catch (Exception e) {
-            // do nothing
-        }
-        return vehicle;
-    }
-
-    @PutMapping("/updateVehicle")
-    public Vehicle updateVehicle(Vehicle vehicle, User user) {
-        try {
-            vehicleService.updateVehicle(vehicle, user.getEmail());
-        } catch (Exception e) {
-            // do nothing
-        }
-        return vehicle;
-    }
-
-    @GetMapping("/getVehicle")
-    public Vehicle getVehicleById(UUID id, User user) {
-        try {
-            return vehicleService.getVehicle(user.getEmail(), id);
-        } catch (Exception e) {
-            // do nothing
+            // Handle error
         }
         return null;
     }
 
-    @DeleteMapping
-    public void deleteVehicle(UUID id, User user) {
+    @GetMapping("/getVehicles")
+    public List<Vehicle> getVehicles(@CookieValue(value = "auth_token", required = false) String token) {
         try {
-            vehicleService.deleteVehicle(user.getEmail(), id);
+            User user = userService.getUserByToken(token); // Get the user by token
+            return vehicleService.getAllVehicles(user.getEmail());
         } catch (Exception e) {
-            // do nothing
+            // Handle error
         }
+        return null;
     }
 }
+

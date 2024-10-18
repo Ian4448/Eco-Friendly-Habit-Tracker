@@ -19,7 +19,7 @@ public class User {
     private String lastName;
     private String password;
 
-    @OneToMany
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<Vehicle> vehicles;
 
     public User(String email, String firstName, String lastName, List<Vehicle> vehicles) {
