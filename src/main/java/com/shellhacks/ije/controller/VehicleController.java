@@ -1,14 +1,17 @@
 package com.shellhacks.ije.controller;
 
+import com.shellhacks.ije.exceptions.InvalidVehicleException;
 import com.shellhacks.ije.model.User;
 import com.shellhacks.ije.model.Vehicle;
 import com.shellhacks.ije.service.UserService;
 import com.shellhacks.ije.service.VehicleService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.UUID;
+import java.util.Map;
 
 @RestController
 public class VehicleController {
@@ -20,14 +23,36 @@ public class VehicleController {
     private UserService userService;
 
     @PostMapping("/addVehicle")
-    public Vehicle addVehicle(@CookieValue(value = "auth_token", required = false) String token, @RequestBody Vehicle vehicle) {
+    public ResponseEntity<?> addVehicle(@CookieValue(value = "auth_token", required = false) String token, @RequestBody Vehicle vehicle) {
         try {
-            User user = userService.getUserByToken(token); // Get the user by token
-            return vehicleService.addVehicle(vehicle, user.getEmail());
+            User user = userService.getUserByToken(token);
+
+            if (vehicleService.isVehicleNameUsed(vehicle.getName(), user.getEmail())) {
+                return ResponseEntity
+                        .status(HttpStatus.CONFLICT)
+                        .body(Map.of(
+                                "error", true,
+                                "message", String.format("Vehicle name '%s' is already in use", vehicle.getName())
+                        ));
+            }
+
+            if (vehicleService.userVehicleCountExceeded(user.getEmail())) {
+                return ResponseEntity
+                        .status(HttpStatus.CONFLICT)
+                        .body(Map.of("error", true, "message",
+                                String.format("Vehicle count cannot be greater than %d", vehicleService.getMaximumVehiclePerUser())));
+            }
+
+            Vehicle savedVehicle = vehicleService.addVehicle(vehicle, user.getEmail());
+            return ResponseEntity.ok(savedVehicle);
         } catch (Exception e) {
-            // Handle error
+            return ResponseEntity
+                    .status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Map.of(
+                            "error", true,
+                            "message", "An error occurred while adding the vehicle"
+                    ));
         }
-        return null;
     }
 
     @GetMapping("/getVehicles")

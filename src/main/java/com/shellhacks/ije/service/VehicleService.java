@@ -2,6 +2,7 @@ package com.shellhacks.ije.service;
 
 import com.shellhacks.ije.dao.UserDAO;
 import com.shellhacks.ije.dao.VehicleDAO;
+import com.shellhacks.ije.exceptions.InvalidVehicleException;
 import com.shellhacks.ije.exceptions.UserNotFoundException;
 import com.shellhacks.ije.exceptions.VehicleNotFoundException;
 import com.shellhacks.ije.model.User;
@@ -14,6 +15,7 @@ import java.util.UUID;
 
 @Component
 public class VehicleService {
+    private final static int MAXIMUM_VEHICLE_PER_USER = 10;
 
     @Autowired
     private UserDAO userDAO;
@@ -37,7 +39,7 @@ public class VehicleService {
     }
 
     // Add a vehicle to a user
-    public Vehicle addVehicle(Vehicle vehicle, String email) throws UserNotFoundException {
+    public Vehicle addVehicle(Vehicle vehicle, String email) throws UserNotFoundException, InvalidVehicleException {
         User user = userDAO.findByEmail(email).orElseThrow(() -> new UserNotFoundException(email));
 
         // Set the user for the vehicle
@@ -51,6 +53,15 @@ public class VehicleService {
         userDAO.save(user);
 
         return savedVehicle;
+    }
+
+    public int getMaximumVehiclePerUser() {
+        return MAXIMUM_VEHICLE_PER_USER;
+    }
+
+    public boolean userVehicleCountExceeded(String email) throws UserNotFoundException {
+        User user = userDAO.findByEmail(email).orElseThrow(() -> new UserNotFoundException(email));
+        return user.getVehicles().size() >= MAXIMUM_VEHICLE_PER_USER;
     }
 
     // Update an existing vehicle for a user

@@ -1,5 +1,6 @@
 package com.shellhacks.ije.api;
 
+import com.shellhacks.ije.exceptions.InvalidVehicleException;
 import com.shellhacks.ije.exceptions.UserNotFoundException;
 import com.shellhacks.ije.model.User;
 import com.shellhacks.ije.model.Vehicle;
@@ -17,7 +18,7 @@ public class VehicleCreationAPI {
     private VehicleService vehicleService;
 
     @PostMapping("/createVehicle")
-    public String createVehicle(@RequestBody User user, @RequestBody Vehicle vehicle, Model model) throws UserNotFoundException {
+    public String createVehicle(@RequestBody User user, @RequestBody Vehicle vehicle, Model model) throws UserNotFoundException, InvalidVehicleException {
         vehicleService.addVehicle(vehicle, user.getEmail());
         model.addAttribute("vehicle", new Vehicle());
         return "VehicleAddPage";

@@ -1,6 +1,5 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -130,6 +129,26 @@
             text-align: center;
             color: #999;
         }
+
+        .error-message {
+            color: #dc3545;
+            background-color: #f8d7da;
+            border: 1px solid #f5c6cb;
+            border-radius: 4px;
+            padding: 10px;
+            margin-bottom: 15px;
+            display: none;
+        }
+
+        .success-message {
+            color: #28a745;
+            background-color: #d4edda;
+            border: 1px solid #c3e6cb;
+            border-radius: 4px;
+            padding: 10px;
+            margin-bottom: 15px;
+            display: none;
+        }
     </style>
 </head>
 
@@ -138,6 +157,9 @@
 <h1>Add a New Eco-Friendly Vehicle</h1>
 
 <form id="vehicleForm" method="POST" action="/addVehicle">
+    <div id="errorMessage" class="error-message"></div>
+    <div id="successMessage" class="success-message"></div>
+
     <label for="name">Name:</label>
     <input type="text" id="name" name="name" required>
 
@@ -170,8 +192,30 @@
         }
     }
 
+    function showError(message) {
+        const errorDiv = document.getElementById('errorMessage');
+        const successDiv = document.getElementById('successMessage');
+        errorDiv.textContent = message;
+        errorDiv.style.display = 'block';
+        successDiv.style.display = 'none';
+    }
+
+    function showSuccess(message) {
+        const errorDiv = document.getElementById('errorMessage');
+        const successDiv = document.getElementById('successMessage');
+        successDiv.textContent = message;
+        successDiv.style.display = 'block';
+        errorDiv.style.display = 'none';
+    }
+
+    function clearMessages() {
+        document.getElementById('errorMessage').style.display = 'none';
+        document.getElementById('successMessage').style.display = 'none';
+    }
+
     document.getElementById("vehicleForm").onsubmit = function (event) {
         event.preventDefault();
+        clearMessages();
 
         const formData = new FormData(this);
         const vehicleData = Object.fromEntries(formData);
@@ -183,39 +227,58 @@
             },
             body: JSON.stringify(vehicleData)
         })
-            .then(response => response.json())
-            .then(data => {
-                if (data) {
-                    alert("Vehicle added successfully!");
-                    addVehicleToList(data);
-                    this.reset();
-                } else {
-                    alert("Error adding vehicle.");
+            .then(async response => {
+                const data = await response.json();
+
+                if (!response.ok) {
+                    switch (response.status) {
+                        case 409: // Conflict - Vehicle name already exists
+                            showError(data.message || "A vehicle with this name already exists.");
+                            break;
+                        case 401: // Unauthorized - Missing or invalid token
+                            showError("You must be logged in to add a vehicle.");
+                            break;
+                        case 500: // Internal Server Error
+                            showError(data.message || "An internal server error occurred. Please try again later.");
+                            break;
+                        default:
+                            showError("An unexpected error occurred. Please try again.");
+                    }
+                    throw new Error(data.message || 'Error adding vehicle');
                 }
+
+                return data;
             })
-            .catch(error => console.error('Error:', error));
+            .then(data => {
+                showSuccess("Vehicle added successfully!");
+                addVehicleToList(data);
+                this.reset();
+            })
+            .catch(error => {
+                console.error('Error:', error);
+            });
     };
 
     function deleteVehicle(vehicleName) {
         if (confirm('Are you sure you want to delete this vehicle?')) {
-        fetch(`/deleteVehicle?vehicleName=${encodeURIComponent(vehicleName)}`, {
-        method: 'DELETE'
-    })
-        .then(response => {
-        if (response.ok) {
-        document.querySelector(`[data-vehicle-name="${vehicleName}"]`).remove();
-        if (document.querySelectorAll('.vehicle-item').length === 0) {
-        document.getElementById('noVehiclesMessage').style.display = 'block';
-    }
-    } else {
-        alert("Error deleting vehicle.");
-    }
-    })
-        .catch(error => {
-        console.error('Error:', error);
-        alert("Error deleting vehicle.");
-    });
-    }
+            fetch(`/deleteVehicle?vehicleName=${encodeURIComponent(vehicleName)}`, {
+                method: 'DELETE'
+            })
+                .then(response => {
+                    if (response.ok) {
+                        document.querySelector(`[data-vehicle-name="${vehicleName}"]`).remove();
+                        if (document.querySelectorAll('.vehicle-item').length === 0) {
+                            document.getElementById('noVehiclesMessage').style.display = 'block';
+                        }
+                    } else {
+                        alert("Error deleting vehicle.");
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert("Error deleting vehicle.");
+                });
+        }
     }
 
     document.addEventListener('DOMContentLoaded', fetchVehicles);
@@ -245,7 +308,7 @@
         const vehicleList = document.getElementById('vehicleList');
         const vehicleItem = document.createElement('div');
         vehicleItem.classList.add('vehicle-item');
-        vehicleItem.setAttribute('data-vehicle-name', vehicle.name); // Changed from id to name
+        vehicleItem.setAttribute('data-vehicle-name', vehicle.name);
 
         const ecoStatus = getEcoStatus(vehicle.mpg);
 
