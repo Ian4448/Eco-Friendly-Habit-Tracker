@@ -19,6 +19,7 @@ public class WebConfig implements WebMvcConfigurer {
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
         registry.addInterceptor(authenticationInterceptor)
-                .addPathPatterns("/home"); // Add paths to secure here
+                .addPathPatterns("/home")
+                .addPathPatterns("/createVehicle"); // Add paths to secure here
     }
 }
