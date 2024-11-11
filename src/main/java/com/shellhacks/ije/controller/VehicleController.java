@@ -40,5 +40,16 @@ public class VehicleController {
         }
         return null;
     }
+
+    @DeleteMapping("/deleteVehicle")
+    public void deleteVehicle(@CookieValue(value = "auth_token", required = false) String token, @RequestParam String vehicleName) {
+        try {
+            User user = userService.getUserByToken(token);
+            vehicleService.deleteVehicle(
+                    user.getEmail(), vehicleService.getVehicleFromName(vehicleName, user.getEmail()));
+        } catch (Exception e) {
+            // do nothing
+        }
+    }
 }
 

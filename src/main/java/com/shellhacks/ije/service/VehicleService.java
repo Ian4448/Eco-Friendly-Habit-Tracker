@@ -69,10 +69,19 @@ public class VehicleService {
         return vehicleDAO.save(existingVehicle);
     }
 
-    // Delete a vehicle by its ID
-    public void deleteVehicle(String email, UUID id) throws UserNotFoundException, VehicleNotFoundException {
+    public boolean isVehicleNameUsed(String vehicleName, String email) throws UserNotFoundException {
         User user = userDAO.findByEmail(email).orElseThrow(() -> new UserNotFoundException(email));
-        Vehicle vehicle = getVehicle(email, id);
+        return user.getVehicles().stream().anyMatch(vehicle -> vehicle.getName().equals(vehicleName));
+    }
+
+    public Vehicle getVehicleFromName(String vehicleName, String email) throws UserNotFoundException, VehicleNotFoundException {
+        User user = userDAO.findByEmail(email).orElseThrow(() -> new UserNotFoundException(email));
+        return user.getVehicles().stream().filter(vehicle -> vehicle.getName().equals(vehicleName)).findFirst().orElseThrow(() -> new VehicleNotFoundException(vehicleName));
+    }
+
+    // Delete a vehicle by its ID
+    public void deleteVehicle(String email, Vehicle vehicle) throws UserNotFoundException, VehicleNotFoundException {
+        User user = userDAO.findByEmail(email).orElseThrow(() -> new UserNotFoundException(email));
 
         // Remove the vehicle from the user's list
         user.getVehicles().remove(vehicle);

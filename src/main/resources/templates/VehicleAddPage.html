@@ -5,7 +5,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Add Vehicle</title>
-    <link rel="stylesheet" href="../static/styles.css"> <!-- Link to your CSS file -->
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -58,6 +57,21 @@
             background-color: #246944;
         }
 
+        .delete-btn {
+            background-color: #ff4444;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            width: auto;
+        }
+
+        .delete-btn:hover {
+            background-color: #cc0000;
+        }
+
         .vehicle-list {
             max-width: 800px;
             margin: 20px auto;
@@ -82,16 +96,34 @@
             align-items: center;
         }
 
+        .vehicle-info {
+            flex-grow: 1;
+            display: flex;
+            gap: 20px;
+        }
+
         .vehicle-details p {
             margin: 0;
         }
 
         .eco-label {
-            background-color: #6abf69;
-            color: white;
             padding: 5px 10px;
             border-radius: 5px;
             font-size: 0.8rem;
+            color: white;
+            margin-left: 10px;
+        }
+
+        .eco-poor {
+            background-color: #ff4444;
+        }
+
+        .eco-moderate {
+            background-color: #ffa700;
+        }
+
+        .eco-good {
+            background-color: #00c851;
         }
 
         .no-vehicles {
@@ -127,6 +159,17 @@
 </div>
 
 <script>
+    function getEcoStatus(mpg) {
+        const mpgNum = parseFloat(mpg);
+        if (mpgNum < 25) {
+            return { class: 'eco-poor', label: 'Low Efficiency' };
+        } else if (mpgNum < 40) {
+            return { class: 'eco-moderate', label: 'Moderate Efficiency' };
+        } else {
+            return { class: 'eco-good', label: 'High Efficiency' };
+        }
+    }
+
     document.getElementById("vehicleForm").onsubmit = function (event) {
         event.preventDefault();
 
@@ -144,7 +187,8 @@
             .then(data => {
                 if (data) {
                     alert("Vehicle added successfully!");
-                    addVehicleToList(data); // Add the new vehicle to the list dynamically
+                    addVehicleToList(data);
+                    this.reset();
                 } else {
                     alert("Error adding vehicle.");
                 }
@@ -152,15 +196,41 @@
             .catch(error => console.error('Error:', error));
     };
 
-    // Fetch and display the vehicle list when the page loads
+    function deleteVehicle(vehicleName) {
+        if (confirm('Are you sure you want to delete this vehicle?')) {
+        fetch(`/deleteVehicle?vehicleName=${encodeURIComponent(vehicleName)}`, {
+        method: 'DELETE'
+    })
+        .then(response => {
+        if (response.ok) {
+        document.querySelector(`[data-vehicle-name="${vehicleName}"]`).remove();
+        if (document.querySelectorAll('.vehicle-item').length === 0) {
+        document.getElementById('noVehiclesMessage').style.display = 'block';
+    }
+    } else {
+        alert("Error deleting vehicle.");
+    }
+    })
+        .catch(error => {
+        console.error('Error:', error);
+        alert("Error deleting vehicle.");
+    });
+    }
+    }
+
     document.addEventListener('DOMContentLoaded', fetchVehicles);
 
     function fetchVehicles() {
-        fetch('/getVehicles')  // This will now use the auth token stored in the cookie
+        fetch('/getVehicles')
             .then(response => response.json())
             .then(vehicles => {
                 const vehicleList = document.getElementById('vehicleList');
                 const noVehiclesMessage = document.getElementById('noVehiclesMessage');
+
+                // Clear existing vehicles
+                const existingVehicles = vehicleList.querySelectorAll('.vehicle-item');
+                existingVehicles.forEach(vehicle => vehicle.remove());
+
                 if (vehicles.length === 0) {
                     noVehiclesMessage.style.display = 'block';
                 } else {
@@ -171,29 +241,31 @@
             .catch(error => console.error('Error fetching vehicles:', error));
     }
 
-    // This function remains the same
     function addVehicleToList(vehicle) {
         const vehicleList = document.getElementById('vehicleList');
         const vehicleItem = document.createElement('div');
         vehicleItem.classList.add('vehicle-item');
+        vehicleItem.setAttribute('data-vehicle-name', vehicle.name); // Changed from id to name
+
+        const ecoStatus = getEcoStatus(vehicle.mpg);
 
         const vehicleDetails = `
             <div class="vehicle-details">
-                <p><strong>Name:</strong> ${vehicle.name}</p>
-                <p><strong>Make:</strong> ${vehicle.make}</p>
-                <p><strong>Model:</strong> ${vehicle.model}</p>
-                <p><strong>MPG:</strong> ${vehicle.mpg} <span class="eco-label">Eco-Friendly</span></p>
+                <div class="vehicle-info">
+                    <p><strong>Name:</strong> ${vehicle.name}</p>
+                    <p><strong>Make:</strong> ${vehicle.make}</p>
+                    <p><strong>Model:</strong> ${vehicle.model}</p>
+                    <p><strong>MPG:</strong> ${vehicle.mpg}
+                        <span class="eco-label ${ecoStatus.class}">${ecoStatus.label}</span>
+                    </p>
+                </div>
+                <button onclick="deleteVehicle('${vehicle.name}')" class="delete-btn">Delete</button>
             </div>
         `;
         vehicleItem.innerHTML = vehicleDetails;
         vehicleList.appendChild(vehicleItem);
     }
-
-
-    // Fetch and display the vehicle list when the page loads
-    document.addEventListener('DOMContentLoaded', fetchVehicles);
 </script>
 
 </body>
-
 </html>
