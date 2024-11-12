@@ -5,6 +5,7 @@ import com.shellhacks.ije.model.UserForm;
 import com.shellhacks.ije.service.UserService;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServlet;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -24,12 +25,31 @@ public class UserLoginAPI {
 
     // GET method to show login form
     @GetMapping("/login")
-    public String loginForm(@RequestParam(value = "token", required = false) String token, Model model) {
-        logger.info("token:" + token);
-        if (token != null && userService.isTokenValid(token)) {
-            logger.info("Valid Token Found:" + token);
-            return "redirect:/home";
-        }
+    public String loginForm(HttpServletRequest request, Model model) {
+        Cookie[] cookies = request.getCookies();
+        if (cookies != null) {
+            for (Cookie cookie : cookies) {
+                logger.info("Found cookie: " + cookie.getName());
+                if ("auth_token".equals(cookie.getName())) {
+                    String token = cookie.getValue();
+                    logger.info("Found auth_token cookie with value: " + token);
+
+                    if (userService.isTokenValid(token)) {
+                        logger.info("Token is valid, proceeding with request.");
+                        return "redirect:/home"; // prev removed for testing
+                    } else {
+                        logger.warning("Invalid token, redirecting to login.");
+                    }
+                }
+            }
+            }
+
+
+//        logger.info("token:" + token);
+//        if (token != null && userService.isTokenValid(token)) {
+//            logger.info("Valid Token Found:" + token);
+//            return "redirect:/home";
+//        }
 
         // Add an empty UserForm to the model for form binding
         model.addAttribute("userForm", new UserForm("", ""));

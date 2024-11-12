@@ -3,192 +3,149 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Add Vehicle</title>
+    <title>EcoTrack</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css" rel="stylesheet">
     <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap');
+
         body {
-            font-family: Arial, sans-serif;
-            background-color: #f0f8f5;
-            color: #333;
-            margin: 0;
-            padding: 0;
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #f0f7f4 0%, #ffffff 100%);
+            min-height: 100vh;
         }
 
-        h1 {
-            text-align: center;
-            color: #2e8b57;
-            margin-top: 20px;
+        .glass-card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
         }
 
-        form {
-            max-width: 600px;
-            margin: 20px auto;
-            background-color: #fff;
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        .form-input {
+            background: rgba(255, 255, 255, 0.9);
+            border: 2px solid #e5e7eb;
+            transition: all 0.3s ease;
+            font-size: 0.95rem;
         }
 
-        label {
-            display: block;
-            margin-bottom: 8px;
-            font-weight: bold;
+        .form-input:focus {
+            border-color: #34d399;
+            box-shadow: 0 0 0 4px rgba(52, 211, 153, 0.1);
+            outline: none;
         }
 
-        input[type="text"] {
-            width: 100%;
-            padding: 10px;
-            margin-bottom: 15px;
-            border-radius: 4px;
-            border: 1px solid #ddd;
+        .eco-gradient {
+            background: linear-gradient(135deg, #34d399 0%, #3b82f6 100%);
         }
 
-        button {
-            background-color: #2e8b57;
-            color: #fff;
-            border: none;
-            padding: 10px 15px;
-            border-radius: 4px;
-            cursor: pointer;
-            width: 100%;
+        .vehicle-card {
+            transition: all 0.3s ease;
+            border: 1px solid rgba(255, 255, 255, 0.2);
         }
 
-        button:hover {
-            background-color: #246944;
+        .vehicle-card:hover {
+            transform: translateY(-2px);
         }
 
-        .delete-btn {
-            background-color: #ff4444;
-            color: white;
-            border: none;
-            padding: 5px 10px;
-            border-radius: 4px;
-            cursor: pointer;
-            font-size: 0.9rem;
-            width: auto;
+        .leaf-pattern {
+            background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M30 0c16.569 0 30 13.431 30 30 0 16.569-13.431 30-30 30C13.431 60 0 46.569 0 30 0 13.431 13.431 0 30 0zm0 8c-12.15 0-22 9.85-22 22s9.85 22 22 22 22-9.85 22-22-9.85-22-22-22zm0 4c9.941 0 18 8.059 18 18s-8.059 18-18 18-18-8.059-18-18 8.059-18 18-18z' fill='%2334d399' fill-opacity='0.05'/%3E%3C/svg%3E");
         }
 
-        .delete-btn:hover {
-            background-color: #cc0000;
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
         }
 
-        .vehicle-list {
-            max-width: 800px;
-            margin: 20px auto;
-            background-color: #fff;
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-        }
-
-        .vehicle-item {
-            padding: 10px;
-            border-bottom: 1px solid #ddd;
-        }
-
-        .vehicle-item:last-child {
-            border-bottom: none;
-        }
-
-        .vehicle-details {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .vehicle-info {
-            flex-grow: 1;
-            display: flex;
-            gap: 20px;
-        }
-
-        .vehicle-details p {
-            margin: 0;
-        }
-
-        .eco-label {
-            padding: 5px 10px;
-            border-radius: 5px;
-            font-size: 0.8rem;
-            color: white;
-            margin-left: 10px;
-        }
-
-        .eco-poor {
-            background-color: #ff4444;
-        }
-
-        .eco-moderate {
-            background-color: #ffa700;
-        }
-
-        .eco-good {
-            background-color: #00c851;
-        }
-
-        .no-vehicles {
-            text-align: center;
-            color: #999;
-        }
-
-        .error-message {
-            color: #dc3545;
-            background-color: #f8d7da;
-            border: 1px solid #f5c6cb;
-            border-radius: 4px;
-            padding: 10px;
-            margin-bottom: 15px;
-            display: none;
-        }
-
-        .success-message {
-            color: #28a745;
-            background-color: #d4edda;
-            border: 1px solid #c3e6cb;
-            border-radius: 4px;
-            padding: 10px;
-            margin-bottom: 15px;
-            display: none;
+        .slide-in {
+            animation: slideIn 0.4s ease-out forwards;
         }
     </style>
 </head>
 
-<body>
+<body class="leaf-pattern p-4 sm:p-6 lg:p-8">
+<div class="max-w-6xl mx-auto">
+    <!-- Header -->
+    <div class="text-center mb-12 slide-in">
+        <h1 class="text-4xl font-light text-gray-800 mb-2">EcoTrack</h1>
+        <p class="text-gray-600">Track and manage your eco-friendly vehicles</p>
+    </div>
 
-<h1>Add a New Eco-Friendly Vehicle</h1>
+    <div class="grid lg:grid-cols-2 gap-8">
+        <!-- Add Vehicle Form -->
+        <div class="glass-card rounded-2xl p-8 slide-in" style="animation-delay: 0.1s">
+            <h2 class="text-2xl font-light text-gray-800 mb-8">Add Vehicle</h2>
 
-<form id="vehicleForm" method="POST" action="/addVehicle">
-    <div id="errorMessage" class="error-message"></div>
-    <div id="successMessage" class="success-message"></div>
+            <form id="vehicleForm" method="POST" action="/addVehicle" class="space-y-6">
+                <div id="errorMessage" class="hidden bg-red-50 text-red-600 p-4 rounded-xl text-sm"></div>
+                <div id="successMessage" class="hidden bg-green-50 text-green-600 p-4 rounded-xl text-sm"></div>
 
-    <label for="name">Name:</label>
-    <input type="text" id="name" name="name" required>
+                <div class="space-y-2">
+                    <label class="text-sm text-gray-600" for="name">Vehicle Name</label>
+                    <input type="text" id="name" name="name" required
+                           class="form-input w-full px-4 py-3 rounded-xl"
+                           placeholder="e.g., My Electric Car">
+                </div>
 
-    <label for="make">Make:</label>
-    <input type="text" id="make" name="make" required>
+                <div class="space-y-2">
+                    <label class="text-sm text-gray-600" for="make">Make</label>
+                    <input type="text" id="make" name="make" required
+                           class="form-input w-full px-4 py-3 rounded-xl"
+                           placeholder="e.g., Tesla">
+                </div>
 
-    <label for="model">Model:</label>
-    <input type="text" id="model" name="model" required>
+                <div class="space-y-2">
+                    <label class="text-sm text-gray-600" for="model">Model</label>
+                    <input type="text" id="model" name="model" required
+                           class="form-input w-full px-4 py-3 rounded-xl"
+                           placeholder="e.g., Model Y">
+                </div>
 
-    <label for="mpg">Miles per Gallon (MPG):</label>
-    <input type="text" id="mpg" name="mpg" required>
+                <div class="space-y-2">
+                    <label class="text-sm text-gray-600" for="mpg">Miles per Gallon (MPG)</label>
+                    <input type="text" id="mpg" name="mpg" required
+                           class="form-input w-full px-4 py-3 rounded-xl"
+                           placeholder="e.g., 125">
+                </div>
 
-    <button type="submit">Add Vehicle</button>
-</form>
+                <button type="submit"
+                        class="w-full eco-gradient text-white py-4 rounded-xl font-medium
+                                   transform transition hover:opacity-90 hover:scale-[0.99]
+                                   active:scale-[0.97] focus:outline-none">
+                    Add Vehicle
+                </button>
+            </form>
+        </div>
 
-<div class="vehicle-list" id="vehicleList">
-    <h2>Your Current Vehicles</h2>
-    <p class="no-vehicles" id="noVehiclesMessage">No vehicles added yet.</p>
+        <!-- Vehicle List -->
+        <div class="glass-card rounded-2xl p-8 slide-in" style="animation-delay: 0.2s">
+            <h2 class="text-2xl font-light text-gray-800 mb-8">Your Fleet</h2>
+            <div id="vehicleList" class="space-y-4">
+                <p id="noVehiclesMessage" class="text-center text-gray-500 py-12">
+                    No vehicles added yet. Start building your eco-friendly fleet!
+                </p>
+            </div>
+        </div>
+    </div>
 </div>
 
 <script>
     function getEcoStatus(mpg) {
         const mpgNum = parseFloat(mpg);
         if (mpgNum < 25) {
-            return { class: 'eco-poor', label: 'Low Efficiency' };
+            return {
+                class: 'bg-gradient-to-r from-red-500 to-red-600 text-white',
+                label: 'Low Efficiency'
+            };
         } else if (mpgNum < 40) {
-            return { class: 'eco-moderate', label: 'Moderate Efficiency' };
+            return {
+                class: 'bg-gradient-to-r from-yellow-500 to-yellow-600 text-white',
+                label: 'Moderate Efficiency'
+            };
         } else {
-            return { class: 'eco-good', label: 'High Efficiency' };
+            return {
+                class: 'bg-gradient-to-r from-green-400 to-green-500 text-white',
+                label: 'High Efficiency'
+            };
         }
     }
 
@@ -196,24 +153,27 @@
         const errorDiv = document.getElementById('errorMessage');
         const successDiv = document.getElementById('successMessage');
         errorDiv.textContent = message;
-        errorDiv.style.display = 'block';
-        successDiv.style.display = 'none';
+        errorDiv.classList.remove('hidden');
+        successDiv.classList.add('hidden');
+        errorDiv.classList.add('slide-in');
     }
 
     function showSuccess(message) {
         const errorDiv = document.getElementById('errorMessage');
         const successDiv = document.getElementById('successMessage');
         successDiv.textContent = message;
-        successDiv.style.display = 'block';
-        errorDiv.style.display = 'none';
+        successDiv.classList.remove('hidden');
+        errorDiv.classList.add('hidden');
+        successDiv.classList.add('slide-in');
     }
 
     function clearMessages() {
-        document.getElementById('errorMessage').style.display = 'none';
-        document.getElementById('successMessage').style.display = 'none';
+        document.getElementById('errorMessage').classList.add('hidden');
+        document.getElementById('successMessage').classList.add('hidden');
     }
 
-    document.getElementById("vehicleForm").onsubmit = function (event) {
+    // Form submission handler
+    document.getElementById("vehicleForm").onsubmit = function(event) {
         event.preventDefault();
         clearMessages();
 
@@ -232,13 +192,13 @@
 
                 if (!response.ok) {
                     switch (response.status) {
-                        case 409: // Conflict - Vehicle name already exists
+                        case 409:
                             showError(data.message || "A vehicle with this name already exists.");
                             break;
-                        case 401: // Unauthorized - Missing or invalid token
+                        case 401:
                             showError("You must be logged in to add a vehicle.");
                             break;
-                        case 500: // Internal Server Error
+                        case 500:
                             showError(data.message || "An internal server error occurred. Please try again later.");
                             break;
                         default:
@@ -266,17 +226,22 @@
             })
                 .then(response => {
                     if (response.ok) {
-                        document.querySelector(`[data-vehicle-name="${vehicleName}"]`).remove();
-                        if (document.querySelectorAll('.vehicle-item').length === 0) {
-                            document.getElementById('noVehiclesMessage').style.display = 'block';
-                        }
+                        const element = document.querySelector(`[data-vehicle-name="${vehicleName}"]`);
+                        element.style.opacity = '0';
+                        element.style.transform = 'translateY(10px)';
+                        setTimeout(() => {
+                            element.remove();
+                            if (document.querySelectorAll('.vehicle-item').length === 0) {
+                                document.getElementById('noVehiclesMessage').classList.remove('hidden');
+                            }
+                        }, 300);
                     } else {
-                        alert("Error deleting vehicle.");
+                        showError("Error deleting vehicle.");
                     }
                 })
                 .catch(error => {
                     console.error('Error:', error);
-                    alert("Error deleting vehicle.");
+                    showError("Error deleting vehicle.");
                 });
         }
     }
@@ -290,15 +255,18 @@
                 const vehicleList = document.getElementById('vehicleList');
                 const noVehiclesMessage = document.getElementById('noVehiclesMessage');
 
-                // Clear existing vehicles
                 const existingVehicles = vehicleList.querySelectorAll('.vehicle-item');
                 existingVehicles.forEach(vehicle => vehicle.remove());
 
                 if (vehicles.length === 0) {
-                    noVehiclesMessage.style.display = 'block';
+                    noVehiclesMessage.classList.remove('hidden');
                 } else {
-                    noVehiclesMessage.style.display = 'none';
-                    vehicles.forEach(vehicle => addVehicleToList(vehicle));
+                    noVehiclesMessage.classList.add('hidden');
+                    vehicles.forEach((vehicle, index) => {
+                        setTimeout(() => {
+                            addVehicleToList(vehicle);
+                        }, index * 100);
+                    });
                 }
             })
             .catch(error => console.error('Error fetching vehicles:', error));
@@ -307,28 +275,47 @@
     function addVehicleToList(vehicle) {
         const vehicleList = document.getElementById('vehicleList');
         const vehicleItem = document.createElement('div');
-        vehicleItem.classList.add('vehicle-item');
+        vehicleItem.classList.add(
+            'vehicle-item',
+            'vehicle-card',
+            'glass-card',
+            'rounded-xl',
+            'p-6',
+            'slide-in'
+        );
         vehicleItem.setAttribute('data-vehicle-name', vehicle.name);
 
         const ecoStatus = getEcoStatus(vehicle.mpg);
 
         const vehicleDetails = `
-            <div class="vehicle-details">
-                <div class="vehicle-info">
-                    <p><strong>Name:</strong> ${vehicle.name}</p>
-                    <p><strong>Make:</strong> ${vehicle.make}</p>
-                    <p><strong>Model:</strong> ${vehicle.model}</p>
-                    <p><strong>MPG:</strong> ${vehicle.mpg}
-                        <span class="eco-label ${ecoStatus.class}">${ecoStatus.label}</span>
-                    </p>
+                <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                    <div class="grid grid-cols-2 gap-x-8 gap-y-3 flex-grow">
+                        <p class="text-sm text-gray-600">
+                            <span class="font-medium text-gray-800">Name:</span> ${vehicle.name}
+                        </p>
+                        <p class="text-sm text-gray-600">
+                            <span class="font-medium text-gray-800">Make:</span> ${vehicle.make}
+                        </p>
+                        <p class="text-sm text-gray-600">
+                            <span class="font-medium text-gray-800">Model:</span> ${vehicle.model}
+                        </p>
+                        <p class="text-sm text-gray-600">
+                            <span class="font-medium text-gray-800">MPG:</span> ${vehicle.mpg}
+                        <span class="-ml-0.5 px-2 py-0.5 rounded-full text-xs font-medium ${ecoStatus.class} flex items-center justify-center whitespace-nowrap w-24 text-center">
+                            ${ecoStatus.label}
+                        </span>
+                        </p>
+                    </div>
+                    <button onclick="deleteVehicle('${vehicle.name}')"
+                            class="px-4 py-2 rounded-lg text-sm font-medium text-red-600 hover:bg-red-50
+                                   transition-colors duration-200">
+                        Delete
+                    </button>
                 </div>
-                <button onclick="deleteVehicle('${vehicle.name}')" class="delete-btn">Delete</button>
-            </div>
-        `;
+            `;
         vehicleItem.innerHTML = vehicleDetails;
         vehicleList.appendChild(vehicleItem);
     }
 </script>
-
 </body>
 </html>

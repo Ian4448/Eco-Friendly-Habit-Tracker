@@ -1,13 +1,20 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Create Account</title>
-  <!-- Link to CSS -->
-  <link rel="stylesheet" th:href="@{/styles.css}" />
   <style>
+    :root {
+      --primary-color: #10b981;
+      --primary-hover: #059669;
+      --background: #f8fafc;
+      --surface: #ffffff;
+      --text: #1e293b;
+      --error: #ef4444;
+      --gray-400: #94a3b8;
+    }
+
     * {
       margin: 0;
       padding: 0;
@@ -15,177 +22,249 @@
     }
 
     body {
-      font-family: 'Arial', sans-serif;
-      background-color: #e8f5e9; /* Soft green background */
-      color: #333;
-      padding: 20px;
+      font-family: system-ui, -apple-system, sans-serif;
+      background-color: var(--background);
+      color: var(--text);
+      line-height: 1.5;
+      min-height: 100vh;
+      display: grid;
+      place-items: center;
+      padding: 1.5rem;
     }
 
-    h1 {
+    .signup-container {
+      background: var(--surface);
+      border-radius: 16px;
+      box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+      padding: 2.5rem;
+      width: 500px;
+      max-width: 90vw;
+    }
+
+    .signup-header {
       text-align: center;
-      margin-bottom: 30px;
-      color: #2e7d32; /* Darker green for eco-feel */
+      margin-bottom: 2rem;
     }
 
-    form {
-      background-color: white;
-      padding: 30px;
-      border-radius: 8px;
-      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-      max-width: 500px;
-      margin: 0 auto; /* Center the form */
+    .signup-header h1 {
+      font-size: 1.875rem;
+      font-weight: 600;
+      color: var(--text);
+      margin-bottom: 0.5rem;
     }
 
-    label {
+    .signup-header p {
+      color: var(--gray-400);
+    }
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+      margin-bottom: 1rem;
+    }
+
+    @media (max-width: 640px) {
+      .form-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .form-group {
+      margin-bottom: 1rem;
+    }
+
+    .form-group label {
       display: block;
-      margin-bottom: 10px;
-      font-weight: bold;
-      color: #2e7d32;
+      font-size: 0.875rem;
+      font-weight: 500;
+      margin-bottom: 0.375rem;
+      color: var(--text);
     }
 
-    input[type="text"],
-    input[type="email"],
-    input[type="password"] {
+    .input-wrapper {
+      position: relative;
+    }
+
+    input {
       width: 100%;
-      padding: 12px;
-      margin-bottom: 20px;
-      border: 1px solid #ccc;
-      border-radius: 5px;
-      transition: border-color 0.3s;
+      padding: 0.75rem 1rem;
+      border: 1.5px solid #e2e8f0;
+      border-radius: 8px;
+      font-size: 1rem;
+      transition: all 0.2s;
     }
 
     input:focus {
-      border-color: #66bb6a; /* Lighter green highlight */
       outline: none;
+      border-color: var(--primary-color);
+      box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1);
     }
 
-    button {
-      width: 100%;
-      background-color: #388e3c; /* Eco-friendly green */
-      color: white;
-      padding: 15px;
-      font-size: 16px;
+    .password-toggle {
+      position: absolute;
+      right: 1rem;
+      top: 50%;
+      transform: translateY(-50%);
+      background: none;
       border: none;
-      border-radius: 5px;
+      color: #64748b;
       cursor: pointer;
-      transition: background-color 0.3s;
+      padding: 0.25rem;
     }
 
-    button:hover {
-      background-color: #2e7d32; /* Darker green on hover */
+    .password-toggle:hover {
+      color: var(--text);
+    }
+
+    .btn {
+      width: 100%;
+      padding: 0.75rem 1.5rem;
+      border: none;
+      border-radius: 8px;
+      font-size: 1rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s;
+      margin-top: 0.5rem;
+      margin-bottom: 1rem;
+    }
+
+    .btn-primary {
+      background-color: var(--primary-color);
+      color: white;
+    }
+
+    .btn-primary:hover {
+      background-color: var(--primary-hover);
     }
 
     .form-footer {
       text-align: center;
-      margin-top: 20px;
-      color: #777;
+      color: var(--gray-400);
+      font-size: 0.875rem;
     }
 
     .form-footer a {
-      color: #388e3c;
+      color: var(--primary-color);
       text-decoration: none;
+      font-weight: 500;
     }
 
     .form-footer a:hover {
       text-decoration: underline;
     }
 
-    /* Show Password Toggle Styling - keep both checkbox and text on the right */
-    .show-password-container {
-      display: flex;
-      align-items: center;
-      justify-content: flex-end; /* Align both to the right */
-      font-size: 0.8em; /* Make text smaller */
-      color: #2e7d32;
-      user-select: none;
-      margin-bottom: 20px; /* Add space below */
-    }
-
-    .show-password-container input[type="checkbox"] {
-      margin-bottom: 7px;
-      margin-left: 5px;
-      margin-right: 8px; /* Space between checkbox and text */
-      width: 12px; /* Smaller checkbox */
-      height: 12px;
-      cursor: pointer;
-    }
-
-    .show-password-container label {
-      cursor: pointer;
-      position: relative;
-      top: 2px; /* Slightly lower the label for better alignment with the checkbox */
-    }
-
-    @media (max-width: 600px) {
-      form {
-        padding: 20px;
-      }
+    .error-message {
+      color: var(--error);
+      font-size: 0.875rem;
+      margin-top: 0.375rem;
+      display: none;
     }
   </style>
 </head>
-
 <body>
-
-<h1>Create Your Account</h1>
-
-<form id="signupForm" method="POST" action="/create">
-  <label for="firstName">First Name:</label>
-  <input type="text" id="firstName" name="firstName" placeholder="John" required>
-
-  <label for="lastName">Last Name:</label>
-  <input type="text" id="lastName" name="lastName" placeholder="Doe" required>
-
-  <label for="email">Email:</label>
-  <input type="email" id="email" name="email" placeholder="john.doe@example.com" required>
-
-  <label for="password">Password:</label>
-  <input type="password" id="password" name="password" placeholder="Password" required>
-
-  <!-- Show Password Checkbox (Under Email and Right-Aligned) -->
-  <div class="show-password-container">
-    <label for="showPasswordCheckbox">Show Password</label>
-    <input type="checkbox" id="showPasswordCheckbox">
+<div class="signup-container">
+  <div class="signup-header">
+    <h1>Create Account</h1>
+    <p>Join us in making the world greener 🌱</p>
   </div>
 
-  <button type="submit">Sign Up</button>
+  <form id="signupForm" method="POST" action="/create">
+    <div class="form-grid">
+      <div class="form-group">
+        <label for="firstName">First Name</label>
+        <input type="text" id="firstName" name="firstName" required>
+      </div>
 
-  <div class="form-footer">
-    <p>Already have an account? <a href="/login">Log in here</a></p>
-  </div>
-</form>
+      <div class="form-group">
+        <label for="lastName">Last Name</label>
+        <input type="text" id="lastName" name="lastName" required>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label for="email">Email</label>
+      <input type="email" id="email" name="email" required>
+    </div>
+
+    <div class="form-group">
+      <label for="password">Password</label>
+      <div class="input-wrapper">
+        <input type="password" id="password" name="password" required>
+        <button type="button" class="password-toggle" id="passwordToggle" aria-label="Toggle password visibility">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 5c-7.333 0-12 6-12 6s4.667 6 12 6 12-6 12-6-4.667-6-12-6Z"/>
+            <circle cx="12" cy="11" r="3"/>
+          </svg>
+        </button>
+      </div>
+    </div>
+
+    <p class="error-message" id="errorMessage"></p>
+
+    <button type="submit" class="btn btn-primary">Create Account</button>
+
+    <div class="form-footer">
+      Already have an account? <a href="/login">Sign in</a>
+    </div>
+  </form>
+</div>
 
 <script>
-  // Wait for the DOM to fully load before running the script
-  document.addEventListener("DOMContentLoaded", function () {
-    const signupForm = document.getElementById("signupForm");
+  document.addEventListener('DOMContentLoaded', function() {
+    const form = document.getElementById('signupForm');
+    const errorMessage = document.getElementById('errorMessage');
+    const passwordInput = document.getElementById('password');
+    const passwordToggle = document.getElementById('passwordToggle');
+    let passwordVisible = false;
 
-    // Handle form submission and validation
-    signupForm.addEventListener("submit", function (event) {
-      event.preventDefault(); // Prevent default form submission
+    // Password visibility toggle
+    passwordToggle.addEventListener('click', function() {
+      passwordVisible = !passwordVisible;
+      passwordInput.type = passwordVisible ? 'text' : 'password';
 
-      const firstName = document.getElementById("firstName").value.trim();
-      const lastName = document.getElementById("lastName").value.trim();
-      const email = document.getElementById("email").value.trim();
-      const password = document.getElementById("password").value.trim();
+      // Update icon based on visibility
+      this.innerHTML = passwordVisible
+              ? `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+             <path d="M2 2l20 20M6.713 6.723C3.665 8.795 2 12 2 12s4.667 6 12 6c.827 0 1.643-.075 2.432-.222M19.288 17.277C20.335 15.205 22 12 22 12s-4.667-6-12-6c-.827 0-1.643.075-2.432.222"/>
+             <path d="M14 14a2 2 0 0 1-2 2c-1.104 0-2-.896-2-2 0-1.105.896-2 2-2a2 2 0 0 1 2 2z"/>
+           </svg>`
+              : `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+             <path d="M12 5c-7.333 0-12 6-12 6s4.667 6 12 6 12-6 12-6-4.667-6-12-6Z"/>
+             <circle cx="12" cy="11" r="3"/>
+           </svg>`;
+    });
 
-      // Validate that names don't contain special characters
+    // Form validation and submission
+    form.addEventListener('submit', function(event) {
+      event.preventDefault();
+      errorMessage.style.display = 'none';
+
+      const firstName = document.getElementById('firstName').value.trim();
+      const lastName = document.getElementById('lastName').value.trim();
+      const email = document.getElementById('email').value.trim();
+      const password = passwordInput.value.trim();
+
+      // Validate names
       if (!isValidName(firstName) || !isValidName(lastName)) {
-        alert("Names must only contain letters and spaces.");
+        showError('Names must only contain letters and spaces.');
         return;
       }
 
-      if (email === "" || password === "") {
-        alert("Please fill in all fields.");
-        return;
-      }
-
-      // Validate email format
+      // Validate email
       if (!validateEmail(email)) {
-        alert("Please enter a valid email address.");
+        showError('Please enter a valid email address.');
         return;
       }
 
-      // Simulate a form submission via fetch
+      // Validate password
+      if (!isValidPassword(password)) {
+        showError('Password must be at least 8 characters long and include a mix of uppercase, lowercase, numbers, and special characters.');
+        return;
+      }
+
+      // Submit form
       const userData = { firstName, lastName, email, password };
 
       fetch('/create', {
@@ -197,36 +276,40 @@
       })
               .then(response => {
                 if (response.ok) {
-                  alert("User registered successfully!");
-                  window.location.href = "/vehicle"; // Redirect to another page
+                  window.location.href = "/login";
                 } else {
-                  alert("Error registering user.");
+                  showError('Error registering user. Please try again.');
                 }
               })
               .catch(error => {
                 console.error("Error:", error);
+                showError('An unexpected error occurred. Please try again.');
               });
     });
 
-    // Name validation: only letters and spaces are allowed
     function isValidName(name) {
-      const namePattern = /^[a-zA-Z\s]+$/;
-      return namePattern.test(name);
+      return /^[a-zA-Z\s]+$/.test(name);
     }
 
-    // Validate email format
     function validateEmail(email) {
-      const emailPattern = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,6}$/;
-      return emailPattern.test(email);
+      return /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,6}$/.test(email);
     }
 
-    // Toggle password visibility
-    document.getElementById("showPasswordCheckbox").addEventListener("change", function () {
-      const passwordInput = document.getElementById("password");
-      passwordInput.type = this.checked ? "text" : "password"; // Show or hide password
-    });
+    // Password validation function
+    function isValidPassword(password) {
+      const minLength = 8;
+      const hasUppercase = /[A-Z]/.test(password);
+      const hasLowercase = /[a-z]/.test(password);
+      const hasNumber = /\d/.test(password);
+      const hasSpecialChar = /[!@#$%^&*(),.?":{}|<>]/.test(password);
+      return password.length >= minLength && hasUppercase && hasLowercase && hasNumber && hasSpecialChar;
+    }
+
+    function showError(message) {
+      errorMessage.textContent = message;
+      errorMessage.style.display = 'block';
+    }
   });
 </script>
-
 </body>
 </html>
