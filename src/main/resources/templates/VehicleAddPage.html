@@ -38,6 +38,23 @@
             background: linear-gradient(135deg, #34d399 0%, #3b82f6 100%);
         }
 
+        .delete-button {
+            background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%);
+            transition: all 0.2s ease;
+            border: 1px solid #fca5a5;
+        }
+
+        .delete-button:hover {
+            background: linear-gradient(135deg, #fecaca 0%, #fee2e2 100%);
+            transform: translateY(-1px);
+            box-shadow: 0 2px 4px rgba(252, 165, 165, 0.2);
+        }
+
+        .delete-button:active {
+            transform: translateY(0);
+            box-shadow: none;
+        }
+
         .vehicle-card {
             transition: all 0.3s ease;
             border: 1px solid rgba(255, 255, 255, 0.2);
@@ -51,6 +68,16 @@
             background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M30 0c16.569 0 30 13.431 30 30 0 16.569-13.431 30-30 30C13.431 60 0 46.569 0 30 0 13.431 13.431 0 30 0zm0 8c-12.15 0-22 9.85-22 22s9.85 22 22 22 22-9.85 22-22-9.85-22-22-22zm0 4c9.941 0 18 8.059 18 18s-8.059 18-18 18-18-8.059-18-18 8.059-18 18-18z' fill='%2334d399' fill-opacity='0.05'/%3E%3C/svg%3E");
         }
 
+        .efficiency-badge {
+            display: inline-block;
+            white-space: nowrap;
+            font-size: 0.65rem;
+            padding: 2px 8px;
+            border-radius: 12px;
+            vertical-align: middle;
+            margin-left: 4px;
+        }
+
         @keyframes slideIn {
             from { opacity: 0; transform: translateY(10px); }
             to { opacity: 1; transform: translateY(0); }
@@ -59,10 +86,29 @@
         .slide-in {
             animation: slideIn 0.4s ease-out forwards;
         }
+
+        .user-profile {
+            position: absolute;
+            top: 1.5rem;
+            right: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
     </style>
 </head>
 
 <body class="leaf-pattern p-4 sm:p-6 lg:p-8">
+<!-- User Profile -->
+<div class="user-profile">
+    <span class="text-gray-700 font-medium">Welcome, <span id="username">User</span></span>
+    <a href="/username" class="glass-card p-2 rounded-full hover:bg-gray-50 transition-colors">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+        </svg>
+    </a>
+</div>
+
 <div class="max-w-6xl mx-auto">
     <!-- Header -->
     <div class="text-center mb-12 slide-in">
@@ -109,8 +155,8 @@
 
                 <button type="submit"
                         class="w-full eco-gradient text-white py-4 rounded-xl font-medium
-                                   transform transition hover:opacity-90 hover:scale-[0.99]
-                                   active:scale-[0.97] focus:outline-none">
+                                       transform transition hover:opacity-90 hover:scale-[0.99]
+                                       active:scale-[0.97] focus:outline-none">
                     Add Vehicle
                 </button>
             </form>
@@ -134,17 +180,17 @@
         if (mpgNum < 25) {
             return {
                 class: 'bg-gradient-to-r from-red-500 to-red-600 text-white',
-                label: 'Low Efficiency'
+                label: 'Low'
             };
         } else if (mpgNum < 40) {
             return {
                 class: 'bg-gradient-to-r from-yellow-500 to-yellow-600 text-white',
-                label: 'Moderate Efficiency'
+                label: 'Medium'
             };
         } else {
             return {
                 class: 'bg-gradient-to-r from-green-400 to-green-500 text-white',
-                label: 'High Efficiency'
+                label: 'High'
             };
         }
     }
@@ -246,7 +292,64 @@
         }
     }
 
-    document.addEventListener('DOMContentLoaded', fetchVehicles);
+    function getCurrentUserEmail() {
+        return fetch('/api/current-user')
+            .then(response => response.json())
+            .then(data => data.email)
+            .catch(error => {
+                console.error('Error fetching current user:', error);
+                return null;
+            });
+    }
+
+    async function fetchUserName() {
+        try {
+            const userEmail = await getCurrentUserEmail();
+
+            if (!userEmail) {
+                console.warn('User email not found');
+                updateUserDisplay('Guest');
+                return;
+            }
+
+            const response = await fetch(`/user?email=${encodeURIComponent(userEmail)}`);
+            if (!response.ok) {
+                throw new Error('Failed to fetch user data');
+            }
+
+            const userData = await response.json();
+            if (userData && userData.firstName) {
+                const displayName = `${userData.firstName} ${userData.lastName || ''}`.trim();
+                updateUserDisplay(displayName);
+            } else {
+                updateUserDisplay('Guest');
+            }
+        } catch (error) {
+            console.error('Error fetching user data:', error);
+            updateUserDisplay('Guest');
+        }
+    }
+
+    function updateUserDisplay(displayName) {
+        const usernameElement = document.getElementById('username');
+        if (usernameElement) {
+            usernameElement.style.transition = 'opacity 0.3s ease';
+            usernameElement.style.opacity = '0';
+            setTimeout(() => {
+                usernameElement.textContent = displayName;
+                usernameElement.style.opacity = '1';
+            }, 50);
+        }
+    }
+
+    // Initialize everything when the page loads
+    document.addEventListener('DOMContentLoaded', () => {
+        fetchVehicles();
+        fetchUserName();
+
+        // Refresh username periodically
+        setInterval(fetchUserName, 300000); // every 5 minutes
+    });
 
     function fetchVehicles() {
         fetch('/getVehicles')
@@ -301,14 +404,16 @@
                         </p>
                         <p class="text-sm text-gray-600">
                             <span class="font-medium text-gray-800">MPG:</span> ${vehicle.mpg}
-                        <span class="-ml-0.5 px-2 py-0.5 rounded-full text-xs font-medium ${ecoStatus.class} flex items-center justify-center whitespace-nowrap w-24 text-center">
-                            ${ecoStatus.label}
-                        </span>
+                            <span class="efficiency-badge ${ecoStatus.class}">${ecoStatus.label}</span>
                         </p>
                     </div>
                     <button onclick="deleteVehicle('${vehicle.name}')"
-                            class="px-4 py-2 rounded-lg text-sm font-medium text-red-600 hover:bg-red-50
-                                   transition-colors duration-200">
+                            class="delete-button min-w-[90px] px-4 py-2 rounded-lg text-sm font-medium
+                                   text-red-600 flex items-center justify-center gap-2 focus:outline-none
+                                   focus:ring-2 focus:ring-red-500 focus:ring-opacity-50">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                        </svg>
                         Delete
                     </button>
                 </div>
