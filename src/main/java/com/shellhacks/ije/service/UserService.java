@@ -47,10 +47,15 @@ public class UserService {
     public User updateUser(String email, User userDetails) throws UserNotFoundException {
         User existingUser = getUserByEmail(email); // Retrieve existing user by email
 
+        if (!existingUser.getEmail().equals(userDetails.getEmail())) {
+            deleteUser(existingUser);
+        }
         // Update fields
+        existingUser.setEmail(userDetails.getEmail());
         existingUser.setFirstName(userDetails.getFirstName());
         existingUser.setLastName(userDetails.getLastName());
         existingUser.setPassword(userDetails.getPassword());
+        existingUser.setVehicles(userDetails.getVehicles());
 
         // Save the updated user
         return userDAO.save(existingUser);
