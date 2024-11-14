@@ -9,5 +9,4 @@ class IjeApplicationTests {
 	@Test
 	void contextLoads() {
 	}
-
 }

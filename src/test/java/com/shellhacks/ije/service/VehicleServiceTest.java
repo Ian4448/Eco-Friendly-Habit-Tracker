@@ -13,6 +13,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.boot.test.context.SpringBootTest;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -22,8 +23,9 @@ import java.util.UUID;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
+@SpringBootTest
 @ExtendWith(MockitoExtension.class)
-public class VehicleServiceTest {
+class VehicleServiceTest {
     @Mock
     private UserDAO userDAO;
 
@@ -55,6 +57,7 @@ public class VehicleServiceTest {
         assertNotNull(vehicles);
         assertEquals(1, vehicles.size());
         assertEquals(vehicle, vehicles.get(0));
+        System.out.printf("hello");
     }
 
     @Test
