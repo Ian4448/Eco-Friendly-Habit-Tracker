@@ -11,8 +11,8 @@
 	<groupId>com.shellhacks</groupId>
 	<artifactId>ije</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
-	<name>ije</name>
-	<description>Project for Shellhacks</description>
+	<name>Eco Friendly Tracker</name>
+	<description>An Eco Friendly Tracker for Carbon Emissions</description>
 	<url/>
 	<licenses>
 		<license/>
