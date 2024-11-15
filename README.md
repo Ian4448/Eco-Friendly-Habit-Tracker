@@ -1,4 +1,4 @@
-# Eco-Friendly Habit Tracker 🌱
+# Eco-Friendly Habit Tracker
 
 An eco-conscious habit-tracking application designed to promote sustainable living through habit formation. This project helps users establish eco-friendly habits by providing a simple interface to track progress and view environmental impact reports. Built with a Java backend and minimal HTML/CSS frontend, this app demonstrates the potential of technology in fostering sustainable lifestyles.
 
