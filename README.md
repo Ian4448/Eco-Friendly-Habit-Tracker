@@ -38,10 +38,10 @@ To get a local copy of the project up and running, follow these simple steps.
    Begin by cloning this repository to your local system:
    ```bash
    git clone https://github.com/Ian4448/Eco-Friendly-Habit-Tracker.git
-   cd Eco-Friendly-Habit-Tracker```
+   cd Eco-Friendly-Habit-Tracker
 2. **Install dependencies**:
    ```bash
-   mvn install```
+   mvn install
 3. **Access the Application**:
    Open your web browser and navigate to http://localhost:8080 to access the Eco-Friendly Habit Tracker.
 ---   
