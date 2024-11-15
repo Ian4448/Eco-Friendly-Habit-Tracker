@@ -1,4 +1,4 @@
-package com.ecofriendly.ian.controller;
+package com.ecofriendly.ian.api;
 
 import com.ecofriendly.ian.exceptions.UserNotFoundException;
 import com.ecofriendly.ian.model.User;
@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-public class UserController {
+public class UserAPI {
     @Autowired
     private UserService userService;
 

@@ -1,4 +1,4 @@
-package com.ecofriendly.ian.api;
+package com.ecofriendly.ian.controller;
 
 import com.ecofriendly.ian.model.User;
 import com.ecofriendly.ian.service.UserService;
@@ -15,11 +15,11 @@ import org.springframework.web.bind.annotation.RequestBody;
 import java.util.logging.Logger;
 
 @Controller
-public class UserCreationAPI {
+public class UserCreationController {
     @Autowired
     private UserService userService;
     private final BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
-    private final Logger logger = Logger.getLogger(UserCreationAPI.class.getName());
+    private final Logger logger = Logger.getLogger(UserCreationController.class.getName());
 
     @PostMapping({"/create", "/create/"})
     public String createUser(@RequestBody User user, Model model) {

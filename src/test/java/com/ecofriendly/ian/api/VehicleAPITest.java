@@ -1,4 +1,4 @@
-package com.ecofriendly.ian.controller;
+package com.ecofriendly.ian.api;
 
 import com.ecofriendly.ian.exceptions.UserNotFoundException;
 import com.ecofriendly.ian.model.User;
@@ -25,7 +25,7 @@ import static org.mockito.Mockito.*;
 
 @SpringBootTest
 @ExtendWith(MockitoExtension.class)
-class VehicleControllerTest {
+class VehicleAPITest {
     @Mock
     private VehicleService vehicleService;
 
@@ -33,7 +33,7 @@ class VehicleControllerTest {
     private UserService userService;
 
     @InjectMocks
-    private VehicleController vehicleController;
+    private VehicleAPI vehicleAPI;
 
     private User user;
     private Vehicle vehicle;
@@ -53,7 +53,7 @@ class VehicleControllerTest {
         when(vehicleService.userVehicleCountExceeded(user.getEmail())).thenReturn(false);
         when(vehicleService.addVehicle(vehicle, user.getEmail())).thenReturn(vehicle);
 
-        ResponseEntity<?> response = vehicleController.addVehicle(token, vehicle);
+        ResponseEntity<?> response = vehicleAPI.addVehicle(token, vehicle);
 
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertEquals(vehicle, response.getBody());
@@ -65,7 +65,7 @@ class VehicleControllerTest {
         when(userService.getUserByToken(token)).thenReturn(user);
         when(vehicleService.isVehicleNameUsed(vehicle.getName(), user.getEmail())).thenReturn(true);
 
-        ResponseEntity<?> response = vehicleController.addVehicle(token, vehicle);
+        ResponseEntity<?> response = vehicleAPI.addVehicle(token, vehicle);
 
         assertEquals(HttpStatus.CONFLICT, response.getStatusCode());
         assertTrue(((Map<?, ?>) response.getBody()).containsKey("message"));
@@ -78,7 +78,7 @@ class VehicleControllerTest {
         when(vehicleService.isVehicleNameUsed(vehicle.getName(), user.getEmail())).thenReturn(false);
         when(vehicleService.userVehicleCountExceeded(user.getEmail())).thenReturn(true);
 
-        ResponseEntity<?> response = vehicleController.addVehicle(token, vehicle);
+        ResponseEntity<?> response = vehicleAPI.addVehicle(token, vehicle);
 
         assertEquals(HttpStatus.CONFLICT, response.getStatusCode());
         assertTrue(((Map<?, ?>) response.getBody()).containsKey("message"));
@@ -94,7 +94,7 @@ class VehicleControllerTest {
         String token = "valid_token";
         when(userService.getUserByToken(token)).thenThrow(new RuntimeException("Database error"));
 
-        ResponseEntity<?> response = vehicleController.addVehicle(token, vehicle);
+        ResponseEntity<?> response = vehicleAPI.addVehicle(token, vehicle);
 
         assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, response.getStatusCode());
         assertTrue(((Map<?, ?>) response.getBody()).containsKey("message"));
@@ -109,7 +109,7 @@ class VehicleControllerTest {
         when(userService.getUserByToken(token)).thenReturn(user);
         when(vehicleService.getAllVehicles(user.getEmail())).thenReturn(vehicles);
 
-        List<Vehicle> response = vehicleController.getVehicles(token);
+        List<Vehicle> response = vehicleAPI.getVehicles(token);
 
         assertNotNull(response);
         assertEquals(1, response.size());
@@ -121,7 +121,7 @@ class VehicleControllerTest {
         String token = "invalid_token";
         when(userService.getUserByToken(token)).thenThrow(new UserNotFoundException("User not found"));
 
-        List<Vehicle> response = vehicleController.getVehicles(token);
+        List<Vehicle> response = vehicleAPI.getVehicles(token);
 
         assertNull(response);  // or check for an empty response depending on your requirements
     }
@@ -133,7 +133,7 @@ class VehicleControllerTest {
         when(userService.getUserByToken(token)).thenReturn(user);
         when(vehicleService.getVehicleFromName(vehicleName, user.getEmail())).thenReturn(vehicle);
 
-        vehicleController.deleteVehicle(token, vehicleName);
+        vehicleAPI.deleteVehicle(token, vehicleName);
 
         verify(vehicleService, times(1)).deleteVehicle(user.getEmail(), vehicle);
     }

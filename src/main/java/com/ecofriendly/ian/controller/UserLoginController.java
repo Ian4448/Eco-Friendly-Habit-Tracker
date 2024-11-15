@@ -1,4 +1,4 @@
-package com.ecofriendly.ian.api;
+package com.ecofriendly.ian.controller;
 
 import com.ecofriendly.ian.exceptions.UserNotFoundException;
 import com.ecofriendly.ian.model.UserForm;
@@ -19,8 +19,8 @@ import java.util.UUID;
 import java.util.logging.Logger;
 
 @Controller
-public class UserLoginAPI {
-    private static final Logger logger = Logger.getLogger(UserLoginAPI.class.getName());
+public class UserLoginController {
+    private static final Logger logger = Logger.getLogger(UserLoginController.class.getName());
     @Autowired
     private UserService userService;
 
