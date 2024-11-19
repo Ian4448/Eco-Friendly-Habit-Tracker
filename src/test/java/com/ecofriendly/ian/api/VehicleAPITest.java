@@ -41,7 +41,7 @@ class VehicleAPITest {
     @BeforeEach
     void setUp() {
         MockitoAnnotations.openMocks(this);
-        user = new User("test@example.com", "FirstName", "LastName", new ArrayList<>());
+        user = new User("test@example.com", "FirstName", "LastName", new ArrayList<>(), 0);
         vehicle = new Vehicle("make", "model", "vehicleName", 30, user);
     }
 

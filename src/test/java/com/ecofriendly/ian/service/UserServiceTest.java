@@ -36,7 +36,7 @@ class UserServiceTest {
 
     @BeforeEach
     public void setUp() {
-        user = new User("emailfortesting@example.com","firstNameTest", "lastNameTest", new ArrayList<>());
+        user = new User("emailfortesting@example.com","firstNameTest", "lastNameTest", new ArrayList<>(), 0);
     }
 
     @Test
@@ -77,7 +77,7 @@ class UserServiceTest {
         User oldUser = userService.addUser(user);
         assertThat(oldUser).isNotNull();
 
-        User updatedDetails = new User(oldUser.getEmail(), "newFirstName", "newLastName", new ArrayList<>());
+        User updatedDetails = new User(oldUser.getEmail(), "newFirstName", "newLastName", new ArrayList<>(), 0);
         User newUser = userService.updateUser(oldUser.getEmail(), updatedDetails);
 
         assertThat(newUser).isNotNull();

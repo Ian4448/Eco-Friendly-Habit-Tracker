@@ -26,7 +26,8 @@ public class UserService {
     private final BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
 
     public User addUser(User user) {
-        user.setVehicles(new CopyOnWriteArrayList<>()); // empty list of vehicles
+        user.setVehicles(new CopyOnWriteArrayList<>());
+        user.setCarbonEmission(0);
         return userDAO.save(user);
     }
 

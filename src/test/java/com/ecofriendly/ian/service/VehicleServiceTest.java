@@ -42,7 +42,7 @@ class VehicleServiceTest {
     @BeforeEach
     public void setUp() {
         vehicleId = UUID.randomUUID();
-        user = new User("emailfortesting@example.com", "firstNameTest", "lastNameTest", new ArrayList<>());
+        user = new User("emailfortesting@example.com", "firstNameTest", "lastNameTest", new ArrayList<>(), 0);
         vehicle = new Vehicle("make", "model", "name", 45, user);
         vehicle.setVehicleId(vehicleId);
         user.getVehicles().add(vehicle);

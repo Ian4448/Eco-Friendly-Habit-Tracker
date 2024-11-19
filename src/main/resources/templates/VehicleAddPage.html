@@ -377,6 +377,13 @@
 
     function addVehicleToList(vehicle) {
         const vehicleList = document.getElementById('vehicleList');
+        const noVehiclesMessage = document.getElementById('noVehiclesMessage');
+
+        // Hide the "No Vehicles" message if it is visible
+        if (!noVehiclesMessage.classList.contains('hidden')) {
+            noVehiclesMessage.classList.add('hidden');
+        }
+
         const vehicleItem = document.createElement('div');
         vehicleItem.classList.add(
             'vehicle-item',

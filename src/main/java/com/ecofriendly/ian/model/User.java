@@ -22,11 +22,15 @@ public class User {
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<Vehicle> vehicles;
 
-    public User(String email, String firstName, String lastName, List<Vehicle> vehicles) {
+
+    private long carbonEmission = 0; // CO2 in KG, defaulted to 0
+
+    public User(String email, String firstName, String lastName, List<Vehicle> vehicles, long carbonEmission) {
         this.email = email;
         this.firstName = firstName;
         this.lastName = lastName;
         this.vehicles = vehicles;
+        this.carbonEmission = carbonEmission;
     }
 
     public User() {

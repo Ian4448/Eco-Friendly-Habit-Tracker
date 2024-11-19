@@ -1,13 +1,278 @@
-<!doctype html>
-<html lang="en">
+<!DOCTYPE html>
+<html>
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport"
-          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
-    <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>Document</title>
+    <title>Distance from Current Location</title>
+    <style>
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        #map {
+            height: 600px;
+            width: 600px;
+            margin: 20px auto;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        #info-panel {
+            padding: 10px;
+            font-family: Arial, sans-serif;
+            color: #333;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        .info-text {
+            margin: 10px 0;
+            font-size: 16px;
+        }
+        #location-status {
+            padding: 10px;
+            margin: 0 auto 10px auto;
+            border-radius: 4px;
+            max-width: 600px;
+        }
+        .success {
+            background-color: #d4edda;
+            color: #155724;
+        }
+        .error {
+            background-color: #f8d7da;
+            color: #721c24;
+        }
+        .nav-icons {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            display: flex;
+            gap: 15px;
+            z-index: 1000;
+        }
+        .nav-icon {
+            background: white;
+            padding: 10px;
+            border-radius: 50%;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            cursor: pointer;
+            transition: transform 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-decoration: none;
+        }
+        .nav-icon:hover {
+            transform: scale(1.1);
+        }
+        .nav-icon svg {
+            width: 24px;
+            height: 24px;
+            color: #333;
+        }
+        .vehicle-menu {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            width: 280px;
+            z-index: 1000;
+        }
+        .vehicle-menu h2 {
+            margin: 0 0 15px 0;
+            color: #333;
+            font-size: 18px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .vehicle-list {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        .vehicle-item {
+            display: flex;
+            align-items: center;
+            padding: 12px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+            border: 2px solid transparent;
+        }
+        .vehicle-item:hover {
+            background: #e9ecef;
+            transform: translateX(5px);
+        }
+        .vehicle-item.active {
+            border-color: #4285F4;
+            background: #e8f0fe;
+        }
+        .vehicle-item-icon {
+            margin-right: 12px;
+            color: #4285F4;
+        }
+        .vehicle-item-name {
+            font-weight: 500;
+            color: #333;
+        }
+        .empty-state {
+            text-align: center;
+            padding: 20px;
+            color: #6c757d;
+        }
+        .empty-state svg {
+            color: #adb5bd;
+            margin-bottom: 10px;
+        }
+        .empty-state a {
+            display: inline-block;
+            margin-top: 15px;
+            padding: 8px 16px;
+            background: #4285F4;
+            color: white;
+            text-decoration: none;
+            border-radius: 6px;
+            transition: background 0.2s;
+        }
+        .empty-state a:hover {
+            background: #3367d6;
+        }
+        .delete-button {
+            margin-left: auto;
+            padding: 4px;
+            border-radius: 50%;
+            border: none;
+            background: transparent;
+            cursor: pointer;
+            opacity: 0.5;
+            transition: opacity 0.2s;
+        }
+        .delete-button:hover {
+            opacity: 1;
+            background: #fee2e2;
+        }
+    </style>
 </head>
 <body>
-    <p>you made it to the home page!</p>
+<div class="vehicle-menu">
+    <h2>
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M19 17h2c.6 0 1-.4 1-1v-3c0-.9-.7-1.7-1.5-1.9C18.7 10.6 16 10 16 10s-1.3-1.4-2.2-2.3c-.5-.4-1.1-.7-1.8-.7H5c-.6 0-1.1.4-1.4.9l-1.4 2.9A3.7 3.7 0 0 0 2 12v4c0 .6.4 1 1 1h2"/>
+            <circle cx="7" cy="17" r="2"/>
+            <circle cx="17" cy="17" r="2"/>
+        </svg>
+        My Vehicles
+    </h2>
+    <div id="vehicleList" class="vehicle-list">
+        <!-- Vehicle list will be populated here -->
+    </div>
+</div>
+
+<div class="nav-icons">
+    <a href="/username" class="nav-icon" title="User Profile">
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/>
+            <circle cx="12" cy="7" r="4"/>
+        </svg>
+    </a>
+    <a href="/createVehicle" class="nav-icon" title="Create Vehicle">
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M19 17h2c.6 0 1-.4 1-1v-3c0-.9-.7-1.7-1.5-1.9C18.7 10.6 16 10 16 10s-1.3-1.4-2.2-2.3c-.5-.4-1.1-.7-1.8-.7H5c-.6 0-1.1.4-1.4.9l-1.4 2.9A3.7 3.7 0 0 0 2 12v4c0 .6.4 1 1 1h2"/>
+            <circle cx="7" cy="17" r="2"/>
+            <circle cx="17" cy="17" r="2"/>
+        </svg>
+    </a>
+</div>
+
+<div class="container">
+    <div id="location-status">Requesting your location...</div>
+    <div id="map"></div>
+    <div id="info-panel">
+        <div id="current-location" class="info-text"></div>
+        <div id="clicked-location" class="info-text">Click anywhere on the map</div>
+        <div id="distance" class="info-text"></div>
+    </div>
+</div>
+
+<script>
+    // ... (previous map initialization code remains the same) ...
+
+    // Add vehicle management functionality
+    async function loadVehicles() {
+        try {
+            const response = await fetch('/getVehicles');
+            const vehicles = await response.json();
+            const vehicleList = document.getElementById('vehicleList');
+
+            if (!vehicles || vehicles.length === 0) {
+                vehicleList.innerHTML = `
+                    <div class="empty-state">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M19 17h2c.6 0 1-.4 1-1v-3c0-.9-.7-1.7-1.5-1.9C18.7 10.6 16 10 16 10s-1.3-1.4-2.2-2.3c-.5-.4-1.1-.7-1.8-.7H5c-.6 0-1.1.4-1.4.9l-1.4 2.9A3.7 3.7 0 0 0 2 12v4c0 .6.4 1 1 1h2"/>
+                            <circle cx="7" cy="17" r="2"/>
+                            <circle cx="17" cy="17" r="2"/>
+                        </svg>
+                        <p>No vehicles found</p>
+                        <a href="/createVehicle">Add Your First Vehicle</a>
+                    </div>
+                `;
+                return;
+            }
+
+            vehicleList.innerHTML = vehicles.map(vehicle => `
+                <div class="vehicle-item" data-vehicle-name="${vehicle.name}">
+                    <svg class="vehicle-item-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M19 17h2c.6 0 1-.4 1-1v-3c0-.9-.7-1.7-1.5-1.9C18.7 10.6 16 10 16 10s-1.3-1.4-2.2-2.3c-.5-.4-1.1-.7-1.8-.7H5c-.6 0-1.1.4-1.4.9l-1.4 2.9A3.7 3.7 0 0 0 2 12v4c0 .6.4 1 1 1h2"/>
+                        <circle cx="7" cy="17" r="2"/>
+                        <circle cx="17" cy="17" r="2"/>
+                    </svg>
+                    <span class="vehicle-item-name">${vehicle.name}</span>
+                    <button class="delete-button" onclick="deleteVehicle('${vehicle.name}', event)">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M3 6h18"></path>
+                            <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"></path>
+                            <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"></path>
+                        </svg>
+                    </button>
+                </div>
+            `).join('');
+
+            // Add click handlers
+            document.querySelectorAll('.vehicle-item').forEach(item => {
+                item.addEventListener('click', function() {
+                    document.querySelectorAll('.vehicle-item').forEach(i => i.classList.remove('active'));
+                    this.classList.add('active');
+                });
+            });
+        } catch (error) {
+            console.error('Error loading vehicles:', error);
+        }
+    }
+
+    async function deleteVehicle(vehicleName, event) {
+        event.stopPropagation();
+        if (confirm(`Are you sure you want to delete ${vehicleName}?`)) {
+            try {
+                await fetch(`/deleteVehicle?vehicleName=${encodeURIComponent(vehicleName)}`, {
+                    method: 'DELETE'
+                });
+                loadVehicles(); // Reload the list
+            } catch (error) {
+                console.error('Error deleting vehicle:', error);
+            }
+        }
+    }
+
+    // Load vehicles when the page loads
+    document.addEventListener('DOMContentLoaded', loadVehicles);
+</script>
+
+<!-- Replace YOUR_API_KEY with your actual Google Maps API key -->
+<script async defer
+        src="https://maps.googleapis.com/maps/api/js?key=YOUR_API_KEY&libraries=geometry&callback=initMap">
+</script>
 </body>
 </html>
