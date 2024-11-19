@@ -13,16 +13,15 @@ An eco-conscious habit-tracking application designed to promote sustainable livi
 ---
 
 ## Features
-- **User Registration:** Users are able to create/register a new account which is stored with the in-memory h2 DB, and user's session id/auth token is stored for relevant login security.
+- **User Accounts:** Users are able to create/register a new account which is stored with the in-memory h2 DB, and user's session id/auth token is stored for relevant login security.
 - **Vehicle Registration:** Users are able to create and remove various vehicles with different attributes (name, make, model, mpg) which will be used in the future to calculate carbon emissions.
 - **Extensive Testing:** Unit tests have been added to relevant logic to ensure functionality is working as intended, integration tests are on priority TODO. 
 
 ## Future Enhancements
 - **Progress Reporting:** Visual summaries of your eco-habits’ impact over time. **[Currently Working On]**
-- **Habit Tracking:** Track daily eco-friendly actions, set goals, and monitor your streaks.
+- **Habit Tracking:** Track daily eco-friendly actions, set goals, and monitor your streaks. **[Currently Working On]**
 - **Reminders and Notifications:** Encouragement to complete daily habits.
 - **Eco-Fact of the Day:** Stay informed with daily eco-friendly tips and facts.
-- **User Accounts:** Register and log in to save personal tracking data securely.
 ---
 
 ## Getting Started
