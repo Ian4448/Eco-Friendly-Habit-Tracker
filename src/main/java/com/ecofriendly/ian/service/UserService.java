@@ -44,19 +44,16 @@ public class UserService {
         return userDAO.findAll();
     }
 
-    // Update user method
     public User updateUser(String email, User userDetails) throws UserNotFoundException {
         User existingUser = getUserByEmail(email); // Retrieve existing user by email
 
-        if (!existingUser.getEmail().equals(userDetails.getEmail())) {
-            deleteUser(existingUser);
-        }
         // Update fields
-        existingUser.setEmail(userDetails.getEmail());
+        existingUser.setEmail(userDetails.getEmail()); // updating email isn't working, needs to be fixed.
         existingUser.setFirstName(userDetails.getFirstName());
         existingUser.setLastName(userDetails.getLastName());
         existingUser.setPassword(userDetails.getPassword());
         existingUser.setVehicles(userDetails.getVehicles());
+        existingUser.setCarbonEmission(userDetails.getCarbonEmission());
 
         // Save the updated user
         return userDAO.save(existingUser);
@@ -96,4 +93,10 @@ public class UserService {
         return userDAO.findByEmail(email).orElseThrow(() -> new UserNotFoundException(email));
     }
 
+    public void modifyUserCarbonEmissionTotal(User user, double emissionTotalChange, boolean ecoFriendlyChange) throws UserNotFoundException {
+        double currentEmissionTotal = user.getCarbonEmission();
+        double newEmissionTotal = ecoFriendlyChange ? currentEmissionTotal + emissionTotalChange :
+                currentEmissionTotal - emissionTotalChange;
+        user.setCarbonEmission(newEmissionTotal);
+    }
 }

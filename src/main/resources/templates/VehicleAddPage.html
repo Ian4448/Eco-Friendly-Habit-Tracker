@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>EcoTrack</title>
+    <title>Eco Tracker</title>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css" rel="stylesheet">
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap');
@@ -64,6 +64,31 @@
             transform: translateY(-2px);
         }
 
+        .home-button {
+            position: absolute;
+            top: 1.5rem;
+            left: 1.5rem;
+            padding: 0.75rem;
+            border-radius: 0.75rem;
+            background: linear-gradient(135deg, #34d399 0%, #10b981 100%);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 2px 8px rgba(52, 211, 153, 0.2);
+        }
+
+        .home-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(52, 211, 153, 0.3);
+        }
+
+        .home-button:active {
+            transform: translateY(0);
+        }
+
+        .home-button svg {
+            width: 24px;
+            height: 24px;
+        }
+
         .leaf-pattern {
             background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M30 0c16.569 0 30 13.431 30 30 0 16.569-13.431 30-30 30C13.431 60 0 46.569 0 30 0 13.431 13.431 0 30 0zm0 8c-12.15 0-22 9.85-22 22s9.85 22 22 22 22-9.85 22-22-9.85-22-22-22zm0 4c9.941 0 18 8.059 18 18s-8.059 18-18 18-18-8.059-18-18 8.059-18 18-18z' fill='%2334d399' fill-opacity='0.05'/%3E%3C/svg%3E");
         }
@@ -102,12 +127,26 @@
 <!-- User Profile -->
 <div class="user-profile">
     <span class="text-gray-700 font-medium">Welcome, <span id="username">User</span></span>
-    <a href="/username" class="glass-card p-2 rounded-full hover:bg-gray-50 transition-colors">
+    <a href="#" id="profileLink" class="glass-card p-2 rounded-full hover:bg-gray-50 transition-colors">
         <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
         </svg>
     </a>
 </div>
+
+<div>
+    <body class="leaf-pattern p-4 sm:p-6 lg:p-8">
+    <!-- Home Button -->
+    <a href="/home" class="home-button" aria-label="Return to home">
+        <svg xmlns="http://www.w3.org/2000/svg" class="text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+        </svg>
+    </a>
+    </body>
+</div>
+
+
+
 
 <div class="max-w-6xl mx-auto">
     <!-- Header -->
@@ -310,6 +349,13 @@
                 console.warn('User email not found');
                 updateUserDisplay('Guest');
                 return;
+            }
+
+            // Update profile link with encoded email
+            const encodedEmail = encodeURIComponent(userEmail);
+            const profileLink = document.getElementById('profileLink');
+            if (profileLink) {
+                profileLink.href = `/edit/${encodedEmail}`; // Changed to match the controller path
             }
 
             const response = await fetch(`/user?email=${encodeURIComponent(userEmail)}`);

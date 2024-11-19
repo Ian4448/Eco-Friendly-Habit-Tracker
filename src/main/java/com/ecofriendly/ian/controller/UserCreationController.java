@@ -21,6 +21,14 @@ public class UserCreationController {
     private final BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
     private final Logger logger = Logger.getLogger(UserCreationController.class.getName());
 
+    /**
+     * Handles user creation by sanitizing input, hashing the password, and storing the user in the database.
+     * After successful user creation, the user is added to the model and redirected to the signup page.
+     *
+     * @param user the user object containing the user's details (first name, last name, email, and password)
+     * @param model the model used to add the user attributes for the view
+     * @return the name of the signup page view
+     */
     @PostMapping({"/create", "/create/"})
     public String createUser(@RequestBody User user, Model model) {
         // Sanitize user inputs
@@ -52,6 +60,6 @@ public class UserCreationController {
     @GetMapping("/create")
     public String showCreateForm(Model model) {
         model.addAttribute("user", new User());
-        return "SignUpPage"; // Name of your HTML form page
+        return "SignUpPage";
     }
 }

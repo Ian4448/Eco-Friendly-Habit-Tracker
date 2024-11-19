@@ -23,9 +23,9 @@ public class User {
     private List<Vehicle> vehicles;
 
 
-    private long carbonEmission = 0; // CO2 in KG, defaulted to 0
+    private double carbonEmission = 0.0; // CO2 in KG, defaulted to 0.0
 
-    public User(String email, String firstName, String lastName, List<Vehicle> vehicles, long carbonEmission) {
+    public User(String email, String firstName, String lastName, List<Vehicle> vehicles, double carbonEmission) {
         this.email = email;
         this.firstName = firstName;
         this.lastName = lastName;

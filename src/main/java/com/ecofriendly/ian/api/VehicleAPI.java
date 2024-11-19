@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Logger;
 
 @RestController
 public class VehicleAPI {
@@ -21,6 +22,18 @@ public class VehicleAPI {
     @Autowired
     private UserService userService;
 
+    private final Logger logger = Logger.getLogger(VehicleAPI.class.getName());
+
+    /**
+     * Adds a new vehicle for the authenticated user. Validates the vehicle's uniqueness and ensures the user
+     * has not exceeded the maximum allowed number of vehicles. If validation passes, the vehicle is added
+     * to the user's account.
+     *
+     * @param token the authentication token extracted from the cookies
+     * @param vehicle the vehicle object containing the details of the vehicle to be added
+     * @return a {@link ResponseEntity} containing the added vehicle if successful, or an error message if
+     *         the request fails validation or encounters an internal error
+     */
     @PostMapping("/addVehicle")
     public ResponseEntity<?> addVehicle(@CookieValue(value = "auth_token", required = false) String token, @RequestBody Vehicle vehicle) {
         try {
@@ -60,7 +73,7 @@ public class VehicleAPI {
             User user = userService.getUserByToken(token); // Get the user by token
             return vehicleService.getAllVehicles(user.getEmail());
         } catch (Exception e) {
-            // Handle error
+            logger.info("Failed to retrieve list of vehicles.");
         }
         return null;
     }
@@ -72,7 +85,7 @@ public class VehicleAPI {
             vehicleService.deleteVehicle(
                     user.getEmail(), vehicleService.getVehicleFromName(vehicleName, user.getEmail()));
         } catch (Exception e) {
-            // do nothing
+            logger.info("Failed to delete the requested vehicle.");
         }
     }
 }

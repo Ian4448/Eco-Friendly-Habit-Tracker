@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Account Settings</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #f5f5f5;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .container {
+            background: white;
+            width: 100%;
+            max-width: 450px;
+            border-radius: 16px;
+            box-shadow: 0 4px 24px rgba(0, 0, 0, 0.08);
+            padding: 32px;
+            margin: 20px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 32px;
+        }
+
+        h1 {
+            font-size: 24px;
+            color: #111827;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        .subtitle {
+            color: #6B7280;
+            font-size: 14px;
+        }
+
+        .form-group {
+            margin-bottom: 24px;
+        }
+
+        label {
+            display: block;
+            font-size: 14px;
+            font-weight: 500;
+            color: #374151;
+            margin-bottom: 8px;
+        }
+
+        .input-wrapper {
+            position: relative;
+        }
+
+        input {
+            width: 100%;
+            padding: 12px 16px;
+            border: 1px solid #E5E7EB;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: all 0.2s;
+            background: #F9FAFB;
+        }
+
+        input:focus {
+            outline: none;
+            border-color: #34D399;
+            background: white;
+            box-shadow: 0 0 0 3px rgba(52, 211, 153, 0.1);
+        }
+
+        .password-toggle {
+            position: absolute;
+            right: 16px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            color: #6B7280;
+            cursor: pointer;
+            padding: 0;
+            display: flex;
+            align-items: center;
+        }
+
+        .home-button {
+            position: absolute;
+            top: 1.5rem;
+            left: 1.5rem;
+            padding: 0.75rem;
+            border-radius: 0.75rem;
+            background: linear-gradient(135deg, #34d399 0%, #10b981 100%);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 2px 8px rgba(52, 211, 153, 0.2);
+        }
+
+        .home-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(52, 211, 153, 0.3);
+        }
+
+        .home-button:active {
+            transform: translateY(0);
+        }
+
+        .home-button svg {
+            width: 24px;
+            height: 24px;
+        }
+
+        .submit-btn {
+            width: 100%;
+            padding: 12px;
+            background: #34D399;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .submit-btn:hover {
+            background: #10B981;
+        }
+
+        .error {
+            color: #DC2626;
+            font-size: 12px;
+            margin-top: 4px;
+            display: none;
+        }
+
+        .success-message {
+            display: none;
+            background: #ECFDF5;
+            color: #065F46;
+            padding: 12px;
+            border-radius: 8px;
+            text-align: center;
+            margin-bottom: 16px;
+            font-size: 14px;
+            animation: fadeIn 0.3s ease-in;
+        }
+
+        .name-group {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+        }
+
+        .loading {
+            opacity: 0.7;
+            pointer-events: none;
+        }
+
+        .current-email {
+            font-size: 12px;
+            color: #6B7280;
+            margin-top: 4px;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .optional-label {
+            color: #6B7280;
+            font-size: 12px;
+            font-weight: normal;
+            margin-left: 4px;
+        }
+    </style>
+</head>
+<body>
+<div>
+    <body class="leaf-pattern p-4 sm:p-6 lg:p-8">
+    <!-- Home Button -->
+    <a href="/home" class="home-button" aria-label="Return to home">
+        <svg xmlns="http://www.w3.org/2000/svg" class="text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+        </svg>
+    </a>
+    </body>
+</div>
+<div class="container">
+    <div class="header">
+        <h1>Account Settings</h1>
+        <div class="subtitle">Update your personal information</div>
+    </div>
+
+    <div class="success-message" id="successMessage"></div>
+
+    <form id="settingsForm">
+        <div class="form-group name-group">
+            <div>
+                <label for="firstName">First Name</label>
+                <input type="text" id="firstName" name="firstName" required>
+            </div>
+            <div>
+                <label for="lastName">Last Name</label>
+                <input type="text" id="lastName" name="lastName" required>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label for="email">Email Address</label>
+            <input type="email" id="email" name="email" required>
+            <div class="error" id="emailError">Please enter a valid email address</div>
+        </div>
+
+        <div class="form-group">
+            <label for="password">New Password <span class="optional-label">(optional)</span></label>
+            <div class="input-wrapper">
+                <input type="password" id="password" name="password">
+                <button type="button" class="password-toggle" onclick="togglePassword('password')">
+                    <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                </button>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label for="confirmPassword">Confirm New Password <span class="optional-label">(optional)</span></label>
+            <div class="input-wrapper">
+                <input type="password" id="confirmPassword" name="confirmPassword">
+                <button type="button" class="password-toggle" onclick="togglePassword('confirmPassword')">
+                    <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                </button>
+            </div>
+            <div class="error" id="passwordError">Passwords do not match</div>
+        </div>
+
+        <button type="submit" class="submit-btn">Save Changes</button>
+    </form>
+</div>
+
+<script>
+    function getCurrentUrlEmail() {
+        const pathSegments = window.location.pathname.split('/');
+        const encodedEmail = pathSegments[pathSegments.length - 1];
+        return decodeURIComponent(encodedEmail);
+    }
+
+    function showSuccessMessage(message) {
+        const successMessage = document.getElementById('successMessage');
+        successMessage.textContent = message;
+        successMessage.style.display = 'block';
+        setTimeout(() => {
+            successMessage.style.display = 'none';
+        }, 3000);
+    }
+
+    function showError(message, elementId) {
+        const errorElement = document.getElementById(elementId);
+        if (errorElement) {
+            errorElement.textContent = message;
+            errorElement.style.display = 'block';
+        }
+    }
+
+    function togglePassword(inputId) {
+        const input = document.getElementById(inputId);
+        input.type = input.type === 'password' ? 'text' : 'password';
+    }
+
+    document.getElementById('settingsForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+
+        document.querySelectorAll('.error').forEach(error => error.style.display = 'none');
+
+        const formData = new FormData(e.target);
+        const currentEmail = getCurrentUrlEmail();
+
+        // Only include password fields if they're not empty
+        const password = formData.get('password');
+        const confirmPassword = formData.get('confirmPassword');
+
+        // Basic validation
+        if (password !== confirmPassword) {
+            showError('Passwords do not match', 'passwordError');
+            return;
+        }
+
+        const userData = {
+            firstName: formData.get('firstName'),
+            lastName: formData.get('lastName'),
+            email: formData.get('email'),
+            currentEmail: currentEmail
+        };
+
+        // Only add password to request if it's being changed
+        if (password) {
+            userData.password = password;
+        }
+
+        try {
+            const response = await fetch('/updateUser', {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                credentials: 'include',
+                body: JSON.stringify(userData)
+            });
+
+            if (response.ok) {
+                const changes = [];
+                if (userData.email !== currentEmail) changes.push('email');
+                if (password) changes.push('password');
+                if (userData.firstName !== document.getElementById('firstName').defaultValue ||
+                    userData.lastName !== document.getElementById('lastName').defaultValue) {
+                    changes.push('name');
+                }
+
+                let successMsg = 'Settings updated successfully';
+                if (changes.length > 0) {
+                    successMsg = `Updated: ${changes.join(', ')}`;
+                }
+                showSuccessMessage(successMsg);
+
+                // Redirect if email was changed
+                if (userData.email !== currentEmail) {
+                    setTimeout(() => {
+                        const newEncodedEmail = encodeURIComponent(userData.email);
+                        window.location.href = `/edit/${newEncodedEmail}`;
+                    }, 1500);
+                }
+            } else {
+                const errorData = await response.json();
+                showError(errorData.message || "Error updating user information", 'emailError');
+            }
+        } catch (error) {
+            console.error('Error updating settings:', error);
+            showError("An unexpected error occurred", 'emailError');
+        }
+    });
+
+    async function loadUserData() {
+        const form = document.getElementById('settingsForm');
+        form.classList.add('loading');
+
+        try {
+            const email = getCurrentUrlEmail();
+            if (!email) {
+                throw new Error('No email found in URL');
+            }
+
+            const userResponse = await fetch(`/user?email=${encodeURIComponent(email)}`);
+            if (!userResponse.ok) {
+                throw new Error('Failed to fetch user data');
+            }
+
+            const userData = await userResponse.json();
+
+            // Pre-fill the form
+            document.getElementById('firstName').value = userData.firstName || '';
+            document.getElementById('lastName').value = userData.lastName || '';
+            document.getElementById('email').value = userData.email || '';
+
+            // Set these as default values for change detection
+            document.getElementById('firstName').defaultValue = userData.firstName || '';
+            document.getElementById('lastName').defaultValue = userData.lastName || '';
+            document.getElementById('email').defaultValue = userData.email || '';
+
+        } catch (error) {
+            console.error('Error loading user data:', error);
+            showError('Error loading user data. Please try again.', 'emailError');
+        } finally {
+            form.classList.remove('loading');
+        }
+    }
+
+    window.addEventListener('load', loadUserData);
+</script>
+</body>
+</html>

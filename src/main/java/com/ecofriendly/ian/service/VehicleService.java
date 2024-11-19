@@ -90,8 +90,7 @@ public class VehicleService {
         return user.getVehicles().stream().filter(vehicle -> vehicle.getName().equals(vehicleName)).findFirst().orElseThrow(() -> new VehicleNotFoundException(vehicleName));
     }
 
-    // Delete a vehicle by its ID
-    public void deleteVehicle(String email, Vehicle vehicle) throws UserNotFoundException, VehicleNotFoundException {
+    public void deleteVehicle(String email, Vehicle vehicle) throws UserNotFoundException {
         User user = userDAO.findByEmail(email).orElseThrow(() -> new UserNotFoundException(email));
 
         // Remove the vehicle from the user's list

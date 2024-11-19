@@ -99,7 +99,7 @@ class UserLoginControllerTest {
     void getCurrentUser_ShouldReturnEmail_WhenEmailIsInSession() {
         when(session.getAttribute("userEmail")).thenReturn("test@example.com");
 
-        Map<String, String> result = userLoginController.getCurrentUser(session);
+        Map<String, String> result = userLoginController.getCurrentUser(session, request);
 
         assertNotNull(result);
         assertEquals("test@example.com", result.get("email"));
@@ -110,7 +110,7 @@ class UserLoginControllerTest {
     void getCurrentUser_ShouldReturnEmptyMap_WhenEmailIsNotInSession() {
         when(session.getAttribute("userEmail")).thenReturn(null);
 
-        Map<String, String> result = userLoginController.getCurrentUser(session);
+        Map<String, String> result = userLoginController.getCurrentUser(session, request);
 
         assertNotNull(result);
         assertEquals(Collections.singletonMap("email", null), result);
