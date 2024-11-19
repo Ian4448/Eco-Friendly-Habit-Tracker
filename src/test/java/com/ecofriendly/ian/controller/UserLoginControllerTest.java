@@ -23,7 +23,6 @@ import java.util.Map;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
-@SpringBootTest
 @ExtendWith(MockitoExtension.class)
 class UserLoginControllerTest {
     @Mock
