@@ -1,0 +1,316 @@
+:root {
+    --primary-green: #4CAF50;
+    --light-green: #E8F5E9;
+    --hover-green: #43A047;
+    --white: #ffffff;
+    --gray-100: #f8f9fa;
+    --gray-200: #e9ecef;
+    --text-dark: #2C3E50;
+}
+
+body {
+    margin: 0;
+    padding: 0;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    background-color: var(--white);
+    color: var(--text-dark);
+}
+
+.main-container {
+    display: flex;
+    height: 100vh;
+}
+
+.logo {
+    position: fixed;
+    top: 20px;
+    left: 20px;
+    z-index: 1000;
+    background: var(--white);
+    padding: 8px;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.logo svg {
+    width: 32px;
+    height: 32px;
+    color: var(--primary-green);
+}
+
+.vehicle-menu {
+    width: 300px;
+    background: var(--white);
+    padding: 20px;
+    box-shadow: 2px 0 4px rgba(0,0,0,0.1);
+    height: 100vh;
+    overflow-y: auto;
+    z-index: 100;
+}
+
+.vehicle-menu h2 {
+    margin: 60px 0 20px 0;
+    color: var(--text-dark);
+    font-size: 18px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.vehicle-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.vehicle-item {
+    display: flex;
+    align-items: center;
+    padding: 12px;
+    background: var(--light-green);
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s;
+    border: 2px solid transparent;
+}
+
+.vehicle-item:hover {
+    background: var(--gray-200);
+    transform: translateX(5px);
+}
+
+.vehicle-item.active {
+    border-color: var(--primary-green);
+    background: var(--light-green);
+}
+
+.vehicle-item-icon {
+    margin-right: 12px;
+    color: var(--primary-green);
+}
+
+.map-container {
+    flex-grow: 1;
+    position: relative;
+}
+
+#map {
+    height: 100%;
+    width: 100%;
+    position: absolute;
+    top: 0;
+    left: 0;
+}
+
+.nav-icons {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    display: flex;
+    gap: 15px;
+    z-index: 1000;
+}
+
+.nav-icon {
+    background: var(--white);
+    padding: 10px;
+    border-radius: 50%;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    cursor: pointer;
+    transition: transform 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-decoration: none;
+}
+
+.nav-icon:hover {
+    transform: scale(1.1);
+    background: var(--light-green);
+}
+
+.nav-icon svg {
+    width: 24px;
+    height: 24px;
+    color: var(--primary-green);
+}
+
+.empty-state {
+    text-align: center;
+    padding: 20px;
+    color: var(--text-dark);
+}
+
+.empty-state svg {
+    color: var(--primary-green);
+    margin-bottom: 10px;
+}
+
+.empty-state a {
+    display: inline-block;
+    margin-top: 15px;
+    padding: 8px 16px;
+    background: var(--primary-green);
+    color: var(--white);
+    text-decoration: none;
+    border-radius: 6px;
+    transition: background 0.2s;
+}
+
+.empty-state a:hover {
+    background: var(--hover-green);
+}
+
+.delete-button {
+    margin-left: auto;
+    padding: 4px;
+    border-radius: 50%;
+    border: none;
+    background: transparent;
+    cursor: pointer;
+    opacity: 0.5;
+    transition: opacity 0.2s;
+}
+
+.delete-button:hover {
+    opacity: 1;
+    background: #fee2e2;
+}
+
+#location-status {
+    position: absolute;
+    top: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    padding: 10px 20px;
+    border-radius: 8px;
+    background: var(--white);
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    z-index: 1000;
+}
+
+#info-panel {
+    position: absolute;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: var(--white);
+    padding: 15px;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    max-width: 400px;
+    width: 90%;
+    z-index: 1000;
+}
+
+.info-text {
+    margin: 8px 0;
+    font-size: 14px;
+}
+
+.trip-planner {
+    position: absolute;
+    top: 20px;
+    left: 340px; /* Positioned next to vehicle menu */
+    background: white;
+    padding: 20px;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    width: 300px;
+    z-index: 1000;
+}
+
+.location-input {
+    display: flex;
+    align-items: center;
+    margin-bottom: 12px;
+    background: var(--gray-100);
+    padding: 8px 12px;
+    border-radius: 8px;
+    gap: 8px;
+}
+
+.location-input input {
+    border: none;
+    background: transparent;
+    flex-grow: 1;
+    padding: 8px;
+    font-size: 14px;
+    outline: none;
+}
+
+.location-input svg {
+    color: var(--primary-green);
+    min-width: 20px;
+}
+
+.transport-options {
+    margin: 16px 0;
+    display: flex;
+    gap: 8px;
+}
+
+.transport-option {
+    flex: 1;
+    padding: 8px;
+    border: 2px solid var(--light-green);
+    border-radius: 8px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    transition: all 0.2s;
+}
+
+.transport-option:hover {
+    background: var(--light-green);
+}
+
+.transport-option.active {
+    background: var(--light-green);
+    border-color: var(--primary-green);
+}
+
+.transport-option svg {
+    color: var(--primary-green);
+}
+
+.confirm-trip {
+    width: 100%;
+    padding: 12px;
+    background: var(--primary-green);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 500;
+    transition: background 0.2s;
+}
+
+.confirm-trip:hover {
+    background: var(--hover-green);
+}
+
+.confirm-trip:disabled {
+    background: var(--gray-200);
+    cursor: not-allowed;
+}
+
+.trip-result {
+    margin-top: 16px;
+    padding: 12px;
+    background: var(--light-green);
+    border-radius: 8px;
+    font-size: 14px;
+    display: none;
+}
+
+.marker-label {
+    background: white;
+    padding: 4px 8px;
+    border-radius: 4px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    font-size: 12px;
+    font-weight: 500;
+}

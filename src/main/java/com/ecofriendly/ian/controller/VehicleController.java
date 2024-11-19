@@ -21,12 +21,12 @@ public class VehicleController {
     public String createVehicle(@RequestBody User user, @RequestBody Vehicle vehicle, Model model) throws UserNotFoundException, InvalidVehicleException {
         vehicleService.addVehicle(vehicle, user.getEmail());
         model.addAttribute("vehicle", new Vehicle());
-        return "VehicleAddPage";
+        return "vehicleaddpage";
     }
 
     @GetMapping("/createVehicle")
     public String showCreateForm(Model model) {
         model.addAttribute("vehicle", new Vehicle());
-        return "VehicleAddPage";
+        return "vehicleaddpage";
     }
 }

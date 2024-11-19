@@ -32,7 +32,7 @@ public class UserUpdateController {
             }
 
             model.addAttribute("email", authenticatedEmail);
-            return "UserUpdateForm";
+            return "userupdateform";
 
         } catch (IllegalArgumentException e) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid email format in URL.");

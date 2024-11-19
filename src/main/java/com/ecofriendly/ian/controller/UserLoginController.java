@@ -56,7 +56,7 @@ public class UserLoginController {
         }
 
         model.addAttribute("userForm", new UserForm("", ""));
-        return "loginForm";
+        return "loginform";
     }
 
     /**
@@ -108,7 +108,7 @@ public class UserLoginController {
         } catch (UserNotFoundException e) {
             model.addAttribute("error", "Invalid username or password");
             logger.info("Invalid login" + e.getMessage());
-            return "loginForm";
+            return "loginform";
         }
     }
 

@@ -53,13 +53,13 @@ public class UserCreationController {
         // Add the user to the model for the view
         model.addAttribute("user", user);
 
-        return "SignUpPage"; // Redirect to the signup page after creation
+        return "signuppage"; // Redirect to the signup page after creation
     }
 
     // Handle the GET request for the form page
     @GetMapping("/create")
     public String showCreateForm(Model model) {
         model.addAttribute("user", new User());
-        return "SignUpPage";
+        return "signuppage";
     }
 }
