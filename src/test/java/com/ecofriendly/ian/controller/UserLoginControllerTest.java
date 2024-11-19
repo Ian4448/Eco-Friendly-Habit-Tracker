@@ -1,0 +1,120 @@
+package com.ecofriendly.ian.controller;
+
+import com.ecofriendly.ian.exceptions.UserNotFoundException;
+import com.ecofriendly.ian.model.UserForm;
+import com.ecofriendly.ian.service.UserService;
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.ui.Model;
+
+import java.util.Collections;
+import java.util.Map;
+
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.*;
+
+@SpringBootTest
+@ExtendWith(MockitoExtension.class)
+class UserLoginControllerTest {
+    @Mock
+    private UserService userService;
+
+    @Mock
+    private HttpServletRequest request;
+
+    @Mock
+    private HttpServletResponse response;
+
+    @Mock
+    private HttpSession session;
+
+    @Mock
+    private Model model;
+
+    @InjectMocks
+    private UserLoginController userLoginController;
+
+    @BeforeEach
+    void setUp() {
+        MockitoAnnotations.openMocks(this);
+    }
+
+    @Test
+    void loginForm_ShouldRedirectToHome_WhenAuthTokenIsValid() {
+        Cookie authCookie = new Cookie("auth_token", "valid-token");
+        when(request.getCookies()).thenReturn(new Cookie[]{authCookie});
+        when(userService.isTokenValid("valid-token")).thenReturn(true);
+
+        String result = userLoginController.loginForm(request, model);
+
+        assertEquals("redirect:/home", result);
+        verify(userService, times(1)).isTokenValid("valid-token");
+    }
+
+    @Test
+    void loginForm_ShouldReturnLoginForm_WhenAuthTokenIsInvalid() {
+        Cookie authCookie = new Cookie("auth_token", "invalid-token");
+        when(request.getCookies()).thenReturn(new Cookie[]{authCookie});
+        when(userService.isTokenValid("invalid-token")).thenReturn(false);
+
+        String result = userLoginController.loginForm(request, model);
+
+        assertEquals("loginForm", result);
+        verify(userService, times(1)).isTokenValid("invalid-token");
+        verify(model, times(1)).addAttribute(eq("userForm"), any(UserForm.class));
+    }
+
+    @Test
+    void loginForm_ShouldReturnLoginForm_WhenNoCookiesFound() {
+        when(request.getCookies()).thenReturn(null);
+
+        String result = userLoginController.loginForm(request, model);
+
+        assertEquals("loginForm", result);
+        verify(model, times(1)).addAttribute(eq("userForm"), any(UserForm.class));
+    }
+
+    @Test
+    void loginPost_ShouldReturnLoginForm_WhenLoginFails() throws UserNotFoundException {
+        UserForm userForm = new UserForm("test@example.com", "password");
+        when(userService.matchLogin(userForm)).thenReturn(false);
+
+        String result = userLoginController.loginPost(userForm, model, response, session);
+
+        assertEquals("loginForm", result);
+        verify(model, times(1)).addAttribute("error", "Invalid username or password");
+        verify(userService, times(1)).matchLogin(userForm);
+    }
+
+    @Test
+    void getCurrentUser_ShouldReturnEmail_WhenEmailIsInSession() {
+        when(session.getAttribute("userEmail")).thenReturn("test@example.com");
+
+        Map<String, String> result = userLoginController.getCurrentUser(session);
+
+        assertNotNull(result);
+        assertEquals("test@example.com", result.get("email"));
+        verify(session, times(1)).getAttribute("userEmail");
+    }
+
+    @Test
+    void getCurrentUser_ShouldReturnEmptyMap_WhenEmailIsNotInSession() {
+        when(session.getAttribute("userEmail")).thenReturn(null);
+
+        Map<String, String> result = userLoginController.getCurrentUser(session);
+
+        assertNotNull(result);
+        assertEquals(Collections.singletonMap("email", null), result);
+        verify(session, times(1)).getAttribute("userEmail");
+    }
+}
