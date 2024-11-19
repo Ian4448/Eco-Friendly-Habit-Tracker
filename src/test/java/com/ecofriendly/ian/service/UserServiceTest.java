@@ -5,6 +5,7 @@ import com.ecofriendly.ian.dao.UserDAO;
 import com.ecofriendly.ian.exceptions.UserNotFoundException;
 import com.ecofriendly.ian.model.Token;
 import com.ecofriendly.ian.model.User;
+import com.ecofriendly.ian.model.Vehicle;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -17,6 +18,7 @@ import java.util.ArrayList;
 import java.util.Optional;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.*;
 
@@ -108,5 +110,16 @@ class UserServiceTest {
 
         when(userDAO.findByEmail(user.getEmail())).thenReturn(Optional.empty());
         assertThrows(UserNotFoundException.class, () -> userService.getUserByEmail(user.getEmail()));
+    }
+
+    @Test
+    public void testCalculateCarbonEmission() {
+        Vehicle vehicle = new Vehicle("make", "model", "name", 45, user);
+        double distance = 100.0;
+        double expectedEmission = (distance / vehicle.getMpg()) * 264.172;
+
+        double emission = userService.calculateCarbonEmission(vehicle, distance);
+
+        assertEquals(expectedEmission, emission);
     }
 }

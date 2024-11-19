@@ -112,20 +112,4 @@ public class UserLoginController {
         }
     }
 
-    @GetMapping("/api/current-user")
-    @ResponseBody
-    public Map<String, String> getCurrentUser(HttpSession session, HttpServletRequest request) {
-        String email = (String) session.getAttribute("userEmail");
-
-        // If no session, check cookie
-        if (email == null && request.getCookies() != null) {
-            email = Arrays.stream(request.getCookies())
-                    .filter(c -> "user_email".equals(c.getName()))
-                    .map(Cookie::getValue)
-                    .findFirst()
-                    .orElse(null);
-        }
-
-        return Collections.singletonMap("email", email);
-    }
 }

@@ -68,7 +68,7 @@ class UserLoginControllerTest {
 
         String result = userLoginController.loginForm(request, model);
 
-        assertEquals("loginForm", result);
+        assertEquals("loginform", result);
         verify(userService, times(1)).isTokenValid("invalid-token");
         verify(model, times(1)).addAttribute(eq("userForm"), any(UserForm.class));
     }
@@ -79,7 +79,7 @@ class UserLoginControllerTest {
 
         String result = userLoginController.loginForm(request, model);
 
-        assertEquals("loginForm", result);
+        assertEquals("loginform", result);
         verify(model, times(1)).addAttribute(eq("userForm"), any(UserForm.class));
     }
 
@@ -90,30 +90,8 @@ class UserLoginControllerTest {
 
         String result = userLoginController.loginPost(userForm, model, response, session);
 
-        assertEquals("loginForm", result);
+        assertEquals("loginform", result);
         verify(model, times(1)).addAttribute("error", "Invalid username or password");
         verify(userService, times(1)).matchLogin(userForm);
-    }
-
-    @Test
-    void getCurrentUser_ShouldReturnEmail_WhenEmailIsInSession() {
-        when(session.getAttribute("userEmail")).thenReturn("test@example.com");
-
-        Map<String, String> result = userLoginController.getCurrentUser(session, request);
-
-        assertNotNull(result);
-        assertEquals("test@example.com", result.get("email"));
-        verify(session, times(1)).getAttribute("userEmail");
-    }
-
-    @Test
-    void getCurrentUser_ShouldReturnEmptyMap_WhenEmailIsNotInSession() {
-        when(session.getAttribute("userEmail")).thenReturn(null);
-
-        Map<String, String> result = userLoginController.getCurrentUser(session, request);
-
-        assertNotNull(result);
-        assertEquals(Collections.singletonMap("email", null), result);
-        verify(session, times(1)).getAttribute("userEmail");
     }
 }

@@ -130,14 +130,4 @@ class VehicleServiceTest {
         verify(vehicleDAO, times(1)).delete(vehicle);
         verify(userDAO, times(1)).save(user);
     }
-
-    @Test
-    public void testCalculateCarbonEmission() {
-        double distance = 100.0;
-        double expectedEmission = (distance / vehicle.getMpg()) * 264.172;
-
-        double emission = vehicleService.calculateCarbonEmission(vehicle, distance);
-
-        assertEquals(expectedEmission, emission);
-    }
 }

@@ -7,6 +7,7 @@ import com.ecofriendly.ian.exceptions.UserNotFoundException;
 import com.ecofriendly.ian.model.Token;
 import com.ecofriendly.ian.model.User;
 import com.ecofriendly.ian.model.UserForm;
+import com.ecofriendly.ian.model.Vehicle;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Component;
@@ -91,6 +92,16 @@ public class UserService {
     public User getUserByToken(String token) throws UserNotFoundException {
         String email = getEmailFromToken(token);
         return userDAO.findByEmail(email).orElseThrow(() -> new UserNotFoundException(email));
+    }
+
+    /**
+     * This method calculates carbon emissions in kilograms for a
+     * gasoline-powered vehicle based on the distance traveled and fuel efficiency (mpg).
+     * The emission factor of 8.89 kg CO₂ per gallon is a standardized value derived
+     * from the carbon content of gasoline and assumes complete combustion.
+     */
+    public double calculateCarbonEmission(Vehicle vehicle, double distance) {
+        return (distance / vehicle.getMpg()) * 8.89;
     }
 
     public void modifyUserCarbonEmissionTotal(User user, double emissionTotalChange, boolean ecoFriendlyChange) throws UserNotFoundException {

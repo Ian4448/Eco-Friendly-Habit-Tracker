@@ -102,9 +102,4 @@ public class VehicleService {
         // Delete the vehicle from the database
         vehicleDAO.delete(vehicle);
     }
-
-    // Calculate carbon emissions for a vehicle based on distance
-    public double calculateCarbonEmission(Vehicle vehicle, double distance) {
-        return (distance / vehicle.getMpg()) * 264.172;
-    }
 }

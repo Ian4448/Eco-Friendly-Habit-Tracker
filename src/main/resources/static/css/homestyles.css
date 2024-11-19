@@ -19,23 +19,37 @@ body {
 .main-container {
     display: flex;
     height: 100vh;
+    position: relative;
 }
 
-.logo {
+.app-header {
     position: fixed;
-    top: 20px;
+    top: 15px;
     left: 20px;
-    z-index: 1000;
-    background: var(--white);
-    padding: 8px;
+    width: 260px;
+    background: var(--primary-green);
+    padding: 12px;
     border-radius: 8px;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    text-align: center;
+    box-shadow: 0 2px 8px rgba(76, 175, 80, 0.2);
+    z-index: 1000;
 }
 
-.logo svg {
-    width: 32px;
-    height: 32px;
-    color: var(--primary-green);
+.app-title {
+    margin: 0;
+    font-size: 20px;
+    font-weight: 700;
+    color: white;
+    letter-spacing: 1px;
+    line-height: 1.2;
+}
+
+.app-subtitle {
+    margin: 0;
+    font-size: 16px;
+    font-weight: 500;
+    color: rgba(255, 255, 255, 0.9);
+    letter-spacing: 2px;
 }
 
 .vehicle-menu {
@@ -49,7 +63,7 @@ body {
 }
 
 .vehicle-menu h2 {
-    margin: 60px 0 20px 0;
+    margin: 100px 0 20px 0;
     color: var(--text-dark);
     font-size: 18px;
     display: flex;
@@ -100,6 +114,73 @@ body {
     position: absolute;
     top: 0;
     left: 0;
+}
+
+.location-select-modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 2000;
+    justify-content: center;
+    align-items: center;
+}
+
+.modal-content {
+    background: white;
+    padding: 24px;
+    border-radius: 12px;
+    width: 300px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.modal-content h3 {
+    margin: 0 0 16px 0;
+    color: var(--text-dark);
+    text-align: center;
+}
+
+.modal-buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-bottom: 12px;
+}
+
+.modal-btn {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px;
+    border: none;
+    border-radius: 8px;
+    background: var(--light-green);
+    color: var(--text-dark);
+    cursor: pointer;
+    font-size: 14px;
+    transition: all 0.2s;
+}
+
+.modal-btn:hover {
+    background: var(--primary-green);
+    color: white;
+}
+
+.modal-btn svg {
+    flex-shrink: 0;
+}
+
+.cancel-btn {
+    width: 100%;
+    background: var(--gray-200);
+}
+
+.cancel-btn:hover {
+    background: var(--gray-100);
+    color: var(--text-dark);
 }
 
 .nav-icons {
@@ -211,13 +292,36 @@ body {
 .trip-planner {
     position: absolute;
     top: 20px;
-    left: 340px; /* Positioned next to vehicle menu */
+    left: 340px;
     background: white;
     padding: 20px;
     border-radius: 12px;
     box-shadow: 0 2px 8px rgba(0,0,0,0.1);
     width: 300px;
     z-index: 1000;
+    cursor: default;
+    touch-action: none;
+    user-select: none;
+}
+
+.drag-handle {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 25px;
+    background: var(--light-green);
+    border-top-left-radius: 12px;
+    border-top-right-radius: 12px;
+    cursor: move;
+}
+
+.drag-handle:hover {
+    background: #DAE8DA;
+}
+
+.trip-planner {
+    padding-top: 45px;
 }
 
 .location-input {
@@ -231,6 +335,7 @@ body {
 }
 
 .location-input input {
+    cursor: default;
     border: none;
     background: transparent;
     flex-grow: 1;
@@ -238,6 +343,8 @@ body {
     font-size: 14px;
     outline: none;
 }
+
+
 
 .location-input svg {
     color: var(--primary-green);

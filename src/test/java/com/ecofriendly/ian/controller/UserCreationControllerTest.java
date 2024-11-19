@@ -41,7 +41,7 @@ class UserCreationControllerTest {
         verify(userService).addUser(userCaptor.capture());
         User sanitizedUser = userCaptor.getValue();
 
-        assertEquals("SignUpPage", viewName);
+        assertEquals("signuppage", viewName);
         assertEquals(Jsoup.clean("<script>alert('hack')</script>", Safelist.none()), sanitizedUser.getFirstName());
         assertEquals(Jsoup.clean("<b>Smith</b>", Safelist.none()), sanitizedUser.getLastName());
         assertEquals(Jsoup.clean("example@<invalid>.com", Safelist.none()), sanitizedUser.getEmail());
@@ -52,7 +52,7 @@ class UserCreationControllerTest {
     void testShowCreateForm() {
         String viewName = userCreationController.showCreateForm(model);
 
-        assertEquals("SignUpPage", viewName);
+        assertEquals("signuppage", viewName);
         verify(model).addAttribute(eq("user"), any(User.class));
     }
 

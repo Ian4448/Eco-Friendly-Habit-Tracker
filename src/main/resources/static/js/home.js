@@ -7,6 +7,163 @@ let selectedTransport = null;
 let directionsService;
 let directionsRenderer;
 let activeVehicle = null;
+let isDragging = false;
+let currentX, currentY;
+let initialX, initialY;
+let xOffset = 0, yOffset = 0;
+let tripPlanner = null;
+let locationSelectModal = null;
+let clickedLatLng = null;
+
+function createLocationModal() {
+    const modal = document.createElement('div');
+    modal.className = 'location-select-modal';
+    modal.innerHTML = `
+        <div class="modal-content">
+            <h3>Set Location As</h3>
+            <div class="modal-buttons">
+                <button class="modal-btn start-btn">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="10"></circle>
+                        <circle cx="12" cy="12" r="3"></circle>
+                    </svg>
+                    Start Location
+                </button>
+                <button class="modal-btn end-btn">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
+                        <circle cx="12" cy="10" r="3"></circle>
+                    </svg>
+                    Destination
+                </button>
+            </div>
+            <button class="modal-btn cancel-btn">Cancel</button>
+        </div>
+    `;
+    document.body.appendChild(modal);
+
+    // Add event listeners for the buttons
+    modal.querySelector('.start-btn').addEventListener('click', () => {
+        setLocationFromClick('start');
+        hideLocationModal();
+    });
+
+    modal.querySelector('.end-btn').addEventListener('click', () => {
+        setLocationFromClick('end');
+        hideLocationModal();
+    });
+
+    modal.querySelector('.cancel-btn').addEventListener('click', hideLocationModal);
+
+    return modal;
+}
+
+function showLocationModal(position) {
+    if (!locationSelectModal) {
+        locationSelectModal = createLocationModal();
+    }
+
+    clickedLatLng = position;
+    locationSelectModal.style.display = 'flex';
+}
+
+function hideLocationModal() {
+    if (locationSelectModal) {
+        locationSelectModal.style.display = 'none';
+    }
+}
+
+function setLocationFromClick(type) {
+    if (!clickedLatLng) return;
+
+    if (type === 'start') {
+        if (startMarker) startMarker.setMap(null);
+        startMarker = new google.maps.Marker({
+            position: clickedLatLng,
+            map: map,
+            label: {
+                text: 'A',
+                className: 'marker-label'
+            }
+        });
+        updateLocationInput('start-location', clickedLatLng);
+    } else {
+        if (endMarker) endMarker.setMap(null);
+        endMarker = new google.maps.Marker({
+            position: clickedLatLng,
+            map: map,
+            label: {
+                text: 'B',
+                className: 'marker-label'
+            }
+        });
+        updateLocationInput('end-location', clickedLatLng);
+    }
+
+    checkCalculateEnabled();
+}
+
+function initDraggable() {
+    tripPlanner = document.querySelector('.trip-planner');
+    const dragHandle = document.createElement('div');
+    dragHandle.className = 'drag-handle';
+
+    // Insert drag handle as first child of trip planner
+    tripPlanner.insertBefore(dragHandle, tripPlanner.firstChild);
+
+    dragHandle.addEventListener('mousedown', dragStart);
+    document.addEventListener('mousemove', drag);
+    document.addEventListener('mouseup', dragEnd);
+
+    // Touch events
+    dragHandle.addEventListener('touchstart', dragStart);
+    document.addEventListener('touchmove', drag);
+    document.addEventListener('touchend', dragEnd);
+}
+
+function dragStart(e) {
+    if (e.type === 'touchstart') {
+        initialX = e.touches[0].clientX - xOffset;
+        initialY = e.touches[0].clientY - yOffset;
+    } else {
+        initialX = e.clientX - xOffset;
+        initialY = e.clientY - yOffset;
+    }
+
+    if (e.target.classList.contains('drag-handle')) {
+        isDragging = true;
+    }
+}
+
+function drag(e) {
+    if (isDragging) {
+        e.preventDefault();
+
+        if (e.type === 'touchmove') {
+            currentX = e.touches[0].clientX - initialX;
+            currentY = e.touches[0].clientY - initialY;
+        } else {
+            currentX = e.clientX - initialX;
+            currentY = e.clientY - initialY;
+        }
+
+        xOffset = currentX;
+        yOffset = currentY;
+
+        setTranslate(currentX, currentY, tripPlanner);
+    }
+}
+
+function dragEnd(e) {
+    initialX = currentX;
+    initialY = currentY;
+    isDragging = false;
+}
+
+function setTranslate(xPos, yPos, el) {
+    el.style.transform = `translate(${xPos}px, ${yPos}px)`;
+}
+
 
 function initMap() {
     // Initialize the map centered on a default location
@@ -72,6 +229,9 @@ function initMap() {
 
                 // Update current location text
                 updateLocationText();
+
+                // Set current location as start position
+                setCurrentLocationAsStart();
             },
             (error) => {
                 document.getElementById('location-status').innerHTML =
@@ -87,71 +247,8 @@ function initMap() {
 
     // Add click listener for map interactions
     map.addListener('click', (mapsMouseEvent) => {
-        const clickedPosition = mapsMouseEvent.latLng;
-
-        // Remove previous clicked marker if it exists
-        if (clickedMarker) {
-            clickedMarker.setMap(null);
-        }
-
-        // Add new marker at clicked location
-        clickedMarker = new google.maps.Marker({
-            position: clickedPosition,
-            map: map,
-            icon: {
-                path: google.maps.SymbolPath.CIRCLE,
-                scale: 10,
-                fillColor: "#F44336",
-                fillOpacity: 1,
-                strokeWeight: 2,
-                strokeColor: "#FFFFFF"
-            }
-        });
-
-        // Update clicked location text and calculate distance
-        updateClickedLocationText(clickedPosition);
-        calculateDistance(clickedPosition);
+        showLocationModal(mapsMouseEvent.latLng);
     });
-
-    // Add click listeners for location inputs
-    document.getElementById('start-location').addEventListener('click', () => {
-        map.addListener('click', setStartLocation);
-    });
-
-    document.getElementById('end-location').addEventListener('click', () => {
-        map.addListener('click', setEndLocation);
-    });
-}
-
-
-function setStartLocation(event) {
-    if (startMarker) startMarker.setMap(null);
-    startMarker = new google.maps.Marker({
-        position: event.latLng,
-        map: map,
-        label: {
-            text: 'A',
-            className: 'marker-label'
-        }
-    });
-    updateLocationInput('start-location', event.latLng);
-    google.maps.event.clearListeners(map, 'click');
-    checkCalculateEnabled();
-}
-
-function setEndLocation(event) {
-    if (endMarker) endMarker.setMap(null);
-    endMarker = new google.maps.Marker({
-        position: event.latLng,
-        map: map,
-        label: {
-            text: 'B',
-            className: 'marker-label'
-        }
-    });
-    updateLocationInput('end-location', event.latLng);
-    google.maps.event.clearListeners(map, 'click');
-    checkCalculateEnabled();
 }
 
 function updateLocationInput(inputId, latLng) {
@@ -234,6 +331,11 @@ function updateLocationText() {
     }
 }
 
+
+
+
+
+
 function updateClickedLocationText(position) {
     fetch(`https://maps.googleapis.com/maps/api/geocode/json?latlng=${position.lat()},${position.lng()}&key=YOUR_API_KEY`)
         .then(response => response.json())
@@ -269,6 +371,37 @@ function getCurrentUserEmail() {
             console.error('Error fetching current user:', error);
             return null;
         });
+}
+
+function setCurrentLocationAsStart() {
+    if (currentPosition) {
+        // Reverse geocode the current position to get the address
+        fetch(`https://maps.googleapis.com/maps/api/geocode/json?latlng=${currentPosition.lat},${currentPosition.lng}&key=YOUR_API_KEY`)
+            .then(response => response.json())
+            .then(data => {
+                if (data.results && data.results[0]) {
+                    const address = data.results[0].formatted_address;
+                    document.getElementById('start-location').value = address;
+
+                    // Create the start marker if it doesn't exist
+                    if (!startMarker) {
+                        startMarker = new google.maps.Marker({
+                            position: currentPosition,
+                            map: map,
+                            label: {
+                                text: 'A',
+                                className: 'marker-label'
+                            }
+                        });
+                    }
+
+                    checkCalculateEnabled();
+                }
+            })
+            .catch(error => {
+                console.error('Error getting address:', error);
+            });
+    }
 }
 
 async function updateProfileLink() {
@@ -358,4 +491,5 @@ document.addEventListener('DOMContentLoaded', () => {
     loadVehicles();
     updateProfileLink();
     initMap();
+    initDraggable();
 });
