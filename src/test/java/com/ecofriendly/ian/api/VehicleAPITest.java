@@ -1,6 +1,7 @@
 package com.ecofriendly.ian.api;
 
 import com.ecofriendly.ian.exceptions.UserNotFoundException;
+import com.ecofriendly.ian.model.Emission;
 import com.ecofriendly.ian.model.User;
 import com.ecofriendly.ian.model.Vehicle;
 import com.ecofriendly.ian.service.UserService;
@@ -40,7 +41,7 @@ class VehicleAPITest {
     @BeforeEach
     void setUp() {
         MockitoAnnotations.openMocks(this);
-        user = new User("test@example.com", "FirstName", "LastName", new ArrayList<>(), 0);
+        user = new User("test@example.com", "FirstName", "LastName", new ArrayList<>(), new Emission());
         vehicle = new Vehicle("make", "model", "vehicleName", 30, user);
     }
 

@@ -107,15 +107,28 @@ function initDraggable() {
     tripPlanner = document.querySelector('.trip-planner');
     const dragHandle = document.createElement('div');
     dragHandle.className = 'drag-handle';
-
-    // Insert drag handle as first child of trip planner
+    
     tripPlanner.insertBefore(dragHandle, tripPlanner.firstChild);
+
+    // Set initial position (bottom left)
+    let initialX = 40;
+    let initialY = window.innerHeight - tripPlanner.offsetHeight - 40;
+
+    tripPlanner.style.position = 'fixed';
+    setTranslate(initialX, initialY, tripPlanner);
+
+    // Reset offsets to match initial position
+    xOffset = initialX;
+    yOffset = initialY;
+    currentX = initialX;
+    currentY = initialY;
+    initialX = 0;
+    initialY = 0;
 
     dragHandle.addEventListener('mousedown', dragStart);
     document.addEventListener('mousemove', drag);
     document.addEventListener('mouseup', dragEnd);
 
-    // Touch events
     dragHandle.addEventListener('touchstart', dragStart);
     document.addEventListener('touchmove', drag);
     document.addEventListener('touchend', dragEnd);
@@ -147,10 +160,14 @@ function drag(e) {
             currentY = e.clientY - initialY;
         }
 
-        xOffset = currentX;
-        yOffset = currentY;
+        // Calculate boundaries using window dimensions
+        const maxX = window.innerWidth - tripPlanner.offsetWidth;
+        const maxY = window.innerHeight - tripPlanner.offsetHeight;
+        
+        xOffset = Math.min(Math.max(currentX, 10), maxX - 10);
+        yOffset = Math.min(Math.max(currentY, 10), maxY - 10);
 
-        setTranslate(currentX, currentY, tripPlanner);
+        setTranslate(xOffset, yOffset, tripPlanner);
     }
 }
 
@@ -291,7 +308,62 @@ function calculateTrip() {
         if (status === 'OK') {
             directionsRenderer.setDirections(result);
             const distance = result.routes[0].legs[0].distance.text;
-            displayTripResult(distance);
+            const distanceInKm = parseFloat(distance.replace(' km', ''));
+
+            getCurrentUserEmail().then(userEmail => {
+                if (!userEmail) {
+                    console.error('No user email found');
+                    return;
+                }
+
+                let transportationType;
+                switch(selectedTransport) {
+                    case 'car':
+                        transportationType = 'CAR';
+                        break;
+                    case 'bike':
+                        transportationType = 'BIKE';
+                        break;
+                    case 'walk':
+                        transportationType = 'WALK';
+                        break;
+                    default:
+                        console.error('Invalid transport type');
+                        return;
+                }
+
+                const goodChoice = transportationType === 'BIKE' || transportationType === 'WALK';
+
+                // Create request body instead of URL parameters
+                const requestBody = {
+                    time: 'DAILY',
+                    transportation: transportationType,
+                    userEmail: userEmail,
+                    vehicleName: activeVehicle || '',
+                    distanceTravelled: distanceInKm,
+                    goodChoice: goodChoice
+                };
+
+                fetch('/api/modifyUserEmission', {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(requestBody)
+                })
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error('Failed to log emission data');
+                        }
+                        return response.json().catch(() => ({})); // Handle empty response
+                    })
+                    .then(() => {
+                        displayTripResult(distance, goodChoice);
+                    })
+                    .catch(error => {
+                        console.error('Error logging emission data:', error);
+                    });
+            });
         }
     });
 }
@@ -305,13 +377,22 @@ function getTravelMode() {
     }
 }
 
-function displayTripResult(distance) {
+function displayTripResult(distance, goodChoice) {
     const tripResult = document.getElementById('trip-result');
     let transportMode = selectedTransport;
     if (selectedTransport === 'car' && activeVehicle) {
         transportMode = `${activeVehicle} (car)`;
     }
-    tripResult.innerHTML = `Trip distance: ${distance}<br>Transport mode: ${transportMode}`;
+
+    let impactMessage = goodChoice ?
+        '🌿 Great choice! This eco-friendly option helps reduce emissions.' :
+        '💡 Consider biking or walking for shorter trips to reduce your carbon footprint.';
+
+    tripResult.innerHTML = `
+        <div>Trip distance: ${distance}</div>
+        <div>Transport mode: ${transportMode}</div>
+        <div style="margin-top: 8px; color: ${goodChoice ? '#4CAF50' : '#FF9800'}">${impactMessage}</div>
+    `;
     tripResult.style.display = 'block';
 }
 
@@ -330,11 +411,6 @@ function updateLocationText() {
             });
     }
 }
-
-
-
-
-
 
 function updateClickedLocationText(position) {
     fetch(`https://maps.googleapis.com/maps/api/geocode/json?latlng=${position.lat()},${position.lng()}&key=YOUR_API_KEY`)
@@ -468,6 +544,17 @@ async function loadVehicles() {
                 }
             });
         });
+
+        // Automatically select the first vehicle if available
+        if (vehicles.length > 0) {
+            const firstVehicleItem = vehicleList.querySelector('.vehicle-item');
+            firstVehicleItem.classList.add('active');
+            activeVehicle = vehicles[0].name;
+            // If car is selected as transport, check if calculate should be enabled
+            if (selectedTransport === 'car') {
+                checkCalculateEnabled();
+            }
+        }
     } catch (error) {
         console.error('Error loading vehicles:', error);
     }

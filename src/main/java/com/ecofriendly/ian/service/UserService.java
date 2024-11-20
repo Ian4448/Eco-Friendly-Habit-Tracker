@@ -4,10 +4,7 @@ package com.ecofriendly.ian.service;
 import com.ecofriendly.ian.dao.TokenDAO;
 import com.ecofriendly.ian.dao.UserDAO;
 import com.ecofriendly.ian.exceptions.UserNotFoundException;
-import com.ecofriendly.ian.model.Token;
-import com.ecofriendly.ian.model.User;
-import com.ecofriendly.ian.model.UserForm;
-import com.ecofriendly.ian.model.Vehicle;
+import com.ecofriendly.ian.model.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Component;
@@ -28,7 +25,7 @@ public class UserService {
 
     public User addUser(User user) {
         user.setVehicles(new CopyOnWriteArrayList<>());
-        user.setCarbonEmission(0);
+        user.setEmission(new Emission(user));
         return userDAO.save(user);
     }
 
@@ -54,7 +51,7 @@ public class UserService {
         existingUser.setLastName(userDetails.getLastName());
         existingUser.setPassword(userDetails.getPassword());
         existingUser.setVehicles(userDetails.getVehicles());
-        existingUser.setCarbonEmission(userDetails.getCarbonEmission());
+        existingUser.setEmission(userDetails.getEmission());
 
         // Save the updated user
         return userDAO.save(existingUser);
@@ -92,22 +89,5 @@ public class UserService {
     public User getUserByToken(String token) throws UserNotFoundException {
         String email = getEmailFromToken(token);
         return userDAO.findByEmail(email).orElseThrow(() -> new UserNotFoundException(email));
-    }
-
-    /**
-     * This method calculates carbon emissions in kilograms for a
-     * gasoline-powered vehicle based on the distance traveled and fuel efficiency (mpg).
-     * The emission factor of 8.89 kg CO₂ per gallon is a standardized value derived
-     * from the carbon content of gasoline and assumes complete combustion.
-     */
-    public double calculateCarbonEmission(Vehicle vehicle, double distance) {
-        return (distance / vehicle.getMpg()) * 8.89;
-    }
-
-    public void modifyUserCarbonEmissionTotal(User user, double emissionTotalChange, boolean ecoFriendlyChange) throws UserNotFoundException {
-        double currentEmissionTotal = user.getCarbonEmission();
-        double newEmissionTotal = ecoFriendlyChange ? currentEmissionTotal + emissionTotalChange :
-                currentEmissionTotal - emissionTotalChange;
-        user.setCarbonEmission(newEmissionTotal);
     }
 }

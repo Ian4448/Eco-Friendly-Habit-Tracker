@@ -2,6 +2,7 @@ package com.ecofriendly.ian.service;
 
 import com.ecofriendly.ian.exceptions.UserNotFoundException;
 import com.ecofriendly.ian.exceptions.VehicleNotFoundException;
+import com.ecofriendly.ian.model.Emission;
 import com.ecofriendly.ian.model.User;
 import com.ecofriendly.ian.dao.UserDAO;
 import com.ecofriendly.ian.dao.VehicleDAO;
@@ -41,7 +42,7 @@ class VehicleServiceTest {
     @BeforeEach
     public void setUp() {
         vehicleId = UUID.randomUUID();
-        user = new User("emailfortesting@example.com", "firstNameTest", "lastNameTest", new ArrayList<>(), 0);
+        user = new User("emailfortesting@example.com", "firstNameTest", "lastNameTest", new ArrayList<>(), new Emission());
         vehicle = new Vehicle("make", "model", "name", 45, user);
         vehicle.setVehicleId(vehicleId);
         user.getVehicles().add(vehicle);

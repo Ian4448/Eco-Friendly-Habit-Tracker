@@ -19,21 +19,19 @@ public class User {
     private String lastName;
     private String password;
 
-    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
     private List<Vehicle> vehicles;
 
+    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
+    private Emission emission;
 
-    private double carbonEmission = 0.0; // CO2 in KG, defaulted to 0.0
-
-    public User(String email, String firstName, String lastName, List<Vehicle> vehicles, double carbonEmission) {
+    public User(String email, String firstName, String lastName, List<Vehicle> vehicles, Emission emission) {
         this.email = email;
         this.firstName = firstName;
         this.lastName = lastName;
         this.vehicles = vehicles;
-        this.carbonEmission = carbonEmission;
+        this.emission = emission;
     }
 
-    public User() {
-
-    }
+    public User() {}
 }

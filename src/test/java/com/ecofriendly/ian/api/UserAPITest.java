@@ -1,6 +1,7 @@
 package com.ecofriendly.ian.api;
 
 import com.ecofriendly.ian.exceptions.UserNotFoundException;
+import com.ecofriendly.ian.model.Emission;
 import com.ecofriendly.ian.model.User;
 import com.ecofriendly.ian.service.UserService;
 import jakarta.servlet.http.HttpServletRequest;
@@ -42,7 +43,7 @@ class UserAPITest {
     @BeforeEach
     void setUp() {
         MockitoAnnotations.openMocks(this);
-        testUser = new User("test@example.com", "FirstName", "LastName", new ArrayList<>(), 0);
+        testUser = new User("test@example.com", "FirstName", "LastName", new ArrayList<>(), new Emission());
     }
 
     @Test

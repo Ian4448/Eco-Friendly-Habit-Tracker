@@ -29,9 +29,7 @@ public class Vehicle {
     @JsonIgnore
     private User user;
 
-    public Vehicle() {
-        // Default constructor
-    }
+    public Vehicle() {}
 
     public Vehicle(String make, String model, String name, int mpg, User user) {
         this.make = make;
