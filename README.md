@@ -83,6 +83,10 @@ For any significant changes, please open an issue first to discuss what you woul
 ## Demo
 <p align="center">
   <img src="https://github.com/user-attachments/assets/f859a6dc-3bb0-41ed-af9d-2afd0890c081" alt="Centered Image">
+  <img src="https://github.com/user-attachments/assets/99346126-6470-44fa-a0a8-e44253929699" alt="Centered Image2">
+</p>
+
+
 </p>
 
 <div align="center">
