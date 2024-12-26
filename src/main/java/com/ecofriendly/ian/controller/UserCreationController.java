@@ -16,10 +16,13 @@ import java.util.logging.Logger;
 
 @Controller
 public class UserCreationController {
-    @Autowired
-    private UserService userService;
+    private final UserService userService;
     private final BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
     private final Logger logger = Logger.getLogger(UserCreationController.class.getName());
+
+    public UserCreationController(UserService userService) {
+        this.userService = userService;
+    }
 
     /**
      * Handles user creation by sanitizing input, hashing the password, and storing the user in the database.
@@ -31,15 +34,10 @@ public class UserCreationController {
      */
     @PostMapping({"/create", "/create/"})
     public String createUser(@RequestBody User user, Model model) {
-        // Sanitize user inputs
         String sanitizedFirstName = Jsoup.clean(user.getFirstName(), Safelist.none());
         String sanitizedLastName = Jsoup.clean(user.getLastName(), Safelist.none());
         String sanitizedEmail = Jsoup.clean(user.getEmail(), Safelist.none());
 
-//        logger.info(sanitizedFirstName
-//                + sanitizedLastName + sanitizedEmail + user.getPassword());
-
-        // Set the sanitized values back to the user object
         user.setFirstName(sanitizedFirstName);
         user.setLastName(sanitizedLastName);
         user.setEmail(sanitizedEmail);
@@ -56,7 +54,6 @@ public class UserCreationController {
         return "signuppage"; // Redirect to the signup page after creation
     }
 
-    // Handle the GET request for the form page
     @GetMapping("/create")
     public String showCreateForm(Model model) {
         model.addAttribute("user", new User());

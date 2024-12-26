@@ -22,8 +22,11 @@ import java.util.logging.Logger;
 @Controller
 public class UserLoginController {
     private static final Logger logger = Logger.getLogger(UserLoginController.class.getName());
-    @Autowired
-    private UserService userService;
+    private final UserService userService;
+
+    public UserLoginController(UserService userService) {
+        this.userService = userService;
+    }
 
     /**
      * Displays the login form for users. If an authentication token is found in the cookies
@@ -48,8 +51,6 @@ public class UserLoginController {
                     if (userService.isTokenValid(token)) {
                         logger.info("Token is valid, proceeding with request.");
                         return "redirect:/home";
-                    } else {
-                        logger.warning("Invalid token, redirecting to login.");
                     }
                 }
             }
@@ -70,7 +71,6 @@ public class UserLoginController {
      * @param response the HTTP response used to set cookies
      * @param session the HTTP session used to store the user's email
      * @return a redirect to the home page if login is successful, or the login form view if login fails
-     * @throws UserNotFoundException if the user's credentials are invalid
      */
     @PostMapping("/login")
     public String loginPost(UserForm userForm, Model model, HttpServletResponse response, HttpSession session) {
@@ -79,7 +79,6 @@ public class UserLoginController {
             userForm.setUsername(Jsoup.clean(userForm.getUsername(), Safelist.none()));
             boolean found = userService.matchLogin(userForm);
             if (found) {
-                // Generate and store new token
                 String token = UUID.randomUUID().toString();
                 userService.storeToken(userForm.getUsername(), token);
 
@@ -97,7 +96,6 @@ public class UserLoginController {
                 emailCookie.setMaxAge(30 * 24 * 60 * 60); // 30 days
                 response.addCookie(emailCookie);
 
-                // Store email in session
                 session.setAttribute("userEmail", userForm.getUsername());
 
                 logger.info("Login successful for user: " + userForm.getUsername());
@@ -107,7 +105,6 @@ public class UserLoginController {
             }
         } catch (UserNotFoundException e) {
             model.addAttribute("error", "Invalid username or password");
-            logger.info("Invalid login" + e.getMessage());
             return "loginform";
         }
     }

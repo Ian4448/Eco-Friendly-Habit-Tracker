@@ -15,14 +15,15 @@ import java.util.logging.Logger;
 
 @RestController
 public class VehicleAPI {
-
-    @Autowired
-    private VehicleService vehicleService;
-
-    @Autowired
-    private UserService userService;
+    private final VehicleService vehicleService;
+    private final UserService userService;
 
     private final Logger logger = Logger.getLogger(VehicleAPI.class.getName());
+
+    public VehicleAPI(VehicleService vehicleService, UserService userService) {
+        this.vehicleService = vehicleService;
+        this.userService = userService;
+    }
 
     /**
      * Adds a new vehicle for the authenticated user. Validates the vehicle's uniqueness and ensures the user

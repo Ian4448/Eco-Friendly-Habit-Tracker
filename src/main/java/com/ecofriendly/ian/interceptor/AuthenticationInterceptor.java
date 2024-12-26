@@ -20,7 +20,6 @@ public class AuthenticationInterceptor implements HandlerInterceptor {
 
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
-        logger.info("Checking cookies for authentication...");
         Cookie[] cookies = request.getCookies();
 
         if (cookies != null) {
@@ -38,8 +37,6 @@ public class AuthenticationInterceptor implements HandlerInterceptor {
                     }
                 }
             }
-        } else {
-            logger.info("No cookies found.");
         }
 
         response.sendRedirect("/login");

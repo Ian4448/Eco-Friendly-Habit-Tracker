@@ -43,7 +43,7 @@ public class UserService {
     }
 
     public User updateUser(String email, User userDetails) throws UserNotFoundException {
-        User existingUser = getUserByEmail(email); // Retrieve existing user by email
+        User existingUser = getUserByEmail(email);
 
         // Update fields
         existingUser.setEmail(userDetails.getEmail()); // updating email isn't working, needs to be fixed.
@@ -53,7 +53,6 @@ public class UserService {
         existingUser.setVehicles(userDetails.getVehicles());
         existingUser.setEmission(userDetails.getEmission());
 
-        // Save the updated user
         return userDAO.save(existingUser);
     }
 
@@ -75,7 +74,6 @@ public class UserService {
     }
 
     public String getEmailFromToken(String tokenStr) throws UserNotFoundException {
-        // Find the token in the database
         Optional<Token> token = tokenDAO.findByToken(tokenStr);
 
         if (token.isPresent() && token.get().getExpirationDate().isAfter(LocalDateTime.now())) {

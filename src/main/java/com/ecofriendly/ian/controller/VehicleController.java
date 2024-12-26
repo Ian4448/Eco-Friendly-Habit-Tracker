@@ -14,8 +14,11 @@ import org.springframework.web.bind.annotation.RequestBody;
 
 @Controller
 public class VehicleController {
-    @Autowired
-    private VehicleService vehicleService;
+    private final VehicleService vehicleService;
+
+    public VehicleController(VehicleService vehicleService) {
+        this.vehicleService = vehicleService;
+    }
 
     @PostMapping("/createVehicle")
     public String createVehicle(@RequestBody User user, @RequestBody Vehicle vehicle, Model model) throws UserNotFoundException, InvalidVehicleException {

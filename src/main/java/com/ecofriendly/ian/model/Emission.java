@@ -49,6 +49,9 @@ public class Emission {
     private double weeklyDistanceTravelled = 0.0;
 
     @Column(columnDefinition = "double default 0.0")
+    private double weeklyDistanceDriven = 0.0;
+
+    @Column(columnDefinition = "double default 0.0")
     private double weeklyDistanceWalked = 0.0;
 
     @Column(columnDefinition = "double default 0.0")
@@ -65,6 +68,9 @@ public class Emission {
     private double monthlyDistanceWalked = 0.0;
 
     @Column(columnDefinition = "double default 0.0")
+    private double monthlyDistanceDriven = 0.0;
+
+    @Column(columnDefinition = "double default 0.0")
     private double monthlyDistanceBiked = 0.0;
 
     // Total attributes
@@ -73,6 +79,9 @@ public class Emission {
 
     @Column(columnDefinition = "double default 0.0")
     private double totalDistanceTravelled = 0.0;
+
+    @Column(columnDefinition = "double default 0.0")
+    private double totalDistanceDriven = 0.0;
 
     @Column(columnDefinition = "double default 0.0")
     private double totalDistanceWalked = 0.0;

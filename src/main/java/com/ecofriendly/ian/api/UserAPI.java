@@ -15,20 +15,20 @@ import org.springframework.web.bind.annotation.*;
 
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.logging.Logger;
 
 @RestController
 public class UserAPI {
-    @Autowired
-    private UserService userService;
-    @Autowired
-    private EmissionService emissionService;
-
     private final Logger logger = Logger.getLogger(UserAPI.class.getName());
+    private final UserService userService;
+    private final EmissionService emissionService;
+
+    public UserAPI(UserService userService, EmissionService emissionService) {
+        this.userService = userService;
+        this.emissionService = emissionService;
+    }
+
 
     @PostMapping({"/addCustomer", "/addCustomer/"})
     public User addUser(@RequestBody User user) {
@@ -88,32 +88,32 @@ public class UserAPI {
     }
 
     @PutMapping("/api/modifyUserEmission")
-    public ResponseEntity<Object> logUserEmissionAndDistanceCount(@RequestBody EmissionRequest request)
-            throws UserNotFoundException, VehicleNotFoundException {
-//        System.out.println("good:"+request.isGoodChoice());
-//        System.out.printf("vehicle name: %s, distnace traveled: %f, user email: %s, transportation %s",
-//                request.getVehicleName(), request.getDistanceTravelled(), request.getUserEmail(),request.getTransportation());
+    public ResponseEntity<Object> logUserEmissionAndDistanceCount(@RequestBody EmissionRequest request) {
+        boolean goodChoice = request.getTransportation() != TransportationType.CAR;
+
         try {
             User user = userService.getUserByEmail(URLDecoder.decode(request.getUserEmail(), StandardCharsets.UTF_8));
-//            logger.info("email after decoding " + user.getEmail());
 
-            if (request.getTransportation() == TransportationType.CAR) {
-                Vehicle vehicle = user
-                        .getVehicles()
-                        .stream()
-                        .filter(v -> v.getName().equals(request.getVehicleName()))
-                        .findFirst()
-                        .orElseThrow(VehicleNotFoundException::new);
+            Vehicle vehicle = user
+                    .getVehicles()
+                    .stream()
+                    .filter(v -> v.getName().equals(request.getVehicleName()))
+                    .findFirst()
+                    .orElseThrow(VehicleNotFoundException::new);
 
-                double carbonEmissionAmount = emissionService.calculateCarbonEmission(vehicle, request.getDistanceTravelled());
-                emissionService.modifyUserCarbonEmissionTotal(request.getTime(), user, carbonEmissionAmount, request.isGoodChoice());
-            }
+            double carbonEmissionAmount = emissionService.calculateCarbonEmission(vehicle, request.getDistanceTravelled());
+            emissionService.addUserCarbonEmission(user, carbonEmissionAmount, goodChoice);
+            emissionService.addUserDistance(user, request.getTransportation(), request.getDistanceTravelled());
 
-            emissionService.modifyUserDistance(request.getTime(), user, request.getTransportation(), request.getDistanceTravelled());
-//            logger.info("Daily amount of emission: " + user.getEmission().getDailyEmissionCount());
             return ResponseEntity.ok().build();
         } catch (Exception e) {
             return (ResponseEntity<Object>) ResponseEntity.status(HttpStatus.BAD_REQUEST);
         }
+    }
+
+    @GetMapping("/api/getUserEmission/{username}")
+    public Emission getUserEmissionData(@PathVariable String username) {
+        User user = getUser(username);
+        return user.getEmission();
     }
 }

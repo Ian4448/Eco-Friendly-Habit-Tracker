@@ -411,34 +411,6 @@ function updateLocationText() {
             });
     }
 }
-
-function updateClickedLocationText(position) {
-    fetch(`https://maps.googleapis.com/maps/api/geocode/json?latlng=${position.lat()},${position.lng()}&key=YOUR_API_KEY`)
-        .then(response => response.json())
-        .then(data => {
-            if (data.results && data.results[0]) {
-                document.getElementById('clicked-location').innerHTML =
-                    `Clicked Location: ${data.results[0].formatted_address}`;
-            }
-        })
-        .catch(error => {
-            console.error('Error fetching address:', error);
-        });
-}
-
-function calculateDistance(clickedPosition) {
-    if (currentPosition) {
-        const start = new google.maps.LatLng(currentPosition.lat, currentPosition.lng);
-        const end = clickedPosition;
-        const distance = google.maps.geometry.spherical.computeDistanceBetween(start, end);
-
-        // Convert to kilometers and format
-        const distanceKm = (distance / 1000).toFixed(2);
-        document.getElementById('distance').innerHTML =
-            `Distance: ${distanceKm} kilometers`;
-    }
-}
-
 function getCurrentUserEmail() {
     return fetch('/api/current-user')
         .then(response => response.json())

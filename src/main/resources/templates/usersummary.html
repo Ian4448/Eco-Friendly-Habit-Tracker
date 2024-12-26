@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Eco Footprint Dashboard</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --eco-green: #2ecc71;
+            --leaf-green: #27ae60;
+            --forest-green: #145a32;
+        }
+
+        .eco-gradient {
+            background: linear-gradient(135deg, var(--eco-green) 0%, var(--leaf-green) 100%);
+        }
+
+        .eco-card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease;
+        }
+
+        .eco-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .loading-pulse {
+            animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: .5; }
+        }
+    </style>
+</head>
+<body class="bg-gray-50 min-h-screen">
+<div class="eco-gradient text-white py-8 px-4 sm:px-6 lg:px-8 mb-8">
+    <div class="max-w-7xl mx-auto">
+        <h1 class="text-4xl font-bold mb-2">🌱 Eco Footprint Dashboard</h1>
+        <p class="text-gray-100">Monitoring your environmental impact</p>
+    </div>
+</div>
+
+<main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="eco-card p-6 mb-8">
+        <div id="loadingState" class="py-12 text-center">
+            <svg class="animate-spin h-8 w-8 mx-auto text-green-500 mb-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+            </svg>
+            <p class="text-gray-600">Fetching your eco-impact data...</p>
+        </div>
+
+        <div class="overflow-x-auto">
+            <table id="emissionTable" class="w-full hidden">
+                <thead>
+                <tr class="border-b-2 border-green-100">
+                    <th class="px-6 py-4 text-left text-sm font-semibold text-gray-600">Metric</th>
+                    <th class="px-6 py-4 text-left text-sm font-semibold text-gray-600">Value</th>
+                </tr>
+                </thead>
+                <tbody class="divide-y divide-green-50"></tbody>
+            </table>
+        </div>
+    </div>
+
+    <div id="errorMessage" class="hidden bg-red-50 p-4 rounded-md">
+        <div class="flex">
+            <div class="flex-shrink-0">
+                <svg class="h-5 w-5 text-red-400" viewBox="0 0 20 20" fill="currentColor">
+                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/>
+                </svg>
+            </div>
+            <div class="ml-3">
+                <h3 class="text-sm font-medium text-red-800">Error loading data</h3>
+                <p class="mt-2 text-sm text-red-700" id="errorText"></p>
+            </div>
+        </div>
+    </div>
+</main>
+
+<script>
+    async function fetchEmissionData() {
+        const loadingState = document.getElementById('loadingState');
+        const emissionTable = document.getElementById('emissionTable');
+        const errorMessage = document.getElementById('errorMessage');
+        const errorText = document.getElementById('errorText');
+
+        try {
+            const emailResponse = await fetch('/api/current-user');
+            if (!emailResponse.ok) throw new Error('Failed to fetch user data');
+            const { email } = await emailResponse.json();
+
+            const emissionResponse = await fetch(`/api/getUserEmission/${email}`);
+            if (!emissionResponse.ok) throw new Error('Failed to fetch emission data');
+            const emissionData = await emissionResponse.json();
+
+            loadingState.classList.add('hidden');
+            emissionTable.classList.remove('hidden');
+
+            const tableBody = emissionTable.querySelector('tbody');
+            tableBody.innerHTML = '';
+
+            Object.entries(emissionData).forEach(([key, value]) => {
+                const row = document.createElement('tr');
+                row.className = 'hover:bg-green-50 transition-colors';
+                row.innerHTML = `
+                        <td class="px-6 py-4 text-sm text-gray-900 font-medium">${key}</td>
+                        <td class="px-6 py-4 text-sm text-gray-500">${value}</td>
+                    `;
+                tableBody.appendChild(row);
+            });
+        } catch (error) {
+            loadingState.classList.add('hidden');
+            errorMessage.classList.remove('hidden');
+            errorText.textContent = error.message;
+            console.error('Error:', error);
+        }
+    }
+
+    document.addEventListener('DOMContentLoaded', fetchEmissionData);
+</script>
+</body>
+</html>
