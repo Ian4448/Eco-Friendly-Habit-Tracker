@@ -7,8 +7,8 @@
 </head>
 <body>
 <div class="app-header">
-    <h1 class="app-title">ECO FRIENDLY</h1>
-    <h2 class="app-subtitle">TRACKER</h2>
+    <h1 class="app-title">EcoTracker</h1>
+    <h2 class="app-subtitle">Your Green Journey</h2>
 </div>
 
 <div class="main-container">
@@ -67,12 +67,15 @@
                 </div>
             </div>
             <button id="confirm-trip" class="confirm-trip" disabled onclick="calculateTrip()">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M9 20l-5-5 5-5"/>
+                    <path d="M20 4v7a4 4 0 0 1-4 4H4"/>
+                </svg>
                 Calculate Trip
             </button>
             <div id="trip-result" class="trip-result"></div>
         </div>
         <div id="map"></div>
-    </div>
     </div>
 </div>
 
@@ -91,9 +94,24 @@
     </a>
 </div>
 
-<script async defer
-        src="https://maps.googleapis.com/maps/api/js?key=YOUR_API_KEY">
-</script>
+<script src="/js/config.js"></script>
 <script src="/js/home.js"></script>
+<script>
+    // Load Google Maps API and initialize
+    function loadGoogleMaps() {
+        const script = document.createElement('script');
+        script.src = `https://maps.googleapis.com/maps/api/js?key=${config.GOOGLE_MAPS_API_KEY}&loading=async&callback=initMap`;
+        script.async = true;
+        document.head.appendChild(script);
+    }
+
+    // On DOM ready, load everything
+    document.addEventListener('DOMContentLoaded', () => {
+        loadVehicles();
+        updateProfileLink();
+        initDraggable();
+        loadGoogleMaps();
+    });
+</script>
 </body>
 </html>

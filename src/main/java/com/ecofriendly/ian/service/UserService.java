@@ -16,12 +16,13 @@ import java.util.concurrent.CopyOnWriteArrayList;
 
 @Component
 public class UserService {
-    @Autowired
-    private UserDAO userDAO;
-    @Autowired
-    private TokenDAO tokenDAO;
-
     private final BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
+    private final UserDAO userDAO;
+    private final TokenDAO tokenDAO;
+    public UserService(UserDAO userDAO, TokenDAO tokenDAO) {
+        this.userDAO = userDAO;
+        this.tokenDAO = tokenDAO;
+    }
 
     public User addUser(User user) {
         user.setVehicles(new CopyOnWriteArrayList<>());

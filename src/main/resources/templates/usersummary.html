@@ -3,78 +3,63 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Eco Footprint Dashboard</title>
+    <title>Eco Transport Dashboard</title>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
-        :root {
-            --eco-green: #2ecc71;
-            --leaf-green: #27ae60;
-            --forest-green: #145a32;
+        .tab-content {
+            display: none;
         }
-
-        .eco-gradient {
-            background: linear-gradient(135deg, var(--eco-green) 0%, var(--leaf-green) 100%);
+        .tab-content.active {
+            display: block;
         }
-
-        .eco-card {
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(10px);
-            border-radius: 15px;
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
-            transition: transform 0.3s ease;
+        .tab.active {
+            background-color: #10b981;
+            color: white;
         }
-
-        .eco-card:hover {
-            transform: translateY(-5px);
+        .stat-card {
+            transition: all 0.3s ease;
         }
-
-        .loading-pulse {
-            animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+        .stat-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
         }
-
-        @keyframes pulse {
-            0%, 100% { opacity: 1; }
-            50% { opacity: .5; }
+        .vehicle-item {
+            opacity: 0;
+            transform: translateY(20px);
+            animation: fadeInUp 0.5s forwards;
+        }
+        @keyframes fadeInUp {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        .emissions-overview {
+            background: linear-gradient(135deg, #134e4a 0%, #065f46 100%);
         }
     </style>
 </head>
-<body class="bg-gray-50 min-h-screen">
-<div class="eco-gradient text-white py-8 px-4 sm:px-6 lg:px-8 mb-8">
+<body class="bg-gray-50">
+<!-- Emissions Overview Section -->
+<div class="emissions-overview text-white py-8 px-4 sm:px-6 lg:px-8 mb-8">
     <div class="max-w-7xl mx-auto">
-        <h1 class="text-4xl font-bold mb-2">🌱 Eco Footprint Dashboard</h1>
-        <p class="text-gray-100">Monitoring your environmental impact</p>
+        <div class="mb-6">
+            <h1 class="text-4xl font-bold mb-2">Eco Transport Dashboard</h1>
+            <p class="text-gray-100">Monitoring your environmental impact</p>
+        </div>
+        <div id="emissionsStats" class="grid grid-cols-1 md:grid-cols-4 gap-4">
+            <!-- Emissions stats will be populated here -->
+        </div>
     </div>
 </div>
 
-<main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-    <div class="eco-card p-6 mb-8">
-        <div id="loadingState" class="py-12 text-center">
-            <svg class="animate-spin h-8 w-8 mx-auto text-green-500 mb-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-            </svg>
-            <p class="text-gray-600">Fetching your eco-impact data...</p>
-        </div>
-
-        <div class="overflow-x-auto">
-            <table id="emissionTable" class="w-full hidden">
-                <thead>
-                <tr class="border-b-2 border-green-100">
-                    <th class="px-6 py-4 text-left text-sm font-semibold text-gray-600">Metric</th>
-                    <th class="px-6 py-4 text-left text-sm font-semibold text-gray-600">Value</th>
-                </tr>
-                </thead>
-                <tbody class="divide-y divide-green-50"></tbody>
-            </table>
-        </div>
-    </div>
-
-    <div id="errorMessage" class="hidden bg-red-50 p-4 rounded-md">
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <!-- Error State -->
+    <div id="errorState" class="hidden bg-red-50 p-4 rounded-md mb-6">
         <div class="flex">
             <div class="flex-shrink-0">
-                <svg class="h-5 w-5 text-red-400" viewBox="0 0 20 20" fill="currentColor">
-                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/>
-                </svg>
+                <i class="fas fa-exclamation-circle text-red-400"></i>
             </div>
             <div class="ml-3">
                 <h3 class="text-sm font-medium text-red-800">Error loading data</h3>
@@ -82,13 +67,145 @@
             </div>
         </div>
     </div>
-</main>
+
+    <!-- Dashboard Content -->
+    <div id="dashboardContent" class="hidden">
+        <!-- Tabs -->
+        <div class="bg-white rounded-lg shadow-sm p-4 mb-6">
+            <div class="flex justify-center">
+                <div class="grid grid-cols-3 gap-2 w-full max-w-2xl bg-gray-100 p-1 rounded-lg">
+                    <button class="tab active flex items-center justify-center gap-2 py-2 px-4 rounded-md transition-colors duration-200" data-tab="vehicles">
+                        <i class="fas fa-car"></i> Vehicles
+                    </button>
+                    <button class="tab flex items-center justify-center gap-2 py-2 px-4 rounded-md transition-colors duration-200" data-tab="biking">
+                        <i class="fas fa-bicycle"></i> Biking
+                    </button>
+                    <button class="tab flex items-center justify-center gap-2 py-2 px-4 rounded-md transition-colors duration-200" data-tab="walking">
+                        <i class="fas fa-walking"></i> Walking
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tab Contents -->
+        <div id="tabContents">
+            <!-- Vehicles Tab -->
+            <div id="vehicles" class="tab-content active">
+                <div id="noVehiclesMessage" class="hidden text-center text-gray-500 py-6">
+                    No vehicles available
+                </div>
+                <div id="vehicleList" class="space-y-4">
+                    <!-- Vehicle items will be dynamically added here -->
+                </div>
+            </div>
+
+            <!-- Biking Tab -->
+            <div id="biking" class="tab-content">
+                <div id="bikingContent" class="bg-white rounded-lg shadow-sm p-6">
+                    <div class="grid grid-cols-2 md:grid-cols-3 gap-4">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Walking Tab -->
+            <div id="walking" class="tab-content">
+                <div id="walkingContent" class="bg-white rounded-lg shadow-sm p-6">
+                    <div class="grid grid-cols-2 md:grid-cols-3 gap-4">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 
 <script>
+    function formatNumber(number) {
+        return Number(number).toFixed(2);
+    }
+
+    function createEmissionStats(emissionData) {
+        const statsContainer = document.getElementById('emissionsStats');
+        const stats = [
+            { key: 'dailyEmissionCount', label: 'Daily', icon: 'calendar-day' },
+            { key: 'weeklyEmissionCount', label: 'Weekly', icon: 'calendar-week' },
+            { key: 'monthlyEmissionCount', label: 'Monthly', icon: 'calendar-alt' },
+            { key: 'totalEmissionCount', label: 'Total', icon: 'chart-line' }
+        ];
+
+        statsContainer.innerHTML = stats.map(stat => `
+                <div class="bg-white/10 backdrop-blur-md rounded-lg p-4">
+                    <div class="flex items-center gap-3 mb-2">
+                        <i class="fas fa-${stat.icon} text-xl"></i>
+                        <h3 class="text-sm font-medium">${stat.label} Emissions</h3>
+                    </div>
+                    <p class="text-2xl font-bold">${formatNumber(emissionData[stat.key] || 0)} kg CO₂</p>
+                </div>
+            `).join('');
+    }
+
+    function createStatCard(title, value) {
+        if (typeof value === 'number') {
+            value = formatNumber(value);
+        }
+        return `
+                <div class="stat-card bg-white rounded-lg p-4 shadow-sm border border-gray-100">
+                    <h3 class="text-sm font-medium text-gray-500 mb-2">${title}</h3>
+                    <p class="text-2xl font-bold">${value}</p>
+                </div>
+            `;
+    }
+
+    function addVehicleToList(vehicle) {
+        const vehicleList = document.getElementById('vehicleList');
+        const vehicleItem = document.createElement('div');
+        vehicleItem.className = 'vehicle-item bg-white rounded-lg shadow-sm p-6';
+
+        const stats = Object.entries(vehicle)
+            .filter(([key]) => !['id', 'name'].includes(key))
+            .map(([key, value]) => {
+                const title = key.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase());
+                return createStatCard(title, value);
+            });
+
+        vehicleItem.innerHTML = `
+                <div class="flex items-center gap-3 mb-4">
+                    <i class="fas fa-car text-green-600 text-xl"></i>
+                    <h2 class="text-xl font-bold">${vehicle.name}</h2>
+                </div>
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                    ${stats.join('')}
+                </div>
+            `;
+
+        vehicleList.appendChild(vehicleItem);
+    }
+
+    function fetchVehicles() {
+        fetch('/getVehicles')
+            .then((response) => response.json())
+            .then((vehicles) => {
+                const vehicleList = document.getElementById('vehicleList');
+                const noVehiclesMessage = document.getElementById('noVehiclesMessage');
+
+                vehicleList.querySelectorAll('.vehicle-item').forEach((vehicle) => vehicle.remove());
+
+                if (vehicles.length === 0) {
+                    noVehiclesMessage.classList.remove('hidden');
+                } else {
+                    noVehiclesMessage.classList.add('hidden');
+                    vehicles.forEach((vehicle, index) => {
+                        setTimeout(() => {
+                            addVehicleToList(vehicle);
+                        }, index * 100);
+                    });
+                }
+            })
+            .catch((error) => console.error('Error fetching vehicles:', error));
+    }
+
     async function fetchEmissionData() {
-        const loadingState = document.getElementById('loadingState');
-        const emissionTable = document.getElementById('emissionTable');
-        const errorMessage = document.getElementById('errorMessage');
+        const dashboardContent = document.getElementById('dashboardContent');
+        const errorState = document.getElementById('errorState');
         const errorText = document.getElementById('errorText');
 
         try {
@@ -100,30 +217,71 @@
             if (!emissionResponse.ok) throw new Error('Failed to fetch emission data');
             const emissionData = await emissionResponse.json();
 
-            loadingState.classList.add('hidden');
-            emissionTable.classList.remove('hidden');
+            // Create emission stats
+            createEmissionStats(emissionData);
 
-            const tableBody = emissionTable.querySelector('tbody');
-            tableBody.innerHTML = '';
+            dashboardContent.classList.remove('hidden');
 
-            Object.entries(emissionData).forEach(([key, value]) => {
-                const row = document.createElement('tr');
-                row.className = 'hover:bg-green-50 transition-colors';
-                row.innerHTML = `
-                        <td class="px-6 py-4 text-sm text-gray-900 font-medium">${key}</td>
-                        <td class="px-6 py-4 text-sm text-gray-500">${value}</td>
-                    `;
-                tableBody.appendChild(row);
-            });
+            // Fetch vehicles separately
+            fetchVehicles();
+
+            // Sort and display biking data
+            const bikingData = Object.entries(emissionData)
+                .filter(([key]) => key.toLowerCase().includes('bike'))
+                .reduce((acc, [key, value]) => ({ ...acc, [key]: value }), {});
+
+            const bikingContent = document.querySelector('#bikingContent div');
+            bikingContent.innerHTML = Object.entries(bikingData).length > 0
+                ? Object.entries(bikingData)
+                    .map(([key, value]) => createStatCard(
+                        key.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase()),
+                        value
+                    ))
+                    .join('')
+                : '<p class="col-span-3 text-center text-gray-500">No biking data available</p>';
+
+            // Sort and display walking data
+            const walkingData = Object.entries(emissionData)
+                .filter(([key]) => key.toLowerCase().includes('walk'))
+                .reduce((acc, [key, value]) => ({ ...acc, [key]: value }), {});
+
+            const walkingContent = document.querySelector('#walkingContent div');
+            walkingContent.innerHTML = Object.entries(walkingData).length > 0
+                ? Object.entries(walkingData)
+                    .map(([key, value]) => createStatCard(
+                        key.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase()),
+                        value
+                    ))
+                    .join('')
+                : '<p class="col-span-3 text-center text-gray-500">No walking data available</p>';
+
         } catch (error) {
-            loadingState.classList.add('hidden');
-            errorMessage.classList.remove('hidden');
+            errorState.classList.remove('hidden');
             errorText.textContent = error.message;
             console.error('Error:', error);
         }
     }
 
-    document.addEventListener('DOMContentLoaded', fetchEmissionData);
+    function setupTabs() {
+        const tabs = document.querySelectorAll('.tab');
+        tabs.forEach(tab => {
+            tab.addEventListener('click', () => {
+                tabs.forEach(t => t.classList.remove('active'));
+                document.querySelectorAll('.tab-content').forEach(content => {
+                    content.classList.remove('active');
+                });
+
+                tab.classList.add('active');
+                const tabId = tab.getAttribute('data-tab');
+                document.getElementById(tabId).classList.add('active');
+            });
+        });
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+        setupTabs();
+        fetchEmissionData();
+    });
 </script>
 </body>
 </html>

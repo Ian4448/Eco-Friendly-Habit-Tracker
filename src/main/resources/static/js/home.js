@@ -105,26 +105,38 @@ function setLocationFromClick(type) {
 
 function initDraggable() {
     tripPlanner = document.querySelector('.trip-planner');
+
+    // Hide initially
+    tripPlanner.style.visibility = 'hidden';
+
     const dragHandle = document.createElement('div');
     dragHandle.className = 'drag-handle';
-    
+
     tripPlanner.insertBefore(dragHandle, tripPlanner.firstChild);
 
-    // Set initial position (bottom left)
-    let initialX = 40;
-    let initialY = window.innerHeight - tripPlanner.offsetHeight - 40;
-
+    // Set fixed position before calculating dimensions
     tripPlanner.style.position = 'fixed';
+
+    // Calculate and set initial position immediately
+    const padding = 40;
+    const initialX = padding;
+    const initialY = window.innerHeight - tripPlanner.offsetHeight - padding;
+
+    // Set initial transform immediately
     setTranslate(initialX, initialY, tripPlanner);
 
-    // Reset offsets to match initial position
+    // Update tracking variables
     xOffset = initialX;
     yOffset = initialY;
     currentX = initialX;
     currentY = initialY;
-    initialX = 0;
-    initialY = 0;
 
+    // Show the element after position is set
+    requestAnimationFrame(() => {
+        tripPlanner.style.visibility = 'visible';
+    });
+
+    // Event listeners for dragging
     dragHandle.addEventListener('mousedown', dragStart);
     document.addEventListener('mousemove', drag);
     document.addEventListener('mouseup', dragEnd);
@@ -132,6 +144,43 @@ function initDraggable() {
     dragHandle.addEventListener('touchstart', dragStart);
     document.addEventListener('touchmove', drag);
     document.addEventListener('touchend', dragEnd);
+
+    // Add window resize handler
+    window.addEventListener('resize', () => {
+        if (!isDragging) {
+            const padding = 40;
+            const maxX = window.innerWidth - tripPlanner.offsetWidth - padding;
+            const maxY = window.innerHeight - tripPlanner.offsetHeight - padding;
+
+            xOffset = Math.min(Math.max(xOffset, padding), maxX);
+            yOffset = Math.min(Math.max(yOffset, padding), maxY);
+
+            setTranslate(xOffset, yOffset, tripPlanner);
+        }
+    });
+}
+
+function drag(e) {
+    if (isDragging) {
+        e.preventDefault();
+
+        if (e.type === 'touchmove') {
+            currentX = e.touches[0].clientX - initialX;
+            currentY = e.touches[0].clientY - initialY;
+        } else {
+            currentX = e.clientX - initialX;
+            currentY = e.clientY - initialY;
+        }
+
+        const padding = 40;
+        const maxX = window.innerWidth - tripPlanner.offsetWidth - padding;
+        const maxY = window.innerHeight - tripPlanner.offsetHeight - padding;
+
+        xOffset = Math.min(Math.max(currentX, padding), maxX);
+        yOffset = Math.min(Math.max(currentY, padding), maxY);
+
+        setTranslate(xOffset, yOffset, tripPlanner);
+    }
 }
 
 function dragStart(e) {
@@ -148,29 +197,6 @@ function dragStart(e) {
     }
 }
 
-function drag(e) {
-    if (isDragging) {
-        e.preventDefault();
-
-        if (e.type === 'touchmove') {
-            currentX = e.touches[0].clientX - initialX;
-            currentY = e.touches[0].clientY - initialY;
-        } else {
-            currentX = e.clientX - initialX;
-            currentY = e.clientY - initialY;
-        }
-
-        // Calculate boundaries using window dimensions
-        const maxX = window.innerWidth - tripPlanner.offsetWidth;
-        const maxY = window.innerHeight - tripPlanner.offsetHeight;
-        
-        xOffset = Math.min(Math.max(currentX, 10), maxX - 10);
-        yOffset = Math.min(Math.max(currentY, 10), maxY - 10);
-
-        setTranslate(xOffset, yOffset, tripPlanner);
-    }
-}
-
 function dragEnd(e) {
     initialX = currentX;
     initialY = currentY;
@@ -182,7 +208,7 @@ function setTranslate(xPos, yPos, el) {
 }
 
 
-function initMap() {
+window.initMap = function() {
     // Initialize the map centered on a default location
     map = new google.maps.Map(document.getElementById('map'), {
         center: { lat: 0, lng: 0 },
@@ -269,7 +295,7 @@ function initMap() {
 }
 
 function updateLocationInput(inputId, latLng) {
-    fetch(`https://maps.googleapis.com/maps/api/geocode/json?latlng=${latLng.lat()},${latLng.lng()}&key=YOUR_API_KEY`)
+    fetch(`https://maps.googleapis.com/maps/api/geocode/json?latlng=${latLng.lat()},${latLng.lng()}&key=${config.GOOGLE_MAPS_API_KEY}`)
         .then(response => response.json())
         .then(data => {
             if (data.results && data.results[0]) {
@@ -398,7 +424,7 @@ function displayTripResult(distance, goodChoice) {
 
 function updateLocationText() {
     if (currentPosition) {
-        fetch(`https://maps.googleapis.com/maps/api/geocode/json?latlng=${currentPosition.lat},${currentPosition.lng}&key=YOUR_API_KEY`)
+        fetch(`https://maps.googleapis.com/maps/api/geocode/json?latlng=${currentPosition.lat},${currentPosition.lng}&key=${config.GOOGLE_MAPS_API_KEY}`)
             .then(response => response.json())
             .then(data => {
                 if (data.results && data.results[0]) {
@@ -424,7 +450,7 @@ function getCurrentUserEmail() {
 function setCurrentLocationAsStart() {
     if (currentPosition) {
         // Reverse geocode the current position to get the address
-        fetch(`https://maps.googleapis.com/maps/api/geocode/json?latlng=${currentPosition.lat},${currentPosition.lng}&key=YOUR_API_KEY`)
+        fetch(`https://maps.googleapis.com/maps/api/geocode/json?latlng=${currentPosition.lat},${currentPosition.lng}&key=${config.GOOGLE_MAPS_API_KEY}`)
             .then(response => response.json())
             .then(data => {
                 if (data.results && data.results[0]) {

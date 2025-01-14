@@ -1,0 +1,3 @@
+const config = {
+    GOOGLE_MAPS_API_KEY: 'REPLACE_WITH_YOUR_API_KEY'
+};
