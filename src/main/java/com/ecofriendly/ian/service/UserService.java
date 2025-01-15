@@ -39,20 +39,43 @@ public class UserService {
                 .orElseThrow(() -> new UserNotFoundException("User with email " + email + " not found"));
     }
 
+    public User getUserById(Long id) throws UserNotFoundException {
+        return userDAO.findById(id)
+                .orElseThrow(() -> new UserNotFoundException("User not found with ID: " + id));
+    }
+
     public List<User> getAllUsers() {
         return userDAO.findAll();
     }
 
-    public User updateUser(String email, User userDetails) throws UserNotFoundException {
-        User existingUser = getUserByEmail(email);
+    public User updateUser(String currentEmail, User userDetails) throws UserNotFoundException {
+        User existingUser = getUserByEmail(currentEmail);
 
-        // Update fields
-        existingUser.setEmail(userDetails.getEmail()); // updating email isn't working, needs to be fixed.
-        existingUser.setFirstName(userDetails.getFirstName());
-        existingUser.setLastName(userDetails.getLastName());
-        existingUser.setPassword(userDetails.getPassword());
-        existingUser.setVehicles(userDetails.getVehicles());
-        existingUser.setEmission(userDetails.getEmission());
+        // Update fields if provided in userDetails
+        if (userDetails.getEmail() != null) {
+            existingUser.setEmail(userDetails.getEmail());
+        }
+        if (userDetails.getFirstName() != null) {
+            existingUser.setFirstName(userDetails.getFirstName());
+        }
+        if (userDetails.getLastName() != null) {
+            existingUser.setLastName(userDetails.getLastName());
+        }
+        if (userDetails.getPassword() != null) {
+            existingUser.setPassword(userDetails.getPassword());
+        }
+        if (userDetails.getEmission() != null) {
+            existingUser.setEmission(userDetails.getEmission());
+        }
+
+        // Handle vehicles if present
+        if (userDetails.getVehicles() != null) {
+            existingUser.getVehicles().clear();
+            userDetails.getVehicles().forEach(vehicle -> {
+                vehicle.setUser(existingUser);
+                existingUser.getVehicles().add(vehicle);
+            });
+        }
 
         return userDAO.save(existingUser);
     }
@@ -62,8 +85,18 @@ public class UserService {
         return encoder.matches(userForm.getPassword(), encodedPassword);
     }
 
-    public Token storeToken(String email, String tokenStr) throws UserNotFoundException {
-        User user = getUserByEmail(email);
+    public long matchLoginAndGetUserId(UserForm userForm) throws UserNotFoundException {
+        User user = getUserByEmail(userForm.getUsername());
+        String encodedPassword = user.getPassword();
+
+        if (!encoder.matches(userForm.getPassword(), encodedPassword))
+            throw new UserNotFoundException("Invalid User Login");
+
+        return user.getId();
+    }
+
+    public Token storeToken(Long userId, String tokenStr) throws UserNotFoundException {
+        User user = getUserById(userId);
         Token token = new Token(tokenStr, user, LocalDateTime.now().plusDays(30));
         tokenDAO.save(token);
         return token;

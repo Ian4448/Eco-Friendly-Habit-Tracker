@@ -113,33 +113,26 @@ function deleteVehicle(vehicleName) {
     }
 }
 
-function getCurrentUserEmail() {
-    return fetch('/api/current-user')
-        .then((response) => response.json())
-        .then((data) => data.email)
-        .catch((error) => {
-            console.error('Error fetching current user:', error);
-            return null;
-        });
-}
-
 async function fetchUserName() {
     try {
-        const userEmail = await getCurrentUserEmail();
+        // Get user ID from cookie
+        const userId = document.cookie
+            .split('; ')
+            .find(row => row.startsWith('user_id='))
+            ?.split('=')[1];
 
-        if (!userEmail) {
-            console.warn('User email not found');
+        if (!userId) {
+            console.warn('User ID not found');
             updateUserDisplay('Guest');
             return;
         }
 
-        const encodedEmail = encodeURIComponent(userEmail);
         const profileLink = document.getElementById('profileLink');
         if (profileLink) {
-            profileLink.href = `/edit/${encodedEmail}`;
+            profileLink.href = `/edit/${userId}`;
         }
 
-        const response = await fetch(`/user?email=${encodedEmail}`);
+        const response = await fetch(`/user/${userId}`);
         if (!response.ok) {
             throw new Error('Failed to fetch user data');
         }

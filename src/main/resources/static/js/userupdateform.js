@@ -1,7 +1,6 @@
-function getCurrentUrlEmail() {
+function getCurrentUserId() {
     const pathSegments = window.location.pathname.split('/');
-    const encodedEmail = pathSegments[pathSegments.length - 1];
-    return decodeURIComponent(encodedEmail);
+    return pathSegments[pathSegments.length - 1];
 }
 
 function showSuccessMessage(message) {
@@ -32,7 +31,7 @@ document.getElementById('settingsForm').addEventListener('submit', async (e) => 
     document.querySelectorAll('.error').forEach(error => error.style.display = 'none');
 
     const formData = new FormData(e.target);
-    const currentEmail = getCurrentUrlEmail();
+    const userId = getCurrentUserId();
 
     // Only include password fields if they're not empty
     const password = formData.get('password');
@@ -48,7 +47,7 @@ document.getElementById('settingsForm').addEventListener('submit', async (e) => 
         firstName: formData.get('firstName'),
         lastName: formData.get('lastName'),
         email: formData.get('email'),
-        currentEmail: currentEmail
+        id: userId
     };
 
     // Only add password to request if it's being changed
@@ -68,13 +67,13 @@ document.getElementById('settingsForm').addEventListener('submit', async (e) => 
 
         if (response.ok) {
             const changes = [];
-            if (userData.email !== currentEmail) changes.push('email');
             if (password) changes.push('password');
             if (
                 userData.firstName !== document.getElementById('firstName').defaultValue ||
-                userData.lastName !== document.getElementById('lastName').defaultValue
+                userData.lastName !== document.getElementById('lastName').defaultValue ||
+                userData.email !== document.getElementById('email').defaultValue
             ) {
-                changes.push('name');
+                changes.push('profile information');
             }
 
             let successMsg = 'Settings updated successfully';
@@ -83,20 +82,14 @@ document.getElementById('settingsForm').addEventListener('submit', async (e) => 
             }
             showSuccessMessage(successMsg);
 
-            // Redirect if email was changed
-            if (userData.email !== currentEmail) {
-                setTimeout(() => {
-                    const newEncodedEmail = encodeURIComponent(userData.email);
-                    window.location.href = `/edit/${newEncodedEmail}`;
-                }, 1500);
-            }
+            // No need to redirect since we're using IDs which don't change
         } else {
             const errorData = await response.json();
-            showError(errorData.message || 'Error updating user information', 'emailError');
+            showError(errorData.message || 'Error updating user information', 'generalError');
         }
     } catch (error) {
         console.error('Error updating settings:', error);
-        showError('An unexpected error occurred', 'emailError');
+        showError('An unexpected error occurred', 'generalError');
     }
 });
 
@@ -105,12 +98,12 @@ async function loadUserData() {
     form.classList.add('loading');
 
     try {
-        const email = getCurrentUrlEmail();
-        if (!email) {
-            throw new Error('No email found in URL');
+        const userId = getCurrentUserId();
+        if (!userId) {
+            throw new Error('No user ID found in URL');
         }
 
-        const userResponse = await fetch(`/user?email=${encodeURIComponent(email)}`);
+        const userResponse = await fetch(`/user/${userId}`);
         if (!userResponse.ok) {
             throw new Error('Failed to fetch user data');
         }
@@ -128,7 +121,7 @@ async function loadUserData() {
         document.getElementById('email').defaultValue = userData.email || '';
     } catch (error) {
         console.error('Error loading user data:', error);
-        showError('Error loading user data. Please try again.', 'emailError');
+        showError('Error loading user data. Please try again.', 'generalError');
     } finally {
         form.classList.remove('loading');
     }

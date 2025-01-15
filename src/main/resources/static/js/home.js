@@ -336,63 +336,61 @@ function calculateTrip() {
             const distance = result.routes[0].legs[0].distance.text;
             const distanceInKm = parseFloat(distance.replace(' km', ''));
 
-            getCurrentUserEmail().then(userEmail => {
-                if (!userEmail) {
-                    console.error('No user email found');
+            const userId = document.cookie
+                .split('; ')
+                .find(row => row.startsWith('user_id='))
+                ?.split('=')[1]; // Ensure optional chaining (?) is supported in your environment
+
+            let transportationType;
+            switch (selectedTransport) {
+                case 'car':
+                    transportationType = 'CAR';
+                    break;
+                case 'bike':
+                    transportationType = 'BIKE';
+                    break;
+                case 'walk':
+                    transportationType = 'WALK';
+                    break;
+                default:
+                    console.error('Invalid transport type');
                     return;
-                }
+            }
 
-                let transportationType;
-                switch(selectedTransport) {
-                    case 'car':
-                        transportationType = 'CAR';
-                        break;
-                    case 'bike':
-                        transportationType = 'BIKE';
-                        break;
-                    case 'walk':
-                        transportationType = 'WALK';
-                        break;
-                    default:
-                        console.error('Invalid transport type');
-                        return;
-                }
+            const goodChoice = transportationType === 'BIKE' || transportationType === 'WALK';
 
-                const goodChoice = transportationType === 'BIKE' || transportationType === 'WALK';
+            const requestBody = {
+                time: 'DAILY',
+                transportation: transportationType,
+                userId: userId,
+                vehicleName: activeVehicle || '',
+                distanceTravelled: distanceInKm,
+                goodChoice: goodChoice
+            };
 
-                // Create request body instead of URL parameters
-                const requestBody = {
-                    time: 'DAILY',
-                    transportation: transportationType,
-                    userEmail: userEmail,
-                    vehicleName: activeVehicle || '',
-                    distanceTravelled: distanceInKm,
-                    goodChoice: goodChoice
-                };
-
-                fetch('/api/modifyUserEmission', {
-                    method: 'PUT',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify(requestBody)
+            fetch('/api/modifyUserEmission', {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(requestBody)
+            })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Failed to log emission data');
+                    }
+                    return response.json().catch(() => ({})); // Handle empty response
                 })
-                    .then(response => {
-                        if (!response.ok) {
-                            throw new Error('Failed to log emission data');
-                        }
-                        return response.json().catch(() => ({})); // Handle empty response
-                    })
-                    .then(() => {
-                        displayTripResult(distance, goodChoice);
-                    })
-                    .catch(error => {
-                        console.error('Error logging emission data:', error);
-                    });
-            });
+                .then(() => {
+                    displayTripResult(distance, goodChoice);
+                })
+                .catch(error => {
+                    console.error('Error logging emission data:', error);
+                });
         }
     });
 }
+
 
 function getTravelMode() {
     switch(selectedTransport) {
@@ -480,12 +478,14 @@ function setCurrentLocationAsStart() {
 
 async function updateProfileLink() {
     try {
-        const userEmail = await getCurrentUserEmail();
-        if (userEmail) {
-            const encodedEmail = encodeURIComponent(userEmail);
+        const userId = document.cookie
+            .split('; ')
+            .find(row => row.startsWith('user_id='))
+            ?.split('=')[1];
+        if (userId) {
             const profileLink = document.getElementById('profileLink');
             if (profileLink) {
-                profileLink.href = `/edit/${encodedEmail}`;
+                profileLink.href = `/edit/${userId}`;
             }
         }
     } catch (error) {

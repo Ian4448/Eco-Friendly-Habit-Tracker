@@ -3,285 +3,420 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Eco Transport Dashboard</title>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css" rel="stylesheet">
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <title>EcoTrack Dashboard</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.7.0/chart.min.js"></script>
     <style>
-        .tab-content {
-            display: none;
+        :root {
+            --primary: #10B981;
+            --primary-dark: #059669;
+            --background: #F9FAFB;
+            --card-bg: #FFFFFF;
+            --text: #111827;
+            --text-secondary: #6B7280;
+            --accent: #3B82F6;
+            --danger: #EF4444;
+            --success: #10B981;
         }
-        .tab-content.active {
-            display: block;
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: system-ui, -apple-system, sans-serif;
         }
-        .tab.active {
-            background-color: #10b981;
-            color: white;
+
+        body {
+            background: linear-gradient(135deg, #F9FAFB 0%, #F3F4F6 100%);
+            color: var(--text);
+            min-height: 100vh;
+            padding: 2rem;
         }
+
+        .dashboard {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .header {
+            background: var(--card-bg);
+            padding: 2rem;
+            border-radius: 20px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            margin-bottom: 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .header-content h1 {
+            font-size: 2.25rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            background: linear-gradient(90deg, var(--primary) 0%, var(--accent) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .header-content p {
+            color: var(--text-secondary);
+            font-size: 1.1rem;
+        }
+
+        .main-grid {
+            display: grid;
+            grid-template-columns: repeat(12, 1fr);
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .stats-grid {
+            grid-column: span 8;
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1.5rem;
+        }
+
+        .transport-summary {
+            grid-column: span 4;
+            background: var(--card-bg);
+            padding: 2rem;
+            border-radius: 20px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+
         .stat-card {
-            transition: all 0.3s ease;
+            background: var(--card-bg);
+            padding: 2rem;
+            border-radius: 20px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            transition: transform 0.2s ease;
+            position: relative;
+            overflow: hidden;
         }
+
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            background: linear-gradient(90deg, var(--primary) 0%, var(--accent) 100%);
+        }
+
         .stat-card:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            transform: translateY(-5px);
         }
-        .vehicle-item {
-            opacity: 0;
-            transform: translateY(20px);
-            animation: fadeInUp 0.5s forwards;
+
+        .stat-card h3 {
+            color: var(--text-secondary);
+            font-size: 0.875rem;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            margin-bottom: 1rem;
         }
-        @keyframes fadeInUp {
-            to {
-                opacity: 1;
-                transform: translateY(0);
+
+        .stat-value {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--text);
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-change {
+            display: inline-flex;
+            align-items: center;
+            padding: 0.25rem 0.75rem;
+            background: var(--success);
+            color: white;
+            border-radius: 9999px;
+            font-size: 0.875rem;
+        }
+
+        .stat-change.negative {
+            background: var(--danger);
+        }
+
+        .chart-container {
+            grid-column: 1 / -1;
+            background: var(--card-bg);
+            padding: 2rem;
+            border-radius: 20px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+
+        .transport-item {
+            display: flex;
+            align-items: center;
+            padding: 1rem 0;
+            border-bottom: 1px solid #E5E7EB;
+        }
+
+        .transport-item:last-child {
+            border-bottom: none;
+        }
+
+        .transport-icon {
+            width: 48px;
+            height: 48px;
+            background: #F3F4F6;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            margin-right: 1rem;
+        }
+
+        .transport-info h4 {
+            font-size: 1rem;
+            color: var(--text);
+            margin-bottom: 0.25rem;
+        }
+
+        .transport-info p {
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+        }
+
+        @media (max-width: 1200px) {
+            .main-grid {
+                grid-template-columns: 1fr;
+            }
+            .stats-grid, .transport-summary {
+                grid-column: 1 / -1;
             }
         }
-        .emissions-overview {
-            background: linear-gradient(135deg, #134e4a 0%, #065f46 100%);
+
+        @media (max-width: 768px) {
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+            .header {
+                flex-direction: column;
+                text-align: center;
+            }
+        }
+
+        .loading {
+            position: relative;
+        }
+
+        .loading::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(255, 255, 255, 0.9);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.1rem;
+            color: var(--text-secondary);
         }
     </style>
 </head>
-<body class="bg-gray-50">
-<!-- Emissions Overview Section -->
-<div class="emissions-overview text-white py-8 px-4 sm:px-6 lg:px-8 mb-8">
-    <div class="max-w-7xl mx-auto">
-        <div class="mb-6">
-            <h1 class="text-4xl font-bold mb-2">Eco Transport Dashboard</h1>
-            <p class="text-gray-100">Monitoring your environmental impact</p>
+<body>
+<div class="dashboard">
+    <div class="header">
+        <div class="header-content">
+            <h1>Carbon Dashboard</h1>
+            <p>Tracking your environmental impact</p>
         </div>
-        <div id="emissionsStats" class="grid grid-cols-1 md:grid-cols-4 gap-4">
-            <!-- Emissions stats will be populated here -->
-        </div>
-    </div>
-</div>
-
-<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-    <!-- Error State -->
-    <div id="errorState" class="hidden bg-red-50 p-4 rounded-md mb-6">
-        <div class="flex">
-            <div class="flex-shrink-0">
-                <i class="fas fa-exclamation-circle text-red-400"></i>
-            </div>
-            <div class="ml-3">
-                <h3 class="text-sm font-medium text-red-800">Error loading data</h3>
-                <p class="mt-2 text-sm text-red-700" id="errorText"></p>
-            </div>
-        </div>
+        <div id="userInfo" class="user-info"></div>
     </div>
 
-    <!-- Dashboard Content -->
-    <div id="dashboardContent" class="hidden">
-        <!-- Tabs -->
-        <div class="bg-white rounded-lg shadow-sm p-4 mb-6">
-            <div class="flex justify-center">
-                <div class="grid grid-cols-3 gap-2 w-full max-w-2xl bg-gray-100 p-1 rounded-lg">
-                    <button class="tab active flex items-center justify-center gap-2 py-2 px-4 rounded-md transition-colors duration-200" data-tab="vehicles">
-                        <i class="fas fa-car"></i> Vehicles
-                    </button>
-                    <button class="tab flex items-center justify-center gap-2 py-2 px-4 rounded-md transition-colors duration-200" data-tab="biking">
-                        <i class="fas fa-bicycle"></i> Biking
-                    </button>
-                    <button class="tab flex items-center justify-center gap-2 py-2 px-4 rounded-md transition-colors duration-200" data-tab="walking">
-                        <i class="fas fa-walking"></i> Walking
-                    </button>
+    <div class="main-grid">
+        <div class="stats-grid">
+            <div class="stat-card">
+                <h3>Today's Emissions</h3>
+                <div class="stat-value" id="dailyEmissions">--</div>
+                <div class="stat-change" id="dailyChange">Loading...</div>
+            </div>
+            <div class="stat-card">
+                <h3>Weekly Total</h3>
+                <div class="stat-value" id="weeklyEmissions">--</div>
+                <div class="stat-change" id="weeklyChange">Loading...</div>
+            </div>
+            <div class="stat-card">
+                <h3>Monthly Average</h3>
+                <div class="stat-value" id="monthlyEmissions">--</div>
+                <div class="stat-change" id="monthlyChange">Loading...</div>
+            </div>
+            <div class="stat-card">
+                <h3>Total Impact</h3>
+                <div class="stat-value" id="totalEmissions">--</div>
+                <div class="stat-change">Lifetime tracking</div>
+            </div>
+        </div>
+
+        <div class="transport-summary">
+            <h3>Transport Breakdown</h3>
+            <div class="transport-item">
+                <div class="transport-icon">🚶</div>
+                <div class="transport-info">
+                    <h4>Walking</h4>
+                    <p id="walkingDistance">-- km</p>
+                </div>
+            </div>
+            <div class="transport-item">
+                <div class="transport-icon">🚲</div>
+                <div class="transport-info">
+                    <h4>Biking</h4>
+                    <p id="bikingDistance">-- km</p>
+                </div>
+            </div>
+            <div class="transport-item">
+                <div class="transport-icon">🚗</div>
+                <div class="transport-info">
+                    <h4>Driving</h4>
+                    <p id="drivingDistance">-- km</p>
                 </div>
             </div>
         </div>
 
-        <!-- Tab Contents -->
-        <div id="tabContents">
-            <!-- Vehicles Tab -->
-            <div id="vehicles" class="tab-content active">
-                <div id="noVehiclesMessage" class="hidden text-center text-gray-500 py-6">
-                    No vehicles available
-                </div>
-                <div id="vehicleList" class="space-y-4">
-                    <!-- Vehicle items will be dynamically added here -->
-                </div>
-            </div>
-
-            <!-- Biking Tab -->
-            <div id="biking" class="tab-content">
-                <div id="bikingContent" class="bg-white rounded-lg shadow-sm p-6">
-                    <div class="grid grid-cols-2 md:grid-cols-3 gap-4">
-                    </div>
-                </div>
-            </div>
-
-            <!-- Walking Tab -->
-            <div id="walking" class="tab-content">
-                <div id="walkingContent" class="bg-white rounded-lg shadow-sm p-6">
-                    <div class="grid grid-cols-2 md:grid-cols-3 gap-4">
-                    </div>
-                </div>
-            </div>
+        <div class="chart-container">
+            <canvas id="emissionsChart"></canvas>
         </div>
     </div>
 </div>
 
 <script>
-    function formatNumber(number) {
-        return Number(number).toFixed(2);
-    }
-
-    function createEmissionStats(emissionData) {
-        const statsContainer = document.getElementById('emissionsStats');
-        const stats = [
-            { key: 'dailyEmissionCount', label: 'Daily', icon: 'calendar-day' },
-            { key: 'weeklyEmissionCount', label: 'Weekly', icon: 'calendar-week' },
-            { key: 'monthlyEmissionCount', label: 'Monthly', icon: 'calendar-alt' },
-            { key: 'totalEmissionCount', label: 'Total', icon: 'chart-line' }
-        ];
-
-        statsContainer.innerHTML = stats.map(stat => `
-                <div class="bg-white/10 backdrop-blur-md rounded-lg p-4">
-                    <div class="flex items-center gap-3 mb-2">
-                        <i class="fas fa-${stat.icon} text-xl"></i>
-                        <h3 class="text-sm font-medium">${stat.label} Emissions</h3>
-                    </div>
-                    <p class="text-2xl font-bold">${formatNumber(emissionData[stat.key] || 0)} kg CO₂</p>
-                </div>
-            `).join('');
-    }
-
-    function createStatCard(title, value) {
-        if (typeof value === 'number') {
-            value = formatNumber(value);
+    async function getCurrentUserEmail() {
+        try {
+            const response = await fetch('/api/current-user');
+            const data = await response.json();
+            return data.email;
+        } catch (error) {
+            console.error('Error fetching current user:', error);
+            return null;
         }
-        return `
-                <div class="stat-card bg-white rounded-lg p-4 shadow-sm border border-gray-100">
-                    <h3 class="text-sm font-medium text-gray-500 mb-2">${title}</h3>
-                    <p class="text-2xl font-bold">${value}</p>
-                </div>
-            `;
-    }
-
-    function addVehicleToList(vehicle) {
-        const vehicleList = document.getElementById('vehicleList');
-        const vehicleItem = document.createElement('div');
-        vehicleItem.className = 'vehicle-item bg-white rounded-lg shadow-sm p-6';
-
-        const stats = Object.entries(vehicle)
-            .filter(([key]) => !['id', 'name'].includes(key))
-            .map(([key, value]) => {
-                const title = key.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase());
-                return createStatCard(title, value);
-            });
-
-        vehicleItem.innerHTML = `
-                <div class="flex items-center gap-3 mb-4">
-                    <i class="fas fa-car text-green-600 text-xl"></i>
-                    <h2 class="text-xl font-bold">${vehicle.name}</h2>
-                </div>
-                <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-                    ${stats.join('')}
-                </div>
-            `;
-
-        vehicleList.appendChild(vehicleItem);
-    }
-
-    function fetchVehicles() {
-        fetch('/getVehicles')
-            .then((response) => response.json())
-            .then((vehicles) => {
-                const vehicleList = document.getElementById('vehicleList');
-                const noVehiclesMessage = document.getElementById('noVehiclesMessage');
-
-                vehicleList.querySelectorAll('.vehicle-item').forEach((vehicle) => vehicle.remove());
-
-                if (vehicles.length === 0) {
-                    noVehiclesMessage.classList.remove('hidden');
-                } else {
-                    noVehiclesMessage.classList.add('hidden');
-                    vehicles.forEach((vehicle, index) => {
-                        setTimeout(() => {
-                            addVehicleToList(vehicle);
-                        }, index * 100);
-                    });
-                }
-            })
-            .catch((error) => console.error('Error fetching vehicles:', error));
     }
 
     async function fetchEmissionData() {
-        const dashboardContent = document.getElementById('dashboardContent');
-        const errorState = document.getElementById('errorState');
-        const errorText = document.getElementById('errorText');
-
         try {
-            const emailResponse = await fetch('/api/current-user');
-            if (!emailResponse.ok) throw new Error('Failed to fetch user data');
-            const { email } = await emailResponse.json();
+            // Get user ID from cookie
+            const userId = document.cookie
+                .split('; ')
+                .find(row => row.startsWith('user_id='))
+                ?.split('=')[1];
 
-            const emissionResponse = await fetch(`/api/getUserEmission/${email}`);
-            if (!emissionResponse.ok) throw new Error('Failed to fetch emission data');
-            const emissionData = await emissionResponse.json();
+            if (!userId) {
+                throw new Error('User ID not found in cookies');
+            }
 
-            // Create emission stats
-            createEmissionStats(emissionData);
+            console.log('Fetching emissions for user ID:', userId);
+            const response = await fetch(`/api/getUserEmission/${userId}`);
 
-            dashboardContent.classList.remove('hidden');
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
 
-            // Fetch vehicles separately
-            fetchVehicles();
-
-            // Sort and display biking data
-            const bikingData = Object.entries(emissionData)
-                .filter(([key]) => key.toLowerCase().includes('bike'))
-                .reduce((acc, [key, value]) => ({ ...acc, [key]: value }), {});
-
-            const bikingContent = document.querySelector('#bikingContent div');
-            bikingContent.innerHTML = Object.entries(bikingData).length > 0
-                ? Object.entries(bikingData)
-                    .map(([key, value]) => createStatCard(
-                        key.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase()),
-                        value
-                    ))
-                    .join('')
-                : '<p class="col-span-3 text-center text-gray-500">No biking data available</p>';
-
-            // Sort and display walking data
-            const walkingData = Object.entries(emissionData)
-                .filter(([key]) => key.toLowerCase().includes('walk'))
-                .reduce((acc, [key, value]) => ({ ...acc, [key]: value }), {});
-
-            const walkingContent = document.querySelector('#walkingContent div');
-            walkingContent.innerHTML = Object.entries(walkingData).length > 0
-                ? Object.entries(walkingData)
-                    .map(([key, value]) => createStatCard(
-                        key.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase()),
-                        value
-                    ))
-                    .join('')
-                : '<p class="col-span-3 text-center text-gray-500">No walking data available</p>';
-
+            const data = await response.json();
+            console.log('Emission data received:', data);
+            updateDashboard(data);
         } catch (error) {
-            errorState.classList.remove('hidden');
-            errorText.textContent = error.message;
-            console.error('Error:', error);
+            console.error('Error fetching emission data:', error);
+            showErrorState();
         }
     }
 
-    function setupTabs() {
-        const tabs = document.querySelectorAll('.tab');
-        tabs.forEach(tab => {
-            tab.addEventListener('click', () => {
-                tabs.forEach(t => t.classList.remove('active'));
-                document.querySelectorAll('.tab-content').forEach(content => {
-                    content.classList.remove('active');
-                });
-
-                tab.classList.add('active');
-                const tabId = tab.getAttribute('data-tab');
-                document.getElementById(tabId).classList.add('active');
-            });
+    function showErrorState() {
+        document.querySelectorAll('.stat-value').forEach(el => {
+            el.textContent = '--';
+        });
+        document.querySelectorAll('.stat-change').forEach(el => {
+            el.textContent = 'Data unavailable';
+            el.style.background = '#EF4444';
         });
     }
 
-    document.addEventListener('DOMContentLoaded', () => {
-        setupTabs();
-        fetchEmissionData();
-    });
+    function formatEmission(value) {
+        return `${value.toFixed(1)} kg CO₂`;
+    }
+
+    function formatDistance(value) {
+        return `${value.toFixed(1)} km`;
+    }
+
+    function updateDashboard(data) {
+        // Update emission stats
+        document.getElementById('dailyEmissions').textContent = formatEmission(data.dailyEmissionCount);
+        document.getElementById('weeklyEmissions').textContent = formatEmission(data.weeklyEmissionCount);
+        document.getElementById('monthlyEmissions').textContent = formatEmission(data.monthlyEmissionCount);
+        document.getElementById('totalEmissions').textContent = formatEmission(data.totalEmissionCount);
+
+        // Update transport distances
+        document.getElementById('walkingDistance').textContent = formatDistance(data.dailyDistanceWalked);
+        document.getElementById('bikingDistance').textContent = formatDistance(data.dailyDistanceBiked);
+        document.getElementById('drivingDistance').textContent = formatDistance(data.dailyDistanceDriven);
+
+        // Calculate daily vs weekly average
+        const weeklyAverage = data.weeklyEmissionCount / 7;
+        const dailyChange = ((data.dailyEmissionCount - weeklyAverage) / weeklyAverage) * 100;
+        const dailyChangeEl = document.getElementById('dailyChange');
+        dailyChangeEl.textContent = `${Math.abs(dailyChange).toFixed(1)}% ${dailyChange > 0 ? 'above' : 'below'} avg`;
+        dailyChangeEl.className = `stat-change ${dailyChange > 0 ? 'negative' : ''}`;
+
+        updateChart(data);
+    }
+
+    let emissionsChart = null;  // Define chart variable in wider scope
+
+    function updateChart(data) {
+        const ctx = document.getElementById('emissionsChart').getContext('2d');
+
+        // Properly destroy existing chart if it exists
+        if (emissionsChart) {
+            emissionsChart.destroy();
+        }
+
+        emissionsChart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: ['Daily', 'Weekly Avg', 'Monthly Avg'],
+                datasets: [{
+                    label: 'Carbon Emissions (kg CO₂)',
+                    data: [
+                        data.dailyEmissionCount,
+                        data.weeklyEmissionCount / 7,
+                        data.monthlyEmissionCount / 30
+                    ],
+                    borderColor: '#10B981',
+                    backgroundColor: 'rgba(16, 185, 129, 0.1)',
+                    tension: 0.4,
+                    fill: true
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: true,
+                height: 300,
+                plugins: {
+                    legend: {
+                        display: false
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        title: {
+                            display: true,
+                            text: 'CO₂ Emissions (kg)'
+                        }
+                    }
+                }
+            }
+        });
+    }
+
+    // Initialize
+    fetchEmissionData();
+
+    // Refresh every 5 minutes
+    setInterval(fetchEmissionData, 300000);
 </script>
 </body>
 </html>

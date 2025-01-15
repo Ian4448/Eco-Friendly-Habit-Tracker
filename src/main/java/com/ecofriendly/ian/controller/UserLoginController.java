@@ -56,7 +56,7 @@ public class UserLoginController {
             }
         }
 
-        model.addAttribute("userForm", new UserForm("", ""));
+        model.addAttribute("userForm", new UserForm("", "", (long) -1));
         return "loginform";
     }
 
@@ -77,36 +77,35 @@ public class UserLoginController {
         try {
             userForm.setPassword(Jsoup.clean(userForm.getPassword(), Safelist.none()));
             userForm.setUsername(Jsoup.clean(userForm.getUsername(), Safelist.none()));
-            boolean found = userService.matchLogin(userForm);
-            if (found) {
-                String token = UUID.randomUUID().toString();
-                userService.storeToken(userForm.getUsername(), token);
 
-                // Set auth token cookie
-                Cookie authCookie = new Cookie("auth_token", token);
-                authCookie.setHttpOnly(true);
-                authCookie.setPath("/");
-                authCookie.setMaxAge(30 * 24 * 60 * 60); // 30 days
-                response.addCookie(authCookie);
+            // Get userId directly, no need for separate matchLogin call
+            Long userId = userService.matchLoginAndGetUserId(userForm);
 
-                // Set user email cookie
-                Cookie emailCookie = new Cookie("user_email", userForm.getUsername());
-                emailCookie.setHttpOnly(false);
-                emailCookie.setPath("/");
-                emailCookie.setMaxAge(30 * 24 * 60 * 60); // 30 days
-                response.addCookie(emailCookie);
+            // if user is found and credentials match
+            String token = UUID.randomUUID().toString();
+            userService.storeToken(userId, token);  // Updated to use userId instead of username
 
-                session.setAttribute("userEmail", userForm.getUsername());
+            // Set auth token cookie
+            Cookie authCookie = new Cookie("auth_token", token);
+            authCookie.setHttpOnly(true);
+            authCookie.setPath("/");
+            authCookie.setMaxAge(30 * 24 * 60 * 60); // 30 days
+            response.addCookie(authCookie);
 
-                logger.info("Login successful for user: " + userForm.getUsername());
-                return "redirect:/home";
-            } else {
-                throw new UserNotFoundException("User not found");
-            }
+            // Set user id cookie
+            Cookie userIdCookie = new Cookie("user_id", String.valueOf(userId));
+            userIdCookie.setHttpOnly(false);
+            userIdCookie.setPath("/");
+            userIdCookie.setMaxAge(30 * 24 * 60 * 60); // 30 days
+            response.addCookie(userIdCookie);
+
+            session.setAttribute("userId", userId);
+
+            logger.info("Login successful for user ID: " + userId);
+            return "redirect:/home";
         } catch (UserNotFoundException e) {
             model.addAttribute("error", "Invalid username or password");
             return "loginform";
         }
     }
-
 }

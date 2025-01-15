@@ -85,7 +85,7 @@ class UserLoginControllerTest {
 
     @Test
     void loginPost_ShouldReturnLoginForm_WhenLoginFails() throws UserNotFoundException {
-        UserForm userForm = new UserForm("test@example.com", "password");
+        UserForm userForm = new UserForm("test@example.com", "password", (long) 3);
         when(userService.matchLogin(userForm)).thenReturn(false);
 
         String result = userLoginController.loginPost(userForm, model, response, session);

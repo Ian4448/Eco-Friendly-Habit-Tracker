@@ -59,8 +59,6 @@ public class VehicleService {
     }
 
     public Vehicle updateVehicle(Vehicle updatedVehicle, String email) throws UserNotFoundException, VehicleNotFoundException {
-        User user = userDAO.findByEmail(email).orElseThrow(() -> new UserNotFoundException(email));
-
         Vehicle existingVehicle = getVehicle(email, updatedVehicle.getVehicleId());
 
         existingVehicle.setMake(updatedVehicle.getMake());

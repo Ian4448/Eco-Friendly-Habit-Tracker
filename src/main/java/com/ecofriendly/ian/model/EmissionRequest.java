@@ -10,7 +10,7 @@ import lombok.NoArgsConstructor;
 public class EmissionRequest {
     private TrackingPeriod time;
     private TransportationType transportation;
-    private String userEmail;
+    private Long userId;
     private String vehicleName;
     private double distanceTravelled;
     private boolean goodChoice;

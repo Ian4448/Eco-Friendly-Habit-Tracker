@@ -11,6 +11,7 @@ import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.ErrorResponse;
 import org.springframework.web.bind.annotation.*;
 
 import java.net.URLDecoder;
@@ -35,15 +36,16 @@ public class UserAPI {
         return userService.addUser(user);
     }
 
-    @PutMapping({"/updateUser", "/updateUser/"})
-    public User updateUser(@RequestBody User user) {
-        try {
-            userService.updateUser(user.getEmail(), user);
-            return user;
-        } catch (UserNotFoundException e) {
-            // template user
-            return new User();
-        }
+    @PutMapping("/updateUser")
+    public User updateUser(@RequestBody User userDetails, @CookieValue("user_id") String userId) throws UserNotFoundException {
+        // Parse userId once at the start
+        Long userIdLong = Long.parseLong(userId);
+
+        // Get current user first
+        User currentUser = userService.getUserById(userIdLong);
+
+        // Pass both the current user and update details to service
+        return userService.updateUser(currentUser.getEmail(), userDetails);
     }
 
 
@@ -87,12 +89,29 @@ public class UserAPI {
         return Collections.singletonMap("email", email);
     }
 
+    @GetMapping("/user/{id}")
+    public ResponseEntity<?> getUserById(@PathVariable Long id) {
+        try {
+            User user = userService.getUserById(id);
+
+            Map<String, Object> userDto = new HashMap<>();
+            userDto.put("id", user.getId());
+            userDto.put("email", user.getEmail());
+            userDto.put("firstName", user.getFirstName());
+            userDto.put("lastName", user.getLastName());
+            return ResponseEntity.ok(userDto);
+        } catch (UserNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(Map.of("message", "User not found"));
+        }
+    }
+
     @PutMapping("/api/modifyUserEmission")
     public ResponseEntity<Object> logUserEmissionAndDistanceCount(@RequestBody EmissionRequest request) {
         boolean goodChoice = request.getTransportation() != TransportationType.CAR;
 
         try {
-            User user = userService.getUserByEmail(URLDecoder.decode(request.getUserEmail(), StandardCharsets.UTF_8));
+            User user = userService.getUserById(request.getUserId());
 
             Vehicle vehicle = user
                     .getVehicles()
@@ -106,14 +125,16 @@ public class UserAPI {
             emissionService.addUserDistance(user, request.getTransportation(), request.getDistanceTravelled());
 
             return ResponseEntity.ok().build();
+        } catch (UserNotFoundException | VehicleNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
         } catch (Exception e) {
-            return (ResponseEntity<Object>) ResponseEntity.status(HttpStatus.BAD_REQUEST);
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
         }
     }
 
-    @GetMapping("/api/getUserEmission/{username}")
-    public Emission getUserEmissionData(@PathVariable String username) {
-        User user = getUser(username);
+    @GetMapping("/api/getUserEmission/{id}")
+    public Emission getUserEmissionData(@PathVariable Long id) throws UserNotFoundException {
+        User user = userService.getUserById(id);
         return user.getEmission();
     }
 }
