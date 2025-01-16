@@ -62,7 +62,7 @@ public class UserService {
             existingUser.setLastName(userDetails.getLastName());
         }
         if (userDetails.getPassword() != null) {
-            existingUser.setPassword(userDetails.getPassword());
+            existingUser.setPassword(encoder.encode(userDetails.getPassword()));
         }
         if (userDetails.getEmission() != null) {
             existingUser.setEmission(userDetails.getEmission());
