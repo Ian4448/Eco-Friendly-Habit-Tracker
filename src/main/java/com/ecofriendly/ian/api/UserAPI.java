@@ -8,14 +8,10 @@ import com.ecofriendly.ian.service.UserService;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.ErrorResponse;
 import org.springframework.web.bind.annotation.*;
 
-import java.net.URLDecoder;
-import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.logging.Logger;
 
@@ -31,12 +27,12 @@ public class UserAPI {
     }
 
 
-    @PostMapping({"/addCustomer", "/addCustomer/"})
+    @PostMapping({"/api/addCustomer", "/api/addCustomer/"})
     public User addUser(@RequestBody User user) {
         return userService.addUser(user);
     }
 
-    @PutMapping("/updateUser")
+    @PutMapping("/api/updateUser")
     public User updateUser(@RequestBody User userDetails, @CookieValue("user_id") String userId) throws UserNotFoundException {
         Long userIdLong = Long.parseLong(userId);
 
@@ -46,12 +42,12 @@ public class UserAPI {
     }
 
 
-    @GetMapping({"/users", "/users/"})
+    @GetMapping({"/api/users", "/api/users/"})
     public List<User> getUsers() {
         return userService.getAllUsers();
     }
 
-    @GetMapping({"/user", "/user/"})
+    @GetMapping({"/user", "/user/"}) //deprecated
     public User getUser(@RequestParam(value = "email", required = false) String email) {
         try {
             return userService.getUserByEmail(email);
@@ -60,7 +56,7 @@ public class UserAPI {
         }
     }
 
-    @DeleteMapping({"/deleteUser", "/deleteUser/"})
+    @DeleteMapping({"/api/deleteUser", "/api/deleteUser/"})
     public void deleteUser(@RequestParam String email) {
         try {
             userService.deleteUser(userService.getUserByEmail(email));
@@ -69,7 +65,7 @@ public class UserAPI {
         }
     }
 
-    @GetMapping("/api/current-user")
+    @GetMapping("/api/current-user") //deprecated
     @ResponseBody
     public Map<String, String> getCurrentUser(HttpSession session, HttpServletRequest request) {
         String email = (String) session.getAttribute("userEmail");
@@ -86,7 +82,7 @@ public class UserAPI {
         return Collections.singletonMap("email", email);
     }
 
-    @GetMapping("/user/{id}")
+    @GetMapping("/api/user/{id}")
     public ResponseEntity<?> getUserById(@PathVariable Long id) {
         try {
             User user = userService.getUserById(id);

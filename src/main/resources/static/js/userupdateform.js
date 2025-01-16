@@ -56,7 +56,7 @@ document.getElementById('settingsForm').addEventListener('submit', async (e) => 
     }
 
     try {
-        const response = await fetch('/updateUser', {
+        const response = await fetch('/api/updateUser', {
             method: 'PUT',
             headers: {
                 'Content-Type': 'application/json',
@@ -103,7 +103,7 @@ async function loadUserData() {
             throw new Error('No user ID found in URL');
         }
 
-        const userResponse = await fetch(`/user/${userId}`);
+        const userResponse = await fetch(`/api/user/${userId}`);
         if (!userResponse.ok) {
             throw new Error('Failed to fetch user data');
         }

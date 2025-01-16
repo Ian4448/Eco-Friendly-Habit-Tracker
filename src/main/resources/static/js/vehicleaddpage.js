@@ -132,7 +132,7 @@ async function fetchUserName() {
             profileLink.href = `/edit/${userId}`;
         }
 
-        const response = await fetch(`/user/${userId}`);
+        const response = await fetch(`/api/user/${userId}`);
         if (!response.ok) {
             throw new Error('Failed to fetch user data');
         }

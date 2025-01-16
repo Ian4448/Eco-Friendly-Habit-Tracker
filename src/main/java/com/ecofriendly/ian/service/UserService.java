@@ -1,11 +1,9 @@
-// UserService.java
 package com.ecofriendly.ian.service;
 
 import com.ecofriendly.ian.dao.TokenDAO;
 import com.ecofriendly.ian.dao.UserDAO;
 import com.ecofriendly.ian.exceptions.UserNotFoundException;
 import com.ecofriendly.ian.model.*;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Component;
 

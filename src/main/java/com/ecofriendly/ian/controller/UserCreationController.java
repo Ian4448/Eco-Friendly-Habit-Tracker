@@ -4,7 +4,6 @@ import com.ecofriendly.ian.model.User;
 import com.ecofriendly.ian.service.UserService;
 import org.jsoup.Jsoup;
 import org.jsoup.safety.Safelist;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;

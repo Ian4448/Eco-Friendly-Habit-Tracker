@@ -435,15 +435,6 @@ function updateLocationText() {
             });
     }
 }
-function getCurrentUserEmail() {
-    return fetch('/api/current-user')
-        .then(response => response.json())
-        .then(data => data.email)
-        .catch(error => {
-            console.error('Error fetching current user:', error);
-            return null;
-        });
-}
 
 function setCurrentLocationAsStart() {
     if (currentPosition) {
