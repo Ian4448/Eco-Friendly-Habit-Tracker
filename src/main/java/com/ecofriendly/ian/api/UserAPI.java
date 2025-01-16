@@ -38,13 +38,10 @@ public class UserAPI {
 
     @PutMapping("/updateUser")
     public User updateUser(@RequestBody User userDetails, @CookieValue("user_id") String userId) throws UserNotFoundException {
-        // Parse userId once at the start
         Long userIdLong = Long.parseLong(userId);
 
-        // Get current user first
         User currentUser = userService.getUserById(userIdLong);
 
-        // Pass both the current user and update details to service
         return userService.updateUser(currentUser.getEmail(), userDetails);
     }
 
