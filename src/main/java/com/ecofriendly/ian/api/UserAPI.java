@@ -7,11 +7,13 @@ import com.ecofriendly.ian.service.EmissionService;
 import com.ecofriendly.ian.service.UserService;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.net.URI;
 import java.util.*;
 import java.util.logging.Logger;
 
@@ -97,6 +99,27 @@ public class UserAPI {
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
                     .body(Map.of("message", "User not found"));
         }
+    }
+
+    @PostMapping("/api/logout")
+    public ResponseEntity<?> logout(HttpServletRequest request, HttpServletResponse response, HttpSession session) {
+        Cookie[] cookies = request.getCookies();
+        session.invalidate();
+
+        if (cookies != null) {
+            for (Cookie cookie : cookies) {
+                if ("auth_token".equals(cookie.getName())) {
+                    cookie.setMaxAge(0);
+                    cookie.setPath("/");  // This is important!
+                    response.addCookie(cookie);  // Need to add to response
+                    logger.info("Deleted auth_token cookie");
+                }
+            }
+        }
+
+        return ResponseEntity.status(HttpStatus.FOUND)
+                .location(URI.create("/"))
+                .build();
     }
 
     @PutMapping("/api/modifyUserEmission")

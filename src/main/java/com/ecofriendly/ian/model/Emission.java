@@ -21,7 +21,7 @@ public class Emission {
     private UUID emissionId;
 
     @OneToOne
-    @JoinColumn(name = "user_email", referencedColumnName = "email")
+    @JoinColumn(name = "user_id", referencedColumnName = "id")
     @JsonIgnore
     private User user;
 

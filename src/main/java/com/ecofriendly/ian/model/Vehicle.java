@@ -25,7 +25,7 @@ public class Vehicle {
     private int mpg;
 
     @ManyToOne
-    @JoinColumn(name = "user_email")
+    @JoinColumn(name = "user_id", referencedColumnName = "id")
     @JsonIgnore
     private User user;
 

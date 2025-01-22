@@ -563,6 +563,26 @@ async function deleteVehicle(vehicleName, event) {
     }
 }
 
+async function logout(event) {
+    event.preventDefault();
+    try {
+        const response = await fetch('/api/logout', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        });
+
+        if (response.ok) {
+            window.location.href = '/';
+        } else {
+            console.error('Logout failed');
+        }
+    } catch (error) {
+        console.error('Error during logout:', error);
+    }
+}
+
 document.addEventListener('DOMContentLoaded', () => {
     loadVehicles();
     updateProfileLink();
