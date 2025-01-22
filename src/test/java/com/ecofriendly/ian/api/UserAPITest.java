@@ -226,57 +226,6 @@ class UserAPITest {
     }
 
     @Test
-    void getUser_ShouldReturnUser_WhenUserExists() throws UserNotFoundException {
-        // Arrange
-        String email = "test@example.com";
-        User expectedUser = new User(email, "Test", "User", new ArrayList<>(), new Emission());
-        when(userService.getUserByEmail(email)).thenReturn(expectedUser);
-
-        // Act
-        User result = userAPI.getUser(email);
-
-        // Assert
-        assertNotNull(result);
-        assertEquals(email, result.getEmail());
-        assertEquals("Test", result.getFirstName());
-        assertEquals("User", result.getLastName());
-        verify(userService).getUserByEmail(email);
-    }
-
-    @Test
-    void getUser_ShouldReturnEmptyUser_WhenUserNotFound() throws UserNotFoundException {
-        // Arrange
-        String email = "nonexistent@example.com";
-        when(userService.getUserByEmail(email)).thenThrow(new UserNotFoundException("User not found"));
-
-        // Act
-        User result = userAPI.getUser(email);
-
-        // Assert
-        assertNotNull(result);
-        assertNull(result.getEmail());
-        assertNull(result.getFirstName());
-        assertNull(result.getLastName());
-        verify(userService).getUserByEmail(email);
-    }
-
-    @Test
-    void getUser_ShouldReturnEmptyUser_WhenEmailIsNull() throws UserNotFoundException {
-        // Arrange
-        when(userService.getUserByEmail(null)).thenThrow(new UserNotFoundException("User not found"));
-
-        // Act
-        User result = userAPI.getUser(null);
-
-        // Assert
-        assertNotNull(result);
-        assertNull(result.getEmail());
-        assertNull(result.getFirstName());
-        assertNull(result.getLastName());
-        verify(userService).getUserByEmail(null);
-    }
-
-    @Test
     void deleteUser_ShouldDeleteUser_WhenUserExists() throws UserNotFoundException {
         // Arrange
         String email = "test@example.com";

@@ -49,15 +49,6 @@ public class UserAPI {
         return userService.getAllUsers();
     }
 
-    @GetMapping({"/user", "/user/"}) //deprecated
-    public User getUser(@RequestParam(value = "email", required = false) String email) {
-        try {
-            return userService.getUserByEmail(email);
-        } catch (UserNotFoundException e) {
-            return new User();
-        }
-    }
-
     @DeleteMapping({"/api/deleteUser", "/api/deleteUser/"})
     public void deleteUser(@RequestParam String email) {
         try {
