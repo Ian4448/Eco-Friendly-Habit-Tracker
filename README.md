@@ -82,16 +82,9 @@ For any significant changes, please open an issue first to discuss what you woul
 ---
 ## Demo
 <p align="center">
-  <img src="https://github.com/user-attachments/assets/f859a6dc-3bb0-41ed-af9d-2afd0890c081" alt="Centered Image">
-  <img src="https://github.com/user-attachments/assets/99346126-6470-44fa-a0a8-e44253929699" alt="Centered Image2">
+  <a href="https://youtu.be/y_2Pn2S_-DE">
+    <img src="https://img.youtube.com/vi/y_2Pn2S_-DE/0.jpg" alt="Watch Demo Video on YouTube">
+  </a>
 </p>
-
-
-</p>
-
-<div align="center">
-  <img src="https://github.com/user-attachments/assets/2d8b7570-1ceb-481a-943b-2b75e3081731" height="450px" alt="First Image">
-  <img src="https://github.com/user-attachments/assets/e903e0bd-e3a3-4efa-a9cf-7aaf70e5d60d" height="450px" alt="Second Image">
-</div>
 
 ---
