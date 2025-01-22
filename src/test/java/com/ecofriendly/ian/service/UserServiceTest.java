@@ -3,27 +3,24 @@ package com.ecofriendly.ian.service;
 import com.ecofriendly.ian.dao.TokenDAO;
 import com.ecofriendly.ian.dao.UserDAO;
 import com.ecofriendly.ian.exceptions.UserNotFoundException;
-import com.ecofriendly.ian.model.Emission;
-import com.ecofriendly.ian.model.Token;
-import com.ecofriendly.ian.model.User;
-import com.ecofriendly.ian.model.Vehicle;
+import com.ecofriendly.ian.model.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Optional;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
-@SpringBootTest
 @ExtendWith(MockitoExtension.class)
 class UserServiceTest {
     @Mock
@@ -35,86 +32,130 @@ class UserServiceTest {
     private UserService userService;
 
     private User user;
-    private Token token;
 
     @BeforeEach
-    public void setUp() {
-        user = new User("emailfortesting@example.com","firstNameTest", "lastNameTest", new ArrayList<>(), new Emission());
+    void setUp() {
+        user = new User("emailfortesting@example.com", "firstNameTest", "lastNameTest", new ArrayList<>(), new Emission());
+        user.setId(1L);
     }
 
     @Test
-    public void testFullUserServiceFlow() {
-        //Todo: 11/13/24
+    void testFullUserServiceFlow() throws UserNotFoundException {
+        //Todo: Implement this test
     }
 
     @Test
-    public void testValidToken() {
-        //Todo: 11/13/24
+    void testValidToken() {
+        // Arrange
+        String tokenStr = "valid-token-123";
+        LocalDateTime futureDate = LocalDateTime.now().plusDays(30);
+        Token validToken = new Token(tokenStr, user, futureDate);
+
+        when(tokenDAO.findByToken(tokenStr)).thenReturn(Optional.of(validToken));
+
+        // Act
+        boolean isValid = userService.isTokenValid(tokenStr);
+
+        // Assert
+        assertTrue(isValid);
+        verify(tokenDAO).findByToken(tokenStr);
     }
 
     @Test
-    public void testInvalidToken() {
-        //Todo: 11/13/24
+    void testInvalidToken() {
+        // Test case 1: Non-existent token
+        when(tokenDAO.findByToken("non-existent-token")).thenReturn(Optional.empty());
+        assertFalse(userService.isTokenValid("non-existent-token"));
+
+        // Test case 2: Expired token
+        String expiredTokenStr = "expired-token";
+        LocalDateTime pastDate = LocalDateTime.now().minusDays(1);
+        Token expiredToken = new Token(expiredTokenStr, user, pastDate);
+
+        when(tokenDAO.findByToken(expiredTokenStr)).thenReturn(Optional.of(expiredToken));
+        assertFalse(userService.isTokenValid(expiredTokenStr));
     }
 
     @Test
-    public void testCreateUser() {
-        when(userDAO.save(user)).thenReturn(user);
+    void testGetEmailFromToken() throws UserNotFoundException {
+        // Arrange
+        String tokenStr = "valid-token-123";
+        LocalDateTime futureDate = LocalDateTime.now().plusDays(30);
+        Token validToken = new Token(tokenStr, user, futureDate);
 
+        when(tokenDAO.findByToken(tokenStr)).thenReturn(Optional.of(validToken));
+
+        // Act
+        String email = userService.getEmailFromToken(tokenStr);
+
+        // Assert
+        assertEquals("emailfortesting@example.com", email);
+        verify(tokenDAO).findByToken(tokenStr);
+    }
+
+    @Test
+    void testMatchLoginAndGetUserId() throws UserNotFoundException {
+        //Todo: Implement this test
+    }
+
+    @Test
+    void testMatchLoginAndGetUserIdWithInvalidCredentials() {
+        //Todo: Implement this test
+    }
+
+    @Test
+    void testCreateUser() {
+        // Arrange
+        when(userDAO.save(any(User.class))).thenReturn(user);
+
+        // Act
         User newUser = userService.addUser(user);
-        assertThat(newUser).isNotNull();
 
-        assertThat(newUser.getEmail()).isEqualTo(user.getEmail());
-        assertThat(newUser.getFirstName()).isEqualTo(user.getFirstName());
-        assertThat(newUser.getLastName()).isEqualTo(user.getLastName());
-        assertThat(newUser.getPassword()).isEqualTo(user.getPassword());
-
-        verify(userDAO, times(1)).save(user);
+        // Assert
+        assertNotNull(newUser);
+        assertEquals(user.getEmail(), newUser.getEmail());
+        assertEquals(user.getFirstName(), newUser.getFirstName());
+        assertEquals(user.getLastName(), newUser.getLastName());
+        assertNotNull(newUser.getVehicles());
+        assertNotNull(newUser.getEmission());
+        verify(userDAO).save(any(User.class));
     }
 
     @Test
-    public void testUpdateUser() throws UserNotFoundException {
+    void testUpdateUser() throws UserNotFoundException {
+        // Arrange
         when(userDAO.findByEmail(user.getEmail())).thenReturn(Optional.of(user));
-        when(userDAO.save(any(User.class))).thenAnswer(invocation -> invocation.getArgument(0));
+        when(userDAO.save(any(User.class))).thenAnswer(i -> i.getArgument(0));
 
-        User oldUser = userService.addUser(user);
-        assertThat(oldUser).isNotNull();
+        User updatedDetails = new User(user.getEmail(), "newFirstName", "newLastName", new ArrayList<>(), new Emission());
 
-        User updatedDetails = new User(oldUser.getEmail(), "newFirstName", "newLastName", new ArrayList<>(), new Emission());
-        User newUser = userService.updateUser(oldUser.getEmail(), updatedDetails);
+        // Act
+        User newUser = userService.updateUser(user.getEmail(), updatedDetails);
 
-        assertThat(newUser).isNotNull();
-        assertThat(newUser.getEmail()).isEqualTo(oldUser.getEmail());
-        assertThat(newUser.getFirstName()).isEqualTo("newFirstName");
-        assertThat(newUser.getLastName()).isEqualTo("newLastName");
-
-        verify(userDAO, times(2)).save(newUser);
+        // Assert
+        assertNotNull(newUser);
+        assertEquals(user.getEmail(), newUser.getEmail());
+        assertEquals("newFirstName", newUser.getFirstName());
+        assertEquals("newLastName", newUser.getLastName());
+        verify(userDAO).save(any(User.class));
     }
 
     @Test
-    public void testUpdateUserNotFoundThrowsException() {
+    void testUpdateUserNotFoundThrowsException() {
+        // Arrange
         when(userDAO.findByEmail(user.getEmail())).thenReturn(Optional.empty());
 
-        assertThrows(UserNotFoundException.class, () ->
-                userService.updateUser(user.getEmail(), new User())
-        );
+        // Act & Assert
+        assertThrows(UserNotFoundException.class,
+                () -> userService.updateUser(user.getEmail(), new User()));
     }
 
-
     @Test
-    public void testDeleteUser() throws UserNotFoundException {
-        when(userDAO.findByEmail(user.getEmail())).thenReturn(Optional.of(user));
-
+    void testDeleteUser() {
+        // Act
         userService.deleteUser(user);
 
-        verify(userDAO, times(1)).delete(user);
-
-        when(userDAO.findByEmail(user.getEmail())).thenReturn(Optional.empty());
-        assertThrows(UserNotFoundException.class, () -> userService.getUserByEmail(user.getEmail()));
-    }
-
-    @Test
-    public void testCalculateCarbonEmission() {
-        //Todo
+        // Assert
+        verify(userDAO).delete(user);
     }
 }

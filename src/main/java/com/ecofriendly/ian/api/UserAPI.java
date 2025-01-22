@@ -28,7 +28,6 @@ public class UserAPI {
         this.emissionService = emissionService;
     }
 
-
     @PostMapping({"/api/addCustomer", "/api/addCustomer/"})
     public User addUser(@RequestBody User user) {
         return userService.addUser(user);
@@ -50,29 +49,18 @@ public class UserAPI {
     }
 
     @DeleteMapping({"/api/deleteUser", "/api/deleteUser/"})
-    public void deleteUser(@RequestParam String email) {
+    public ResponseEntity<?> deleteUser(@RequestParam String email) {
         try {
-            userService.deleteUser(userService.getUserByEmail(email));
+            User user = userService.getUserByEmail(email);
+            userService.deleteUser(user);
+            logger.info(String.format("User deleted successfully: {%s}", email));
+            return ResponseEntity.ok().build();
+
         } catch (UserNotFoundException e) {
-            // do nothing
+            logger.info(String.format("Attempt to delete non-existent user: {%s}", email));
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(Map.of("message", "User not found"));
         }
-    }
-
-    @GetMapping("/api/current-user") //deprecated
-    @ResponseBody
-    public Map<String, String> getCurrentUser(HttpSession session, HttpServletRequest request) {
-        String email = (String) session.getAttribute("userEmail");
-
-        // If no session, check cookie
-        if (email == null && request.getCookies() != null) {
-            email = Arrays.stream(request.getCookies())
-                    .filter(c -> "user_email".equals(c.getName()))
-                    .map(Cookie::getValue)
-                    .findFirst()
-                    .orElse(null);
-        }
-
-        return Collections.singletonMap("email", email);
     }
 
     @GetMapping("/api/user/{id}")

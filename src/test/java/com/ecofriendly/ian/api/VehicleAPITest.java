@@ -123,7 +123,7 @@ class VehicleAPITest {
 
         List<Vehicle> response = vehicleAPI.getVehicles(token);
 
-        assertNull(response);  // or check for an empty response depending on your requirements
+        assertNull(response);
     }
 
     @Test

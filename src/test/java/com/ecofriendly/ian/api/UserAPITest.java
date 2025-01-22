@@ -1,11 +1,12 @@
 package com.ecofriendly.ian.api;
 
 import com.ecofriendly.ian.exceptions.UserNotFoundException;
-import com.ecofriendly.ian.model.Emission;
-import com.ecofriendly.ian.model.User;
+import com.ecofriendly.ian.model.*;
+import com.ecofriendly.ian.service.EmissionService;
 import com.ecofriendly.ian.service.UserService;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -15,7 +16,10 @@ import org.mockito.Captor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 
+import java.net.URI;
 import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -26,6 +30,9 @@ import static org.mockito.Mockito.*;
 class UserAPITest {
     @Mock
     private UserService userService;
+
+    @Mock
+    private EmissionService emissionService;
 
     @Mock
     private HttpServletRequest request;
@@ -40,9 +47,7 @@ class UserAPITest {
     private ArgumentCaptor<User> userCaptor;
 
     @BeforeEach
-    void setUp() {
-        // Additional setup if needed
-    }
+    void setUp() {}
 
     @Test
     void addUser_ShouldReturnSavedUser_WhenSuccessful() {
@@ -256,75 +261,169 @@ class UserAPITest {
     }
 
     @Test
-    void getCurrentUser_ShouldReturnEmailFromSession_WhenSessionExists() {
+    void getUserById_ShouldReturnUserDTO_WhenUserExists() throws UserNotFoundException {
         // Arrange
-        String expectedEmail = "test@example.com";
-        when(session.getAttribute("userEmail")).thenReturn(expectedEmail);
+        Long userId = 1L;
+        User user = new User("test@example.com", "Test", "User", new ArrayList<>(), new Emission());
+        user.setId(userId);
+
+        when(userService.getUserById(userId)).thenReturn(user);
 
         // Act
-        Map<String, String> result = userAPI.getCurrentUser(session, request);
+        ResponseEntity<?> response = userAPI.getUserById(userId);
 
         // Assert
-        assertNotNull(result);
-        assertEquals(expectedEmail, result.get("email"));
-        verify(session).getAttribute("userEmail");
-        verify(request, never()).getCookies();
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertTrue(response.getBody() instanceof Map);
+
+        @SuppressWarnings("unchecked")
+        Map<String, Object> userDto = (Map<String, Object>) response.getBody();
+        assertEquals(userId, userDto.get("id"));
+        assertEquals("test@example.com", userDto.get("email"));
+        assertEquals("Test", userDto.get("firstName"));
+        assertEquals("User", userDto.get("lastName"));
+
+        verify(userService).getUserById(userId);
     }
 
     @Test
-    void getCurrentUser_ShouldReturnEmailFromCookie_WhenNoSessionAndCookieExists() {
+    void getUserById_ShouldReturnNotFound_WhenUserDoesNotExist() throws UserNotFoundException {
         // Arrange
-        when(session.getAttribute("userEmail")).thenReturn(null);
+        Long userId = 1L;
+        when(userService.getUserById(userId)).thenThrow(new UserNotFoundException("User not found"));
 
-        Cookie userEmailCookie = new Cookie("user_email", "test@example.com");
-        Cookie otherCookie = new Cookie("other_cookie", "other_value");
-        Cookie[] cookies = new Cookie[]{userEmailCookie, otherCookie};
+        // Act
+        ResponseEntity<?> response = userAPI.getUserById(userId);
+
+        // Assert
+        assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
+        assertTrue(response.getBody() instanceof Map);
+
+        @SuppressWarnings("unchecked")
+        Map<String, Object> errorResponse = (Map<String, Object>) response.getBody();
+        assertEquals("User not found", errorResponse.get("message"));
+
+        verify(userService).getUserById(userId);
+    }
+
+    @Test
+    void logout_ShouldInvalidateSessionAndClearCookies() {
+        // Arrange
+        Cookie authCookie = new Cookie("auth_token", "test-token");
+        Cookie otherCookie = new Cookie("other_cookie", "other-value");
+        Cookie[] cookies = {authCookie, otherCookie};
 
         when(request.getCookies()).thenReturn(cookies);
+        HttpServletResponse response = mock(HttpServletResponse.class);
 
         // Act
-        Map<String, String> result = userAPI.getCurrentUser(session, request);
+        ResponseEntity<?> result = userAPI.logout(request, response, session);
 
         // Assert
-        assertNotNull(result);
-        assertEquals("test@example.com", result.get("email"));
-        verify(session).getAttribute("userEmail");
-        verify(request, times(2)).getCookies();
+        verify(session).invalidate();
+        verify(response).addCookie(argThat(cookie ->
+                cookie.getName().equals("auth_token") &&
+                        cookie.getMaxAge() == 0 &&
+                        cookie.getPath().equals("/")
+        ));
+        assertEquals(HttpStatus.FOUND, result.getStatusCode());
+        assertEquals(URI.create("/"), result.getHeaders().getLocation());
     }
 
     @Test
-    void getCurrentUser_ShouldReturnNull_WhenNoSessionAndNoCookie() {
+    void logUserEmissionAndDistanceCount_ShouldUpdateEmissionData_WhenSuccessful() throws UserNotFoundException {
         // Arrange
-        when(session.getAttribute("userEmail")).thenReturn(null);
-        when(request.getCookies()).thenReturn(null);
+        Long userId = 1L;
+        String vehicleName = "Test Car";
+        double distance = 100.0;
+
+        EmissionRequest request = new EmissionRequest();
+        request.setUserId(userId);
+        request.setVehicleName(vehicleName);
+        request.setDistanceTravelled(distance);
+        request.setTransportation(TransportationType.CAR);
+
+        User user = new User("test@example.com", "Test", "User", new ArrayList<>(), new Emission());
+        Vehicle vehicle = new Vehicle();
+        vehicle.setName(vehicleName);
+        user.setVehicles(Collections.singletonList(vehicle));
+
+        when(userService.getUserById(userId)).thenReturn(user);
+        when(emissionService.calculateCarbonEmission(any(Vehicle.class), anyDouble())).thenReturn(50.0);
+        doNothing().when(emissionService).addUserCarbonEmission(any(User.class), anyDouble(), anyBoolean());
+        doNothing().when(emissionService).addUserDistance(any(User.class), any(TransportationType.class), anyDouble());
 
         // Act
-        Map<String, String> result = userAPI.getCurrentUser(session, request);
+        ResponseEntity<Object> response = userAPI.logUserEmissionAndDistanceCount(request);
 
         // Assert
-        assertNotNull(result);
-        assertNull(result.get("email"));
-        verify(session).getAttribute("userEmail");
-        verify(request).getCookies();
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        verify(userService).getUserById(userId);
+        verify(emissionService).calculateCarbonEmission(eq(vehicle), eq(distance));
+        verify(emissionService).addUserCarbonEmission(eq(user), eq(50.0), eq(false));
+        verify(emissionService).addUserDistance(eq(user), eq(TransportationType.CAR), eq(distance));
     }
 
     @Test
-    void getCurrentUser_ShouldReturnNull_WhenNoSessionAndWrongCookie() {
+    void logUserEmissionAndDistanceCount_ShouldReturnNotFound_WhenUserNotFound() throws UserNotFoundException {
         // Arrange
-        when(session.getAttribute("userEmail")).thenReturn(null);
-        Cookie wrongCookie = new Cookie("wrong_cookie", "test@example.com");
-        Cookie[] cookies = new Cookie[]{wrongCookie};
-        when(request.getCookies()).thenReturn(cookies);
+        EmissionRequest request = new EmissionRequest();
+        request.setUserId(1L);
+        request.setVehicleName("Test Car");
+
+        when(userService.getUserById(1L)).thenThrow(new UserNotFoundException("User not found"));
 
         // Act
-        Map<String, String> result = userAPI.getCurrentUser(session, request);
+        ResponseEntity<Object> response = userAPI.logUserEmissionAndDistanceCount(request);
+
+        // Assert
+        assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
+    }
+
+    @Test
+    void logUserEmissionAndDistanceCount_ShouldReturnNotFound_WhenVehicleNotFound() throws UserNotFoundException {
+        // Arrange
+        EmissionRequest request = new EmissionRequest();
+        request.setUserId(1L);
+        request.setVehicleName("Nonexistent Car");
+
+        User user = new User("test@example.com", "Test", "User", new ArrayList<>(), new Emission());
+        when(userService.getUserById(1L)).thenReturn(user);
+
+        // Act
+        ResponseEntity<Object> response = userAPI.logUserEmissionAndDistanceCount(request);
+
+        // Assert
+        assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
+    }
+
+    @Test
+    void getUserEmissionData_ShouldReturnEmissionData_WhenUserExists() throws UserNotFoundException {
+        // Arrange
+        Long userId = 1L;
+        User user = new User("test@example.com", "Test", "User", new ArrayList<>(), new Emission());
+        Emission emission = new Emission();
+        user.setEmission(emission);
+
+        when(userService.getUserById(userId)).thenReturn(user);
+
+        // Act
+        Emission result = userAPI.getUserEmissionData(userId);
 
         // Assert
         assertNotNull(result);
-        assertNull(result.get("email"));
-        verify(session).getAttribute("userEmail");
-        verify(request, times(2)).getCookies();  // Changed this line to expect 2 calls
+        assertEquals(emission, result);
+        verify(userService).getUserById(userId);
     }
 
-    // missing tests for getUserById and emission functions
+    @Test
+    void getUserEmissionData_ShouldThrowException_WhenUserNotFound() throws UserNotFoundException {
+        // Arrange
+        Long userId = 1L;
+        when(userService.getUserById(userId)).thenThrow(new UserNotFoundException("User not found"));
+
+        // Act & Assert
+        assertThrows(UserNotFoundException.class, () -> userAPI.getUserEmissionData(userId));
+        verify(userService).getUserById(userId);
+    }
 }

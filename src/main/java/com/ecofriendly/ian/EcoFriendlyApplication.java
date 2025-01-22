@@ -1,4 +1,3 @@
-// EcoFriendlyApplication.java
 package com.ecofriendly.ian;
 
 import org.springframework.boot.SpringApplication;
