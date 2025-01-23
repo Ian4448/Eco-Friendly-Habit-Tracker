@@ -5,139 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>EcoTrack - Monitor Your Carbon Footprint</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
-    <style>
-        :root {
-            --primary: #2ECC71;
-            --secondary: #27AE60;
-            --dark: #2C3E50;
-            --light: #ECF0F1;
-        }
-
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: 'Segoe UI', system-ui, sans-serif;
-        }
-
-        body {
-            background-color: #fff;
-            color: var(--dark);
-            line-height: 1.6;
-        }
-
-        .navbar {
-            position: fixed;
-            top: 0;
-            width: 100%;
-            padding: 1.5rem;
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(10px);
-            z-index: 1000;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            box-shadow: 0 2px 15px rgba(0, 0, 0, 0.1);
-        }
-
-        .logo {
-            font-size: 1.8rem;
-            font-weight: 700;
-            color: var(--primary);
-        }
-
-        .cta-button {
-            background: var(--primary);
-            color: white;
-            padding: 0.8rem 2rem;
-            border-radius: 50px;
-            text-decoration: none;
-            font-weight: 600;
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
-        }
-
-        .cta-button:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(46, 204, 113, 0.4);
-        }
-
-        .hero {
-            padding: 8rem 2rem 4rem;
-            text-align: center;
-            background: linear-gradient(135deg, #f5f7fa 0%, #e5e9ec 100%);
-        }
-
-        .hero h1 {
-            font-size: 3.5rem;
-            margin-bottom: 1.5rem;
-            color: var(--dark);
-        }
-
-        .hero p {
-            font-size: 1.2rem;
-            color: #666;
-            max-width: 600px;
-            margin: 0 auto 2rem;
-        }
-
-        .features {
-            padding: 4rem 2rem;
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 2rem;
-            max-width: 1200px;
-            margin: 0 auto;
-        }
-
-        .feature-card {
-            padding: 2rem;
-            border-radius: 15px;
-            background: white;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
-            transition: transform 0.3s ease;
-        }
-
-        .feature-card:hover {
-            transform: translateY(-5px);
-        }
-
-        .feature-icon {
-            font-size: 2.5rem;
-            color: var(--primary);
-            margin-bottom: 1rem;
-        }
-
-        .feature-card h3 {
-            margin-bottom: 1rem;
-            color: var(--dark);
-        }
-
-        .floating-elements {
-            position: absolute;
-            width: 100%;
-            height: 100%;
-            top: 0;
-            left: 0;
-            pointer-events: none;
-            z-index: 0;
-        }
-
-        .float-element {
-            position: absolute;
-            background: rgba(46, 204, 113, 0.1);
-            border-radius: 50%;
-        }
-
-        @media (max-width: 768px) {
-            .hero h1 {
-                font-size: 2.5rem;
-            }
-
-            .features {
-                grid-template-columns: 1fr;
-            }
-        }
-    </style>
+    <link rel="stylesheet" href="/static/css/landingpage.css">
 </head>
 <body>
 <nav class="navbar">
@@ -170,46 +38,22 @@
     </div>
 </section>
 
-<script>
+<!-- Chatbot HTML -->
+<div class="chat-widget">
+    <button class="chat-button" id="chatButton">
+        💬
+    </button>
+    <div class="chat-container" id="chatContainer">
+        <div class="chat-header">
+            <h3>EcoTrack Assistant</h3>
+            <button class="chat-close" id="chatClose">×</button>
+        </div>
+        <div class="chat-messages" id="chatMessages">
+            <!-- Messages will be added here dynamically -->
+        </div>
+    </div>
+</div>
 
-
-    // Floating elements animation
-    function createFloatingElements() {
-        const container = document.getElementById('floatingElements');
-        const numElements = 5;
-
-        for (let i = 0; i < numElements; i++) {
-            const element = document.createElement('div');
-            element.className = 'float-element';
-            element.style.width = `${Math.random() * 100 + 50}px`;
-            element.style.height = element.style.width;
-            element.style.left = `${Math.random() * 100}%`;
-            element.style.top = `${Math.random() * 100}%`;
-
-            container.appendChild(element);
-
-            gsap.to(element, {
-                y: `${Math.random() * 100 - 50}`,
-                x: `${Math.random() * 100 - 50}`,
-                duration: Math.random() * 3 + 2,
-                repeat: -1,
-                yoyo: true,
-                ease: "sine.inOut"
-            });
-        }
-    }
-
-    createFloatingElements();
-
-    // Smooth scroll for navigation
-    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-        anchor.addEventListener('click', function (e) {
-            e.preventDefault();
-            document.querySelector(this.getAttribute('href')).scrollIntoView({
-                behavior: 'smooth'
-            });
-        });
-    });
-</script>
+<script src="/static/js/landingpage.js"></script>
 </body>
 </html>
