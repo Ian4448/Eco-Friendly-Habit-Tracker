@@ -80,7 +80,7 @@ Contributions are welcome! Follow these steps to contribute:
 For any significant changes, please open an issue first to discuss what you would like to change.
 
 ---
-## Demo
+## Video Demo
 <p align="center">
   <a href="https://youtu.be/y_2Pn2S_-DE">
     <img src="https://img.youtube.com/vi/y_2Pn2S_-DE/0.jpg" alt="Watch Demo Video on YouTube">
