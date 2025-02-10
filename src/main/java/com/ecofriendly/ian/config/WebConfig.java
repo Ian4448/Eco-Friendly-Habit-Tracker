@@ -25,6 +25,8 @@ public class WebConfig implements WebMvcConfigurer {
 
         registry.addInterceptor(authenticationInterceptor)
                 .addPathPatterns("/api/**")  // Protect all API endpoints
+                .addPathPatterns("/home", "/createVehicle")
+                .addPathPatterns("/user", "/edit")
                 .excludePathPatterns(
                         "/api/login",           // Public endpoints
                         "/api/addCustomer"

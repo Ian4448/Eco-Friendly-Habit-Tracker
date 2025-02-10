@@ -310,6 +310,29 @@ function selectTransport(mode) {
         option.classList.remove('active');
     });
     document.querySelector(`[data-mode="${mode}"]`).classList.add('active');
+
+    // Clear any existing error message
+    const tripResult = document.getElementById('trip-result');
+    tripResult.style.display = 'none';
+
+    // If car is selected but no vehicles exist, show error
+    if (mode === 'car') {
+        const vehicleList = document.getElementById('vehicleList');
+        const hasVehicles = vehicleList.querySelector('.vehicle-item') !== null;
+
+        if (!hasVehicles) {
+            tripResult.innerHTML = `
+                <div style="color: #dc2626">⚠️ You need to add a vehicle first to use car mode</div>
+                <a href="/createVehicle" style="display: inline-block; margin-top: 12px; padding: 8px 16px; background: #22c55e; color: white; text-decoration: none; border-radius: 8px;">
+                    Add a Vehicle
+                </a>
+            `;
+            tripResult.style.display = 'block';
+            document.getElementById('confirm-trip').disabled = true;
+            return;
+        }
+    }
+
     checkCalculateEnabled();
 }
 
@@ -318,7 +341,16 @@ function checkCalculateEnabled() {
     const endInput = document.getElementById('end-location').value;
     const confirmButton = document.getElementById('confirm-trip');
 
-    confirmButton.disabled = !(startInput && endInput && selectedTransport);
+    let isEnabled = startInput && endInput && selectedTransport;
+
+    // For car mode, also check if there's a vehicle
+    if (selectedTransport === 'car') {
+        const vehicleList = document.getElementById('vehicleList');
+        const hasVehicles = vehicleList.querySelector('.vehicle-item') !== null;
+        isEnabled = isEnabled && hasVehicles;
+    }
+
+    confirmButton.disabled = !isEnabled;
 }
 
 function calculateTrip() {
@@ -491,59 +523,75 @@ async function loadVehicles() {
 
         if (!vehicles || vehicles.length === 0) {
             vehicleList.innerHTML = `
-                    <div class="empty-state">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <path d="M19 17h2c.6 0 1-.4 1-1v-3c0-.9-.7-1.7-1.5-1.9C18.7 10.6 16 10 16 10s-1.3-1.4-2.2-2.3c-.5-.4-1.1-.7-1.8-.7H5c-.6 0-1.1.4-1.4.9l-1.4 2.9A3.7 3.7 0 0 0 2 12v4c0 .6.4 1 1 1h2"/>
-                            <circle cx="7" cy="17" r="2"/>
-                            <circle cx="17" cy="17" r="2"/>
-                        </svg>
-                        <p>No vehicles found</p>
-                        <a href="/createVehicle">Add Your First Vehicle</a>
-                    </div>
-                `;
-            return;
-        }
-
-        vehicleList.innerHTML = vehicles.map(vehicle => `
-                <div class="vehicle-item" data-vehicle-name="${vehicle.name}">
-                    <svg class="vehicle-item-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <div style="text-align: center; padding: 24px; background: #f9fafb; border-radius: 12px; border: 1px solid #e5e7eb;">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#22c55e" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                         <path d="M19 17h2c.6 0 1-.4 1-1v-3c0-.9-.7-1.7-1.5-1.9C18.7 10.6 16 10 16 10s-1.3-1.4-2.2-2.3c-.5-.4-1.1-.7-1.8-.7H5c-.6 0-1.1.4-1.4.9l-1.4 2.9A3.7 3.7 0 0 0 2 12v4c0 .6.4 1 1 1h2"/>
                         <circle cx="7" cy="17" r="2"/>
                         <circle cx="17" cy="17" r="2"/>
                     </svg>
-                    <span class="vehicle-item-name">${vehicle.name}</span>
-                    <button class="delete-button" onclick="deleteVehicle('${vehicle.name}', event)">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <path d="M3 6h18"></path>
-                            <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"></path>
-                            <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"></path>
+                    <p style="margin: 16px 0; color: #374151;">Add your first vehicle to start tracking car trips</p>
+                    <a href="/createVehicle" style="display: inline-flex; align-items: center; gap: 8px; padding: 12px 20px; background: #22c55e; color: white; text-decoration: none; border-radius: 8px; font-weight: 500;">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <line x1="12" y1="5" x2="12" y2="19"></line>
+                            <line x1="5" y1="12" x2="19" y2="12"></line>
                         </svg>
-                    </button>
+                        Add Vehicle
+                    </a>
                 </div>
-            `).join('');
+            `;
 
-        // Add click handlers
+            // If car mode is selected, ensure calculate button is disabled
+            if (selectedTransport === 'car') {
+                document.getElementById('confirm-trip').disabled = true;
+                const tripResult = document.getElementById('trip-result');
+                tripResult.innerHTML = `
+                    <div style="color: #dc2626">⚠️ You need to add a vehicle first to use car mode</div>
+                    <a href="/createVehicle" style="display: inline-block; margin-top: 12px; padding: 8px 16px; background: #22c55e; color: white; text-decoration: none; border-radius: 8px;">
+                        Add a Vehicle
+                    </a>
+                `;
+                tripResult.style.display = 'block';
+            }
+            return;
+        }
+
+        // Rest of your existing vehicle loading code...
+        vehicleList.innerHTML = vehicles.map(vehicle => `
+            <div class="vehicle-item" data-vehicle-name="${vehicle.name}">
+                <svg class="vehicle-item-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M19 17h2c.6 0 1-.4 1-1v-3c0-.9-.7-1.7-1.5-1.9C18.7 10.6 16 10 16 10s-1.3-1.4-2.2-2.3c-.5-.4-1.1-.7-1.8-.7H5c-.6 0-1.1.4-1.4.9l-1.4 2.9A3.7 3.7 0 0 0 2 12v4c0 .6.4 1 1 1h2"/>
+                    <circle cx="7" cy="17" r="2"/>
+                    <circle cx="17" cy="17" r="2"/>
+                </svg>
+                <span class="vehicle-item-name">${vehicle.name}</span>
+                <button class="delete-button" onclick="deleteVehicle('${vehicle.name}', event)">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M3 6h18"></path>
+                        <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"></path>
+                        <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"></path>
+                    </svg>
+                </button>
+            </div>
+        `).join('');
+
+        // Add click handlers for vehicles
         document.querySelectorAll('.vehicle-item').forEach(item => {
             item.addEventListener('click', function() {
                 document.querySelectorAll('.vehicle-item').forEach(i => i.classList.remove('active'));
                 this.classList.add('active');
                 activeVehicle = this.dataset.vehicleName;
-                if (selectedTransport === 'car') {
-                    checkCalculateEnabled();
-                }
             });
         });
 
-        // Automatically select the first vehicle if available
-        if (vehicles.length > 0) {
-            const firstVehicleItem = vehicleList.querySelector('.vehicle-item');
-            firstVehicleItem.classList.add('active');
-            activeVehicle = vehicles[0].name;
-            // If car is selected as transport, check if calculate should be enabled
-            if (selectedTransport === 'car') {
-                checkCalculateEnabled();
-            }
+        // Select first vehicle by default
+        const firstVehicle = vehicleList.querySelector('.vehicle-item');
+        if (firstVehicle) {
+            firstVehicle.classList.add('active');
+            activeVehicle = firstVehicle.dataset.vehicleName;
         }
+
+        // Check if calculate should be enabled
+        checkCalculateEnabled();
     } catch (error) {
         console.error('Error loading vehicles:', error);
     }
