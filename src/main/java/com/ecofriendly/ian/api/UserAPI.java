@@ -102,6 +102,24 @@ public class UserAPI {
                 .build();
     }
 
+    /**
+     * Updates a user's carbon emission log and distance traveled based on their transportation choice.
+     * This endpoint processes an emission request by retrieving the user and their vehicle,
+     * calculating the carbon emission for the given distance, and updating the user's emission
+     * and distance records accordingly.
+     *
+     * <p>If the user or vehicle is not found, it returns a 404 NOT FOUND response.
+     * If there is any other issue with processing the request, it returns a 400 BAD REQUEST response.</p>
+     *
+     * @param request the {@link EmissionRequest} containing user ID, vehicle name,
+     *                distance traveled, and transportation type.
+     * @return {@link ResponseEntity} with status:
+     *         <ul>
+     *           <li>200 OK if the emission and distance are successfully logged.</li>
+     *           <li>404 NOT FOUND if the user or vehicle does not exist.</li>
+     *           <li>400 BAD REQUEST for any other processing errors.</li>
+     *         </ul>
+     */
     @PutMapping("/api/modifyUserEmission")
     public ResponseEntity<Object> logUserEmissionAndDistanceCount(@RequestBody EmissionRequest request) {
         boolean goodChoice = request.getTransportation() != TransportationType.CAR;
