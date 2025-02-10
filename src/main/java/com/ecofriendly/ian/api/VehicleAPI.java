@@ -35,7 +35,7 @@ public class VehicleAPI {
      * @return a {@link ResponseEntity} containing the added vehicle if successful, or an error message if
      *         the request fails validation or encounters an internal error
      */
-    @PostMapping("/addVehicle")
+    @PostMapping("/api/addVehicle")
     public ResponseEntity<?> addVehicle(@CookieValue(value = "auth_token", required = false) String token, @RequestBody Vehicle vehicle) {
         try {
             User user = userService.getUserByToken(token);
@@ -68,7 +68,7 @@ public class VehicleAPI {
         }
     }
 
-    @GetMapping("/getVehicles")
+    @GetMapping("/api/getVehicles")
     public List<Vehicle> getVehicles(@CookieValue(value = "auth_token", required = false) String token) {
         try {
             User user = userService.getUserByToken(token); // Get the user by token
@@ -79,7 +79,7 @@ public class VehicleAPI {
         return null;
     }
 
-    @DeleteMapping("/deleteVehicle")
+    @DeleteMapping("/api/deleteVehicle")
     public void deleteVehicle(@CookieValue(value = "auth_token", required = false) String token, @RequestParam String vehicleName) {
         try {
             User user = userService.getUserByToken(token);

@@ -1,5 +1,7 @@
 package com.ecofriendly.ian.model;
 
+import com.ecofriendly.ian.model.enums.TrackingPeriod;
+import com.ecofriendly.ian.model.enums.TransportationType;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;

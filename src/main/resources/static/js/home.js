@@ -485,7 +485,7 @@ async function updateProfileLink() {
 }
 async function loadVehicles() {
     try {
-        const response = await fetch('/getVehicles');
+        const response = await fetch('/api/getVehicles');
         const vehicles = await response.json();
         const vehicleList = document.getElementById('vehicleList');
 
@@ -553,7 +553,7 @@ async function deleteVehicle(vehicleName, event) {
     event.stopPropagation();
     if (confirm(`Are you sure you want to delete ${vehicleName}?`)) {
         try {
-            await fetch(`/deleteVehicle?vehicleName=${encodeURIComponent(vehicleName)}`, {
+            await fetch(`/api/deleteVehicle?vehicleName=${encodeURIComponent(vehicleName)}`, {
                 method: 'DELETE'
             });
             loadVehicles(); // Reload the list

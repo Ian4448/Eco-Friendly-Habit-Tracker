@@ -1,8 +1,9 @@
 package com.ecofriendly.ian.service;
 
 import com.ecofriendly.ian.dao.UserDAO;
-import com.ecofriendly.ian.exceptions.UserNotFoundException;
 import com.ecofriendly.ian.model.*;
+import com.ecofriendly.ian.model.enums.TrackingPeriod;
+import com.ecofriendly.ian.model.enums.TransportationType;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 

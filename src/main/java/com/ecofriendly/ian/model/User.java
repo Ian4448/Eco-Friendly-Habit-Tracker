@@ -1,6 +1,7 @@
 // User.java
 package com.ecofriendly.ian.model;
 
+import com.ecofriendly.ian.model.enums.UserRole;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -29,12 +30,17 @@ public class User {
     @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
     private Emission emission;
 
-    public User(String email, String firstName, String lastName, List<Vehicle> vehicles, Emission emission) {
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private UserRole role = UserRole.USER;
+
+    public User(String email, String firstName, String lastName, List<Vehicle> vehicles, Emission emission, UserRole role) {
         this.email = email;
         this.firstName = firstName;
         this.lastName = lastName;
         this.vehicles = vehicles;
         this.emission = emission;
+        this.role = role;
     }
 
     public User() {}

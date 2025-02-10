@@ -4,6 +4,7 @@ import com.ecofriendly.ian.exceptions.UserNotFoundException;
 import com.ecofriendly.ian.model.Emission;
 import com.ecofriendly.ian.model.User;
 import com.ecofriendly.ian.model.Vehicle;
+import com.ecofriendly.ian.model.enums.UserRole;
 import com.ecofriendly.ian.service.UserService;
 import com.ecofriendly.ian.service.VehicleService;
 import org.junit.jupiter.api.BeforeEach;
@@ -41,7 +42,7 @@ class VehicleAPITest {
     @BeforeEach
     void setUp() {
         MockitoAnnotations.openMocks(this);
-        user = new User("test@example.com", "FirstName", "LastName", new ArrayList<>(), new Emission());
+        user = new User("test@example.com", "FirstName", "LastName", new ArrayList<>(), new Emission(), UserRole.USER);
         vehicle = new Vehicle("make", "model", "vehicleName", 30, user);
     }
 

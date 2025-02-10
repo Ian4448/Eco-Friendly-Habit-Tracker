@@ -8,6 +8,7 @@ import com.ecofriendly.ian.dao.UserDAO;
 import com.ecofriendly.ian.dao.VehicleDAO;
 import com.ecofriendly.ian.exceptions.InvalidVehicleException;
 import com.ecofriendly.ian.model.Vehicle;
+import com.ecofriendly.ian.model.enums.UserRole;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -42,7 +43,7 @@ class VehicleServiceTest {
     @BeforeEach
     public void setUp() {
         vehicleId = UUID.randomUUID();
-        user = new User("emailfortesting@example.com", "firstNameTest", "lastNameTest", new ArrayList<>(), new Emission());
+        user = new User("emailfortesting@example.com", "firstNameTest", "lastNameTest", new ArrayList<>(), new Emission(), UserRole.USER);
         vehicle = new Vehicle("make", "model", "name", 45, user);
         vehicle.setVehicleId(vehicleId);
         user.getVehicles().add(vehicle);

@@ -2,6 +2,8 @@ package com.ecofriendly.ian.api;
 
 import com.ecofriendly.ian.exceptions.UserNotFoundException;
 import com.ecofriendly.ian.model.*;
+import com.ecofriendly.ian.model.enums.TransportationType;
+import com.ecofriendly.ian.model.enums.UserRole;
 import com.ecofriendly.ian.service.EmissionService;
 import com.ecofriendly.ian.service.UserService;
 import jakarta.servlet.http.Cookie;
@@ -53,7 +55,7 @@ class UserAPITest {
     void addUser_ShouldReturnSavedUser_WhenSuccessful() {
         // Arrange
         Emission emission = new Emission();
-        User inputUser = new User("test@example.com", "FirstName", "LastName", new ArrayList<>(), emission);
+        User inputUser = new User("test@example.com", "FirstName", "LastName", new ArrayList<>(), emission, UserRole.USER);
         lenient().when(userService.addUser(userCaptor.capture())).thenAnswer(invocation -> {
             User capturedUser = userCaptor.getValue();
             capturedUser.setId(1L);
@@ -78,7 +80,7 @@ class UserAPITest {
     void addUser_ShouldReturnNullUser_WhenUserServiceFails() {
         // Arrange
         Emission emission = new Emission();
-        User inputUser = new User("test@example.com", "FirstName", "LastName", new ArrayList<>(), emission);
+        User inputUser = new User("test@example.com", "FirstName", "LastName", new ArrayList<>(), emission, UserRole.USER);
         lenient().when(userService.addUser(userCaptor.capture())).thenReturn(null);
 
         // Act
@@ -95,7 +97,7 @@ class UserAPITest {
     void addUser_ShouldHandleException_WhenUserServiceThrowsException() {
         // Arrange
         Emission emission = new Emission();
-        User inputUser = new User("test@example.com", "FirstName", "LastName", new ArrayList<>(), emission);
+        User inputUser = new User("test@example.com", "FirstName", "LastName", new ArrayList<>(), emission, UserRole.USER);
         lenient().when(userService.addUser(userCaptor.capture())).thenThrow(new RuntimeException("Database error"));
 
         // Act & Assert
@@ -115,11 +117,11 @@ class UserAPITest {
     void updateUser_ShouldUpdateAndReturnUser_WhenSuccessful() throws UserNotFoundException {
         // Arrange
         String userId = "1";
-        User currentUser = new User("current@test.com", "Current", "User", new ArrayList<>(), new Emission());
+        User currentUser = new User("current@test.com", "Current", "User", new ArrayList<>(), new Emission(), UserRole.USER);
         currentUser.setId(1L);
 
-        User updatedUserDetails = new User(null, "Updated", "User", new ArrayList<>(), new Emission());
-        User expectedUser = new User("current@test.com", "Updated", "User", new ArrayList<>(), new Emission());
+        User updatedUserDetails = new User(null, "Updated", "User", new ArrayList<>(), new Emission(), UserRole.USER);
+        User expectedUser = new User("current@test.com", "Updated", "User", new ArrayList<>(), new Emission(), UserRole.USER);
         expectedUser.setId(1L);
 
         when(userService.getUserById(1L)).thenReturn(currentUser);
@@ -141,7 +143,7 @@ class UserAPITest {
     void updateUser_ShouldThrowException_WhenUserNotFound() throws UserNotFoundException {
         // Arrange
         String userId = "1";
-        User updatedUserDetails = new User(null, "Updated", "User", new ArrayList<>(), new Emission());
+        User updatedUserDetails = new User(null, "Updated", "User", new ArrayList<>(), new Emission(), UserRole.USER);
 
         when(userService.getUserById(1L)).thenThrow(new UserNotFoundException("User not found with ID: 1"));
 
@@ -160,7 +162,7 @@ class UserAPITest {
     void updateUser_ShouldThrowException_WhenInvalidUserId() throws UserNotFoundException {
         // Arrange
         String userId = "invalid";
-        User updatedUserDetails = new User(null, "Updated", "User", new ArrayList<>(), new Emission());
+        User updatedUserDetails = new User(null, "Updated", "User", new ArrayList<>(), new Emission(), UserRole.USER);
 
         // Act & Assert
         NumberFormatException exception = assertThrows(
@@ -176,10 +178,10 @@ class UserAPITest {
     void updateUser_ShouldHandleUpdateFailure() throws UserNotFoundException {
         // Arrange
         String userId = "1";
-        User currentUser = new User("current@test.com", "Current", "User", new ArrayList<>(), new Emission());
+        User currentUser = new User("current@test.com", "Current", "User", new ArrayList<>(), new Emission(), UserRole.USER);
         currentUser.setId(1L);
 
-        User updatedUserDetails = new User(null, "Updated", "User", new ArrayList<>(), new Emission());
+        User updatedUserDetails = new User(null, "Updated", "User", new ArrayList<>(), new Emission(), UserRole.USER);
 
         when(userService.getUserById(1L)).thenReturn(currentUser);
         when(userService.updateUser(eq(currentUser.getEmail()), any(User.class)))
@@ -200,8 +202,8 @@ class UserAPITest {
     void getUsers_ShouldReturnAllUsers_WhenSuccessful() {
         // Arrange
         List<User> expectedUsers = Arrays.asList(
-                new User("user1@test.com", "User", "One", new ArrayList<>(), new Emission()),
-                new User("user2@test.com", "User", "Two", new ArrayList<>(), new Emission())
+                new User("user1@test.com", "User", "One", new ArrayList<>(), new Emission(), UserRole.USER),
+                new User("user2@test.com", "User", "Two", new ArrayList<>(), new Emission(), UserRole.USER)
         );
         when(userService.getAllUsers()).thenReturn(expectedUsers);
 
@@ -234,7 +236,7 @@ class UserAPITest {
     void deleteUser_ShouldDeleteUser_WhenUserExists() throws UserNotFoundException {
         // Arrange
         String email = "test@example.com";
-        User userToDelete = new User(email, "Test", "User", new ArrayList<>(), new Emission());
+        User userToDelete = new User(email, "Test", "User", new ArrayList<>(), new Emission(), UserRole.USER);
         when(userService.getUserByEmail(email)).thenReturn(userToDelete);
         doNothing().when(userService).deleteUser(userToDelete);
 
@@ -264,7 +266,7 @@ class UserAPITest {
     void getUserById_ShouldReturnUserDTO_WhenUserExists() throws UserNotFoundException {
         // Arrange
         Long userId = 1L;
-        User user = new User("test@example.com", "Test", "User", new ArrayList<>(), new Emission());
+        User user = new User("test@example.com", "Test", "User", new ArrayList<>(), new Emission(), UserRole.USER);
         user.setId(userId);
 
         when(userService.getUserById(userId)).thenReturn(user);
@@ -343,7 +345,7 @@ class UserAPITest {
         request.setDistanceTravelled(distance);
         request.setTransportation(TransportationType.CAR);
 
-        User user = new User("test@example.com", "Test", "User", new ArrayList<>(), new Emission());
+        User user = new User("test@example.com", "Test", "User", new ArrayList<>(), new Emission(), UserRole.USER);
         Vehicle vehicle = new Vehicle();
         vehicle.setName(vehicleName);
         user.setVehicles(Collections.singletonList(vehicle));
@@ -387,7 +389,7 @@ class UserAPITest {
         request.setUserId(1L);
         request.setVehicleName("Nonexistent Car");
 
-        User user = new User("test@example.com", "Test", "User", new ArrayList<>(), new Emission());
+        User user = new User("test@example.com", "Test", "User", new ArrayList<>(), new Emission(), UserRole.USER);
         when(userService.getUserById(1L)).thenReturn(user);
 
         // Act
@@ -401,7 +403,7 @@ class UserAPITest {
     void getUserEmissionData_ShouldReturnEmissionData_WhenUserExists() throws UserNotFoundException {
         // Arrange
         Long userId = 1L;
-        User user = new User("test@example.com", "Test", "User", new ArrayList<>(), new Emission());
+        User user = new User("test@example.com", "Test", "User", new ArrayList<>(), new Emission(), UserRole.USER);
         Emission emission = new Emission();
         user.setEmission(emission);
 

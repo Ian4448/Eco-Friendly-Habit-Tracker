@@ -3,6 +3,7 @@ package com.ecofriendly.ian.api;
 import com.ecofriendly.ian.exceptions.UserNotFoundException;
 import com.ecofriendly.ian.exceptions.VehicleNotFoundException;
 import com.ecofriendly.ian.model.*;
+import com.ecofriendly.ian.model.enums.TransportationType;
 import com.ecofriendly.ian.service.EmissionService;
 import com.ecofriendly.ian.service.UserService;
 import jakarta.servlet.http.Cookie;
@@ -89,8 +90,8 @@ public class UserAPI {
             for (Cookie cookie : cookies) {
                 if ("auth_token".equals(cookie.getName())) {
                     cookie.setMaxAge(0);
-                    cookie.setPath("/");  // This is important!
-                    response.addCookie(cookie);  // Need to add to response
+                    cookie.setPath("/");
+                    response.addCookie(cookie);
                     logger.info("Deleted auth_token cookie");
                 }
             }

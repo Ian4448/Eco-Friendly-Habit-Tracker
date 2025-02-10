@@ -2,6 +2,9 @@ package com.ecofriendly.ian.service;
 
 import com.ecofriendly.ian.dao.UserDAO;
 import com.ecofriendly.ian.model.*;
+import com.ecofriendly.ian.model.enums.TrackingPeriod;
+import com.ecofriendly.ian.model.enums.TransportationType;
+import com.ecofriendly.ian.model.enums.UserRole;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -34,7 +37,7 @@ class EmissionServiceTest {
     @BeforeEach
     void setUp() {
         testEmission = new Emission();
-        testUser = new User("test@example.com", "Test", "User", null, testEmission);
+        testUser = new User("test@example.com", "Test", "User", null, testEmission, UserRole.USER);
     }
 
     @Test
@@ -227,6 +230,6 @@ class EmissionServiceTest {
         emission.setWeeklyDistanceTravelled(distance);
         emission.setDailyDistanceTravelled(distance);
 
-        return new User("test@example.com", "Test", "User", null, emission);
+        return new User("test@example.com", "Test", "User", null, emission, UserRole.USER);
     }
 }

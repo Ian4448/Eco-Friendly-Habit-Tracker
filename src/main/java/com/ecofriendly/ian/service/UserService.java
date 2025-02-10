@@ -4,6 +4,7 @@ import com.ecofriendly.ian.dao.TokenDAO;
 import com.ecofriendly.ian.dao.UserDAO;
 import com.ecofriendly.ian.exceptions.UserNotFoundException;
 import com.ecofriendly.ian.model.*;
+import com.ecofriendly.ian.model.enums.UserRole;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Component;
 
@@ -25,6 +26,7 @@ public class UserService {
     public User addUser(User user) {
         user.setVehicles(new CopyOnWriteArrayList<>());
         user.setEmission(new Emission(user));
+        user.setRole(UserRole.USER);
         return userDAO.save(user);
     }
 

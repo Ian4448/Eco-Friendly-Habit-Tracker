@@ -4,6 +4,7 @@ import com.ecofriendly.ian.dao.TokenDAO;
 import com.ecofriendly.ian.dao.UserDAO;
 import com.ecofriendly.ian.exceptions.UserNotFoundException;
 import com.ecofriendly.ian.model.*;
+import com.ecofriendly.ian.model.enums.UserRole;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -35,7 +36,7 @@ class UserServiceTest {
 
     @BeforeEach
     void setUp() {
-        user = new User("emailfortesting@example.com", "firstNameTest", "lastNameTest", new ArrayList<>(), new Emission());
+        user = new User("emailfortesting@example.com", "firstNameTest", "lastNameTest", new ArrayList<>(), new Emission(), UserRole.USER);
         user.setId(1L);
     }
 
@@ -127,7 +128,7 @@ class UserServiceTest {
         when(userDAO.findByEmail(user.getEmail())).thenReturn(Optional.of(user));
         when(userDAO.save(any(User.class))).thenAnswer(i -> i.getArgument(0));
 
-        User updatedDetails = new User(user.getEmail(), "newFirstName", "newLastName", new ArrayList<>(), new Emission());
+        User updatedDetails = new User(user.getEmail(), "newFirstName", "newLastName", new ArrayList<>(), new Emission(), UserRole.USER);
 
         // Act
         User newUser = userService.updateUser(user.getEmail(), updatedDetails);

@@ -49,7 +49,7 @@ document.getElementById("vehicleForm").onsubmit = function (event) {
     const formData = new FormData(this);
     const vehicleData = Object.fromEntries(formData);
 
-    fetch('/addVehicle', {
+    fetch('/api/addVehicle', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(vehicleData)
@@ -88,7 +88,7 @@ document.getElementById("vehicleForm").onsubmit = function (event) {
 
 function deleteVehicle(vehicleName) {
     if (confirm('Are you sure you want to delete this vehicle?')) {
-        fetch(`/deleteVehicle?vehicleName=${encodeURIComponent(vehicleName)}`, {
+        fetch(`/api/deleteVehicle?vehicleName=${encodeURIComponent(vehicleName)}`, {
             method: 'DELETE'
         })
             .then((response) => {
@@ -161,7 +161,7 @@ function updateUserDisplay(displayName) {
 }
 
 function fetchVehicles() {
-    fetch('/getVehicles')
+    fetch('/api/getVehicles')
         .then((response) => response.json())
         .then((vehicles) => {
             const vehicleList = document.getElementById('vehicleList');
